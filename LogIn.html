@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMS Login</title>
+    <script src="Forgot_Pass.js" defer></script>
+    <link rel="stylesheet" href="LogIn.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+<div class="container">
+
+    <!-- Left Side -->
+    <div class="left-panel">
+        <div class="logo">
+            <i class="fas fa-users"></i>
+            <span>WAP v1.0</span>
+        </div>
+
+        <!-- Left-Content -->
+        <div class="content">
+            <h1>Workforce<br>Analytics Platform</h1>
+            <div class="line"></div>  <!-- Decorative line -->
+            <p>Connect. Analyze. Grow.</p>
+            
+            <!-- Left-Side Features -->
+            <div class="features">
+
+<!--Feature 1-->    <div class="feature">
+                    <i class="fas fa-shield-alt"></i>
+                    <div>
+                        <h3>Secure</h3>
+                        <p>Role Based Access (RBAC)</p>
+                    </div>
+                </div>
+
+<!--Feature 2-->    <div class="feature">
+                    <i class="fas fa-chart-line"></i>
+                    <div>
+                        <h3>Smart</h3>
+                        <p>Intelligent Analytics</p>
+                    </div>
+                </div>
+
+<!--Feature 3-->    <div class="feature">
+                    <i class="fas fa-clock"></i>
+                    <div>
+                        <h3>Efficient</h3>
+                        <p>Seamless Operations</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Side -->
+    <div class="right-panel">
+
+        <!-- Login Card -->
+        <div class="login-card">
+            <div class="slider-container">
+                
+                <!-- LOGIN FORM -->
+                <div class="form-slide login-slide">
+                    <div class="avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <h2>Welcome Back!</h2>
+            <p class="subtitle"><b> Sign in to continue to your dashboard </b></p>
+
+            <form method="post">
+                <div class="input-box">
+                    <i class="fas fa-envelope"></i>
+                    <input type="text" placeholder="Employee ID/Email" required>
+                </div>
+
+                <div class="input-box">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" placeholder="Enter your password" required>
+                </div>
+
+                <div class="links-row">
+                    <a href="#" onclick="goToSlide(1)">Forgot Password?</a>
+                    <a href="#">New Organization?</a>
+                </div>
+
+                <button type="submit"> Sign In </button>
+            </form>
+        </div>
+
+        <!-- FORGOT PASSWORD FORM -->
+        <div class="form-slide forgot-slide">
+
+            <div class="avatar">
+                <i class="fas fa-key"></i>
+            </div>
+            <h2>Reset Password</h2>
+            <p class="subtitle"><b> Enter your registered email address </b></p>
+
+            <form method="post">
+                <div class="input-box">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="resetpass" placeholder="Enter your email" required>
+                </div>
+
+                <div class="links-row">
+                    <a href="#" onclick="goToSlide(0)"> ← Back to Login </a>
+                </div>
+
+                <button type="button" onclick="goToOTP()"> Send OTP </button>
+            </form>
+        </div>
+
+        <!-- OTP VERIFICATION CARD -->
+        <div class="form-slide otp-slide">
+            <div class="avatar">
+                <i class="fas fa-envelope-open-text"></i>
+            </div>
+
+            <h2>OTP Verification</h2>
+            <p class="subtitle"><b> Enter the 6-digit OTP sent to your email </b></p>
+            <div class="otp-container">
+                <input type="text" maxlength="1" class="otp-input">
+                <input type="text" maxlength="1" class="otp-input">
+                <input type="text" maxlength="1" class="otp-input">
+                <input type="text" maxlength="1" class="otp-input">
+                <input type="text" maxlength="1" class="otp-input">
+                <input type="text" maxlength="1" class="otp-input">
+                </div>
+            <button type="button"> Verify OTP </button>
+        </div>
+    </div>
+</div>
+</body>
+</html>

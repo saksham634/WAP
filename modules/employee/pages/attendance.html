@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard</title>
+    <link rel="stylesheet" href="/shared/css/variables.css">
+    <link rel="stylesheet" href="/shared/css/global.css">
+    <link rel="stylesheet" href="/shared/css/layout.css">
+    <link rel="stylesheet" href="/shared/css/animations.css">
+    <link rel="stylesheet" href="/shared/css/sidebar.css">
+    <link rel="stylesheet" href="/shared/css/header.css">
+    <link rel="stylesheet" href="/shared/css/cards.css">
+    <link rel="stylesheet" href="/shared/css/buttons.css">
+    <link rel="stylesheet" href="/shared/css/forms.css">
+    <link rel="stylesheet" href="/shared/css/tables.css">
+    <link rel="stylesheet" href="/shared/css/badges.css">
+    <link rel="stylesheet" href="/shared/css/components.css">
+    <link rel="stylesheet" href="/shared/css/utilities.css">
+    <link rel="stylesheet" href="../styles/attendance.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="/shared/js/layout-loader.js" defer></script>   <!-- Global Sidebar Loader -->
+    <script src="../js/attendance.js" defer></script>
+</head>
+<body>
+<div class="dashboard-container">
+    
+    <!-- Global Sidebar Injected here -->
+    <div id="global-sidebar"></div>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- TOP HEADER -->
+        <section class="top-header">
+
+            <!-- Greeting -->
+            <div class="welcome-section">
+                <h1>Good Morning, Freak</h1>
+                <p>Hope you are having a great day!</p>
+            </div>
+
+            <!-- Day Card -->
+            <div class="day-card">
+                <div class="day-box">
+                    <i class="fa-regular fa-calendar"></i>
+                    <div>
+                        <span class="label">Day & Date</span>
+                        <h3 id="currentDate">
+                            Friday, 27 June 2026
+                        </h3>
+                    </div>
+                </div>
+                <hr>
+                <div class="time-box">
+                    <i class="fa-regular fa-clock"></i>
+                    <div>
+                        <span class="label">
+                            Live Time
+                        </span>
+
+                        <h2 id="liveClock">
+                            09:42:18 AM
+                        </h2>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile -->
+            <div class="profile-card">
+                <img src="../Images/profile.jpg" alt="Profile">
+                <h3>Freak</h3>
+                <span>Software Engineer</span>
+            </div>
+        </section>
+
+        <!-- KPI SECTION -->
+        <section class="kpi-section">
+            <div class="kpi-card attendance">
+
+                <div class="icon">
+                    <i class="fa-solid fa-user-check"></i>
+                </div>
+
+                <div>
+                    <h4>Attendance</h4>
+                    <h2>94%</h2>
+                    <small>+3% this month</small>
+                </div>
+            </div>
+
+            <div class="kpi-card leaves">
+                <div class="icon">
+                    <i class="fa-solid fa-calendar-xmark"></i>
+                </div>
+
+                <div>
+                    <h4>Leaves Taken</h4>
+                    <h2>4</h2>
+                    <small>This Year</small>
+                </div>
+            </div>
+
+            <div class="kpi-card balance">
+                <div class="icon">
+                    <i class="fa-solid fa-calendar-plus"></i>
+                </div>
+
+                <div>
+                    <h4>Balance Leaves</h4>
+                    <h2>12</h2>
+                    <small>Remaining</small>
+                </div>
+            </div>
+
+            <div class="kpi-card status">
+                <div class="icon">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+
+                <div>
+                    <h4>Today's Status</h4>
+                    <h2>Checked In</h2>
+                    <small>Working</small>
+                </div>
+            </div>
+        </section>
+
+        <!-- BOTTOM SECTION -->
+        <section class="bottom-section">
+
+            <!-- Attendance Calendar -->
+            <div class="calendar-card">
+                <div class="card-header">
+                    <h2>Attendance Calendar</h2>
+                </div>
+
+                <div id="attendanceCalendar">
+                    <!-- calendar.js -->
+                </div>
+            </div>
+
+            <!-- Right Panel -->
+            <aside class="right-panel">
+
+                <!-- Holidays -->
+                <div class="holiday-card">
+                    <h3>Upcoming Holidays</h3>
+                    <div id="holidayList">
+                        <!-- holidays.js -->
+                    </div>
+                </div>
+
+                <!-- Leaves -->
+                <div class="leave-card">
+                    <h3>Upcoming Leaves</h3>
+                    <div id="leaveList">
+                        <!-- leaves.js -->
+                    </div>
+                </div>
+            </aside>
+        </section>
+    </main>
+</div>
+</body>
+</html>

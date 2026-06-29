@@ -1,0 +1,73 @@
+/* Generic */
+button{
+    font-family:inherit;
+}
+
+button:hover{
+    cursor:pointer;
+}
+
+/* Profile Menu */
+.profile-menu{
+    width:36px;
+    height:36px;
+    border:none;
+    background:#fff;
+    border-radius:10px;
+    box-shadow:var(--shadow);
+    transition:var(--transition);
+}
+
+.profile-menu:hover{
+    transform:translateY(-2px);
+}
+
+/* Dashboard Filter Button */
+.filter-button{
+    border:none;
+    background:#eef8f8;
+    color:var(--primary);
+    padding:10px 16px;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:14px;
+    font-weight:600;
+    transition:var(--transition);
+}
+
+.filter-button:hover{
+    background:#def4f4;
+}
+
+/* Edit Buttons */
+.edit-btn{
+    background:#eef8f8;
+    border:none;
+    padding:8px 12px;
+    border-radius:10px;
+    font-size:13px;
+    color:var(--primary);
+    display:flex;
+    align-items:center;
+    gap:6px;
+    transition:var(--transition);
+}
+
+.edit-btn:hover{
+    background:#def4f4;
+}
+
+/* View All */
+.view-all{
+    text-decoration:none;
+    color:var(--primary);
+    font-size:14px;
+    font-weight:600;
+    transition:var(--transition);
+}
+
+.view-all:hover{
+    opacity:.8;
+}

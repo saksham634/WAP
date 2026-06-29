@@ -1,0 +1,197 @@
+/*==================================================
+                    SIDEBAR
+==================================================*/
+
+.sidebar{
+    width:300px;
+    height:100vh;
+    flex-shrink:0;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+
+    background:linear-gradient(180deg,#007a7a,#00a3a3);
+
+    color:#fff;
+
+    padding:28px;
+
+    animation:slideIn .35s ease-out;
+}
+
+/*==================================================
+                ENTRY ANIMATION
+==================================================*/
+
+@keyframes slideIn{
+
+    from{
+
+        transform:translateX(-20px);
+        opacity:0;
+
+    }
+
+    to{
+
+        transform:translateX(0);
+        opacity:1;
+
+    }
+
+}
+
+/*==================================================
+                TOP SECTION
+==================================================*/
+
+.sidebar-top{
+
+    display:flex;
+    flex-direction:column;
+
+}
+
+/*==================================================
+                    LOGO
+==================================================*/
+
+.logo{
+
+    display:flex;
+    align-items:center;
+    gap:15px;
+
+    margin-bottom:60px;
+
+}
+
+.logo-icon{
+
+    width:58px;
+    height:58px;
+
+    border-radius:16px;
+
+    background:rgba(255,255,255,.16);
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    font-size:24px;
+
+}
+
+.logo-text h2{
+
+    font-size:26px;
+    font-weight:700;
+
+}
+
+.logo-text span{
+
+    font-size:13px;
+    opacity:.9;
+
+}
+
+/*==================================================
+                MENU
+==================================================*/
+
+.sidebar-menu ul,
+.sidebar-bottom ul{
+
+    list-style:none;
+    padding:0;
+    margin:0;
+
+}
+
+.sidebar-menu li,
+.sidebar-bottom li{
+
+    margin-bottom:12px;
+
+}
+
+.sidebar-menu a,
+.sidebar-bottom a{
+
+    text-decoration:none;
+
+    color:#fff;
+
+    display:flex;
+    align-items:center;
+
+    gap:15px;
+
+    padding:15px 18px;
+
+    border-radius:14px;
+
+    font-size:16px;
+    font-weight:500;
+
+    transition:background .2s ease,
+               color .2s ease;
+
+}
+
+.sidebar-menu a i,
+.sidebar-bottom a i{
+
+    width:22px;
+    text-align:center;
+
+}
+
+/*==================================================
+                HOVER
+==================================================*/
+
+.sidebar-menu a:hover,
+.sidebar-bottom a:hover{
+
+    background:rgba(255,255,255,.12);
+
+}
+
+/*==================================================
+                ACTIVE
+==================================================*/
+
+.sidebar-menu li.active a{
+
+    background:#fff;
+
+    color:#007a7a;
+
+    font-weight:600;
+
+}
+
+/*==================================================
+                CLICK
+==================================================*/
+
+.sidebar-menu a:active,
+.sidebar-bottom a:active{
+
+    background:rgba(255,255,255,.18);
+
+}
+
+/*==================================================
+                BOTTOM SECTION
+==================================================*/
+
+.sidebar-bottom{
+
+    margin-top:auto;
+
+}

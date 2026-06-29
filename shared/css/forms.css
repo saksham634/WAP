@@ -1,0 +1,41 @@
+.leave-form{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+}
+
+.leave-form .form-row{
+    display:flex;
+    gap:12px;
+}
+
+.leave-form input,
+.leave-form select,
+.leave-form textarea{
+    width:100%;
+    padding:12px;
+    border-radius:12px;
+    border:1px solid var(--border);
+    font-family:inherit;
+    font-size:14px;
+    outline:none;
+}
+
+.leave-form textarea{
+    height:60px;
+    resize:none;
+}
+
+.leave-form button{
+    padding:12px;
+    border:none;
+    border-radius:12px;
+    background:var(--primary);
+    color:#fff;
+    font-weight:600;
+    transition:var(--transition);
+}
+
+.leave-form button:hover{
+    background:var(--primary-light);
+}

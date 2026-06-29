@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard</title>
+    <link rel="stylesheet" href="/shared/css/variables.css">
+    <link rel="stylesheet" href="/shared/css/global.css">
+    <link rel="stylesheet" href="/shared/css/layout.css">
+    <link rel="stylesheet" href="/shared/css/animations.css">
+    <link rel="stylesheet" href="/shared/css/sidebar.css">
+    <link rel="stylesheet" href="/shared/css/header.css">
+    <link rel="stylesheet" href="/shared/css/cards.css">
+    <link rel="stylesheet" href="/shared/css/buttons.css">
+    <link rel="stylesheet" href="/shared/css/forms.css">
+    <link rel="stylesheet" href="/shared/css/tables.css">
+    <link rel="stylesheet" href="/shared/css/badges.css">
+    <link rel="stylesheet" href="/shared/css/components.css">
+    <link rel="stylesheet" href="/shared/css/utilities.css">
+    <link rel="stylesheet" href="../styles/leave.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="/shared/js/layout-loader.js" defer></script>   <!-- Global Sidebar Loader -->
+    <script src="../js/leaves.js" defer></script>
+</head>
+<body>
+<div class="dashboard-container">
+    <!-- Global Sidebar Injected here -->
+    <div id="global-sidebar"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <!-- PAGE HEADER -->
+        <div class="page-header">
+            <div class="welcome-section">
+                <h1>Leave Management</h1>
+                <p>Track, apply and manage your leaves</p>
+            </div>
+
+            <div class="profile-section">
+                <div class="profile-avatar">F</div>
+                <div class="profile-details">
+                    <h3>Freak</h3>
+                    <span>Software Engineer</span>
+                </div>
+
+                <button class="profile-menu">
+                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- TOP SECTION -->
+        <section class="top-section">
+
+            <!-- LEFT PANEL -->
+            <div class="left-panel">
+
+                <!-- LEAVE SUMMARY -->
+                <div class="card leave-summary-card">
+                    <div class="card-header">
+                        <div>
+                            <h2>Leave Summary</h2>
+                            <p>Your current leave status</p>
+                        </div>
+                    </div>
+
+                    <div class="leave-grid">
+
+                        <div class="leave-box">
+                            <h3>12</h3>
+                            <span>Total Leaves</span>
+                        </div>
+
+                        <div class="leave-box">
+                            <h3>5</h3>
+                            <span>Used</span>
+                        </div>
+
+                        <div class="leave-box">
+                            <h3>7</h3>
+                            <span>Remaining</span>
+                        </div>
+
+                        <div class="leave-box">
+                            <h3>2</h3>
+                            <span>Pending</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- APPLY LEAVE -->
+                <div class="card apply-leave-card">
+                    <div class="card-header">
+                        <div>
+                            <h2>Apply Leave</h2>
+                        </div>
+                    </div>
+
+                    <form class="leave-form">
+
+                        <div class="form-row">
+                            <input type="date">
+                            <input type="date">
+                        </div>
+
+                        <select>
+                            <option>Casual Leave</option>
+                            <option>Annual Leave</option>
+                            <option>Sick Leave</option>
+                        </select>
+
+                        <textarea class="reasonarea" placeholder="Reason for leave..."></textarea>
+                        <button type="submit">Submit Request</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL -->
+            <div class="right-panel">
+
+                <!-- UPCOMING LEAVES -->
+                <div class="card upcoming-leaves-card">
+                    <div class="card-header">
+                        <div>
+                            <h2>Upcoming Leaves</h2>
+                            <p>Approved & pending leaves</p>
+                        </div>
+                    </div>
+
+                    <div class="leave-list">
+                        <div class="leave-item">
+                            <div class="leave-date">
+                                <h3>05</h3>
+                                <span>JUL</span>
+                            </div>
+
+                            <div class="leave-content">
+                                <h4>Casual Leave</h4>
+                                <p>Approved</p>
+                            </div>
+                        </div>
+
+                        <div class="leave-item">
+                            <div class="leave-date">
+                                <h3>18</h3>
+                                <span>JUL</span>
+                            </div>
+
+                            <div class="leave-content">
+                                <h4>Annual Leave</h4>
+                                <p>Pending Approval</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

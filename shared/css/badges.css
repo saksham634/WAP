@@ -1,0 +1,9 @@
+.ok{
+    color:green;
+    font-weight:600;
+}
+
+.bad{
+    color:red;
+    font-weight:600;
+}

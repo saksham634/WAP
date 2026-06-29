@@ -1,0 +1,226 @@
+/* Top Section */
+.top-section{
+    flex:1;
+    display:flex;
+    gap:24px;
+    min-height:0;
+}
+
+/* Left Panel */
+.left-panel{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:24px;
+    min-width:0;
+}
+
+/* Right Panel */
+.right-panel{
+    flex:0 0 360px;
+    display:flex;
+    flex-direction:column;
+    gap:24px;
+    min-height:0;
+}
+
+.updates-card,
+.events-card{
+    flex:1;
+    min-height:0;
+}
+
+/* Attendance Card */
+.attendance-card{
+    flex:1;
+    min-height:0;
+}
+
+.chart-container{
+    flex:1;
+    position:relative;
+    min-height:0;
+}
+
+/* Team Updates */
+#teamUpdatesContainer{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+    flex:1;
+}
+
+.update-item{
+    display:flex;
+    align-items:flex-start;
+    gap:14px;
+    padding-bottom:16px;
+    border-bottom:1px solid var(--border);
+}
+
+.update-item:last-child{
+    border-bottom:none;
+    padding-bottom:0;
+}
+
+.update-icon{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    background:#eef8f8;
+    color:var(--primary);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-shrink:0;
+}
+
+.update-content{
+    flex:1;
+}
+
+.update-content h4{
+    font-size:15px;
+    font-weight:600;
+    margin-bottom:4px;
+}
+
+.update-content p{
+    font-size:13px;
+    color:var(--text-light);
+    line-height:1.5;
+}
+
+/* Upcoming Events */
+#eventsContainer{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+    flex:1;
+}
+
+.event-item{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    padding-bottom:16px;
+    border-bottom:1px solid var(--border);
+}
+
+.event-item:last-child{
+    border-bottom:none;
+    padding-bottom:0;
+}
+
+.event-date{
+    width:56px;
+    height:56px;
+    border-radius:14px;
+    background:#eef8f8;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    color:var(--primary);
+    flex-shrink:0;
+}
+
+.event-date h3{
+    font-size:20px;
+    line-height:1;
+}
+
+.event-date span{
+    font-size:11px;
+    font-weight:600;
+    margin-top:2px;
+}
+
+.event-content{
+    flex:1;
+}
+
+.event-content h4{
+    font-size:15px;
+    margin-bottom:4px;
+}
+
+.event-content p{
+    font-size:13px;
+    color:var(--text-light);
+}
+
+/* Recent Activity */
+.activity-card{
+    height:220px;
+    flex-shrink:0;
+}
+
+#activityContainer{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+}
+
+.activity-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding-bottom:14px;
+    border-bottom:1px solid var(--border);
+}
+
+.activity-item:last-child{
+    border-bottom:none;
+    padding-bottom:0;
+}
+
+.activity-left{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.activity-icon{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    background:#eef8f8;
+    color:var(--primary);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-shrink:0;
+}
+
+.activity-title{
+    font-size:15px;
+    font-weight:600;
+}
+
+.activity-time{
+    font-size:14px;
+    color:var(--text-light);
+}
+
+/* Responsive */
+@media(max-width:1200px){
+    .right-panel{
+        flex:1;
+    }
+
+    .updates-card,
+    .events-card{
+        min-height:260px;
+    }
+
+    .activity-card{
+        height:auto;
+    }
+}
+
+@media(max-width:768px){
+}
+
+@media(max-width:600px){
+}

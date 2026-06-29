@@ -1,0 +1,46 @@
+/* Leave Summary */
+.leave-summary-card{
+    flex:0 0 auto;
+}
+
+.leave-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+}
+
+.leave-box{
+    background:#eef8f8;
+    padding:18px;
+    border-radius:14px;
+    text-align:center;
+    transition:var(--transition);
+}
+
+.leave-box:hover{
+    transform:translateY(-3px);
+    background:#def4f4;
+}
+
+.leave-box h3{
+    font-size:24px;
+    color:var(--primary);
+    margin-bottom:6px;
+}
+
+.leave-box span{
+    font-size:13px;
+    color:var(--text-light);
+}
+
+/* Apply Leave Form */
+.leave-form{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+}
+
+.leave-form .form-row{
+    display:flex;
+    gap:12px;
+}

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard</title>
+    <link rel="stylesheet" href="/shared/css/variables.css">
+    <link rel="stylesheet" href="/shared/css/global.css">
+    <link rel="stylesheet" href="/shared/css/layout.css">
+    <link rel="stylesheet" href="/shared/css/animations.css">
+    <link rel="stylesheet" href="/shared/css/sidebar.css">
+    <link rel="stylesheet" href="/shared/css/header.css">
+    <link rel="stylesheet" href="/shared/css/cards.css">
+    <link rel="stylesheet" href="/shared/css/buttons.css">
+    <link rel="stylesheet" href="/shared/css/forms.css">
+    <link rel="stylesheet" href="/shared/css/tables.css">
+    <link rel="stylesheet" href="/shared/css/badges.css">
+    <link rel="stylesheet" href="/shared/css/components.css">
+    <link rel="stylesheet" href="/shared/css/utilities.css">
+    <link rel="stylesheet" href="../styles/payroll.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="/shared/js/layout-loader.js" defer></script>   <!-- Global Sidebar Loader -->
+    <script src="../js/dashboard.js" defer></script>
+</head>
+<body>
+<div class="dashboard-container">
+
+    <!-- Global Sidebar Injected here -->
+    <div id="global-sidebar"></div>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="main-content">
+
+        <!-- PAGE HEADER -->
+        <div class="page-header">
+            <div class="welcome-section">
+                <h1>Salary & Payslips</h1>
+                <p>View your salary breakdown and download payslips</p>
+            </div>
+
+            <div class="profile-section">
+                <div class="profile-avatar">F</div>
+                <div class="profile-details">
+                    <h3>Freak</h3>
+                    <span>Software Engineer</span>
+                </div>
+
+                <button class="profile-menu">
+                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- TOP SECTION -->
+        <section class="top-section">
+
+            <!-- LEFT PANEL -->
+            <div class="left-panel">
+
+                <!-- SALARY OVERVIEW -->
+                <div class="card salary-overview-card">
+                    <div class="card-header">
+                        <div>
+                            <h2>Monthly Salary</h2>
+                            <p>Breakdown of your earnings</p>
+                        </div>
+                    </div>
+
+                    <div class="salary-grid">
+
+                        <div class="salary-box">
+                            <h3>₹85,000</h3>
+                            <span>Basic Salary</span>
+                        </div>
+
+                        <div class="salary-box">
+                            <h3>₹15,000</h3>
+                            <span>Allowances</span>
+                        </div>
+
+                        <div class="salary-box">
+                            <h3>₹5,000</h3>
+                            <span>Deductions</span>
+                        </div>
+
+                        <div class="salary-box highlight">
+                            <h3>₹95,000</h3>
+                            <span>Net Salary</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PAYSLIPS LIST -->
+                <div class="card payslip-card">
+                    <div class="card-header">
+                        <div>
+                            <h2>Payslips</h2>
+                            <p>Download your monthly salary slips</p>
+                        </div>
+                    </div>
+
+                    <div class="payslip-list">
+                        <div class="payslip-item">
+                            <div>
+                                <h4>June 2026</h4>
+                                <p>₹95,000 • Generated</p>
+                            </div>
+
+                            <button>Download</button>
+                        </div>
+
+                        <div class="payslip-item">
+                            <div>
+                                <h4>May 2026</h4>
+                                <p>₹92,000 • Downloaded</p>
+                            </div>
+
+                            <button>Download</button>
+                        </div>
+
+                        <div class="payslip-item">
+                            <div>
+                                <h4>April 2026</h4>
+                                <p>₹90,500 • Downloaded</p>
+                            </div>
+
+                            <button>Download</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL -->
+            <div class="right-panel">
+
+                <!-- SALARY INFO CARD -->
+                <div class="card salary-info-card">
+                    <div class="card-header">
+                        <div>
+                            <h2>Salary Info</h2>
+                            <p>Employment compensation details</p>
+                        </div>
+                    </div>
+
+                    <div class="salary-info">
+                        <div class="info-row">
+                            <span>Designation</span>
+                            <b>Software Engineer</b>
+                        </div>
+
+                        <div class="info-row">
+                            <span>Department</span>
+                            <b>IT</b>
+                        </div>
+
+                        <div class="info-row">
+                            <span>Pay Cycle</span>
+                            <b>Monthly</b>
+                        </div>
+
+                        <div class="info-row">
+                            <span>Bonus Eligible</span>
+                            <b>Yes</b>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

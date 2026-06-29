@@ -1,5 +1,4 @@
 <aside class="sidebar">
-
     <div class="sidebar-top">
 
         <!-- LOGO -->
@@ -17,36 +16,39 @@
         <!-- MENU -->
         <nav class="sidebar-menu">
             <ul>
-                <li class="active">
-                    <a href="./dashboard.html">
+                <li>
+                    <!--data page is used to store data or hidden information and also allows embeding private,
+                     custom data directly into standard HTML elements without affecting how the page looks.
+                     JavaScript can then pull this data to create dynamic behavious-->
+                    <a href="./dashboard.html" data-page="dashboard">
                         <i class="fa-solid fa-house"></i>
                         <span>Dashboard</span>
                     </a>
                 </li>
 
                 <li>
-                    <a href="./attendance.html">
+                    <a href="./attendance.html" data-page="attendance">
                         <i class="fa-solid fa-calendar-check"></i>
                         <span>Attendance</span>
                     </a>
                 </li>
 
                 <li>
-                    <a href="./leave.html">
+                    <a href="./leave.html" data-page="leave">
                         <i class="fa-solid fa-calendar-days"></i>
                         <span>Leave Management</span>
                     </a>
                 </li>
 
                 <li>
-                    <a href="./payroll.html">
+                    <a href="./payroll.html" data-page="payroll">
                         <i class="fa-solid fa-wallet"></i>
                         <span>Payroll</span>
                     </a>
                 </li>
 
                 <li>
-                    <a href="./personal-info.html">
+                    <a href="./personal-info.html" data-page="personal-info">
                         <i class="fa-solid fa-user"></i>
                         <span>Personal Info</span>
                     </a>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="../../../shared/css/variables.css">
+    <link rel="stylesheet" href="../../../shared/css/global.css">
+    <link rel="stylesheet" href="../../../shared/css/layout.css">
+    <link rel="stylesheet" href="../../../shared/css/animations.css">
+    <link rel="stylesheet" href="../../../shared/css/sidebar.css">
+    <link rel="stylesheet" href="../../../shared/css/header.css">
+    <link rel="stylesheet" href="../../../shared/css/cards.css">
+    <link rel="stylesheet" href="../../../shared/css/buttons.css">
+    <link rel="stylesheet" href="../../../shared/css/forms.css">
+    <link rel="stylesheet" href="../../../shared/css/tables.css">
+    <link rel="stylesheet" href="../../../shared/css/badges.css">
+    <link rel="stylesheet" href="../../../shared/css/components.css">
+    <link rel="stylesheet" href="../../../shared/css/utilities.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../../../shared/js/layout-loader.js" defer></script>   <!-- Global Sidebar Loader -->
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Global Sidebar Injected here -->
+        <div id="global-sidebar" data-sidebar="admin"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Header -->
+            <header class="page-header">
+                <div class="welcome-section">
+                    <h1>Welcome Freak,</h1>
+                    <p>Here's your workforce overview for today.</p>
+                </div>
+
+                <div class="profile-section">
+                    <div class="profile-avatar">
+                        JD
+                    </div>
+
+                    <div class="profile-details">
+                        <h3>Freak</h3>
+                        <span>Software Engineer</span>
+                    </div>
+
+                    <button class="profile-menu">
+                        <ix class="fa-solid fa-chevron-down"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard -->
+            <section class="top-section">
+
+                <!-- Left Panel -->
+                <div class="left-panel">
+
+                    <!-- Attendance Trend -->
+                    <section class="card attendance-card">
+                        <div class="card-header">
+                            <div>
+                                <h2>Attendance Trend</h2>
+                                <p>Weekly Attendance Overview</p>
+                            </div>
+
+                            <button class="filter-button">
+                                This Week
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </button>
+                        </div>
+
+                        <div class="chart-container">
+                            <canvas id="attendanceChart"></canvas>
+                        </div>
+                    </section>
+
+                    <!-- Recent Activity -->
+                    <section class="card activity-card">
+                        <div class="card-header">
+                            <h2>Recent Activity</h2>
+                            <a href="#" class="view-all">View All</a>
+                        </div>
+                        <div id="activityContainer"></div>
+                    </section>
+
+                </div>
+
+                <!-- Right Panel -->
+                <div class="right-panel">
+
+                    <!-- Team Updates -->
+                    <section class="card updates-card">
+                        <div class="card-header">
+                            <h2>Team Updates</h2>
+                        </div>
+                        <div id="teamUpdatesContainer"></div>
+                    </section>
+
+                    <!-- Upcoming Events -->
+                    <section class="card events-card">
+                        <div class="card-header">
+                            <h2>Upcoming Events</h2>
+                        </div>
+                        <div id="eventsContainer"></div>
+                    </section>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

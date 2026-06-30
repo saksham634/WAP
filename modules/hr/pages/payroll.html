@@ -3,13 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HR Payroll - WAP</title>
-    <link rel="stylesheet" href="../styles/dashboard.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Payroll</title>
+    <link rel="stylesheet" href="../../../shared/css/variables.css">
+    <link rel="stylesheet" href="../../../shared/css/global.css">
+    <link rel="stylesheet" href="../../../shared/css/layout.css">
+    <link rel="stylesheet" href="../../../shared/css/animations.css">
+    <link rel="stylesheet" href="../../../shared/css/sidebar.css">
+    <link rel="stylesheet" href="../../../shared/css/header.css">
+    <link rel="stylesheet" href="../../../shared/css/cards.css">
+    <link rel="stylesheet" href="../../../shared/css/buttons.css">
+    <link rel="stylesheet" href="../../../shared/css/forms.css">
+    <link rel="stylesheet" href="../../../shared/css/tables.css">
+    <link rel="stylesheet" href="../../../shared/css/badges.css">
+    <link rel="stylesheet" href="../../../shared/css/components.css">
+    <link rel="stylesheet" href="../../../shared/css/utilities.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../../../shared/js/layout-loader.js" defer></script>   <!-- Global Sidebar Loader -->
 </head>
 <body>
     <div class="dashboard-container">
-        <div id="global-sidebar"></div>
+        <div id="global-sidebar" data-sidebar="hr"></div>
 
         <main class="main-content">
             <header class="page-header">
@@ -44,6 +58,5 @@
             </div>
         </main>
     </div>
-    <script src="../js/payroll.js"></script>
 </body>
 </html>

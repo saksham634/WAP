@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Leave Management - WAP</title>
+    <link rel="stylesheet" href="../styles/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <div id="global-sidebar"></div>
+
+        <main class="main-content">
+            <header class="page-header">
+                <div class="welcome-section">
+                    <h1>Leave Requests</h1>
+                    <p>Review and manage employee time-off applications.</p>
+                </div>
+                <div class="profile-section">
+                    <div class="profile-avatar">HR</div>
+                </div>
+            </header>
+
+            <div class="top-section">
+                <div class="left-panel">
+                    <div class="card flex-1">
+                        <div class="card-header">
+                            <h2>Pending Approvals</h2>
+                        </div>
+                        
+                        <div class="info-row align-center" style="padding: 20px 0;">
+                            <div class="d-flex align-center" style="gap: 15px;">
+                                <div class="event-date">
+                                    <h3>05</h3>
+                                    <span>JUL</span>
+                                </div>
+                                <div>
+                                    <h4 style="font-size: 15px; margin-bottom: 4px;">Casual Leave • 2 Days</h4>
+                                    <span style="font-size: 13px; color: var(--text-light);">Requested by: Amit Kumar (IT)</span>
+                                </div>
+                            </div>
+                            <div class="d-flex" style="gap: 10px;">
+                                <button class="filter-button" style="background: #dc2626; color: white;">Reject</button>
+                                <button class="filter-button" style="background: #007a7a; color: white;">Approve</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="../js/leave.js"></script>
+</body>
+</html>

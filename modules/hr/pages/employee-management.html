@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Management - WAP</title>
+    <link rel="stylesheet" href="../styles/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <div id="global-sidebar"></div>
+
+        <main class="main-content">
+            <header class="page-header">
+                <div class="welcome-section">
+                    <h1>Employee Management</h1>
+                    <p>View, add, and manage the organization's workforce.</p>
+                </div>
+                <div class="profile-section">
+                    <button class="profile-menu"><i class="fa-solid fa-bell"></i></button>
+                    <div class="profile-avatar">HR</div>
+                    <div class="profile-details">
+                        <h3>Saksham Sharma</h3>
+                        <span>HR Manager</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="top-section">
+                <div class="left-panel">
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <h2>Active Staff Directory</h2>
+                                <p>142 Total Employees</p>
+                            </div>
+                            <button class="filter-button"><i class="fa-solid fa-user-plus" style="margin-right: 8px;"></i> Add New</button>
+                        </div>
+                        
+                        <div class="info-row align-center">
+                            <div class="d-flex align-center" style="gap: 15px;">
+                                <div class="profile-avatar" style="width: 40px; height: 40px; font-size: 14px;">JD</div>
+                                <div>
+                                    <h4 style="font-size: 15px; margin-bottom: 2px;">John Doe</h4>
+                                    <span style="font-size: 13px; color: var(--text-light);">EMP-1024 • Software Engineer</span>
+                                </div>
+                            </div>
+                            <span style="color: #007a7a; font-weight: 600; background: #eef8f8; padding: 6px 12px; border-radius: 8px;">Active</span>
+                        </div>
+
+                        <div class="info-row align-center">
+                            <div class="d-flex align-center" style="gap: 15px;">
+                                <div class="profile-avatar" style="width: 40px; height: 40px; font-size: 14px; background: #666;">AS</div>
+                                <div>
+                                    <h4 style="font-size: 15px; margin-bottom: 2px;">Aarav Sharma</h4>
+                                    <span style="font-size: 13px; color: var(--text-light);">EMP-1025 • Cloud Architect</span>
+                                </div>
+                            </div>
+                            <span style="color: #007a7a; font-weight: 600; background: #eef8f8; padding: 6px 12px; border-radius: 8px;">Active</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="right-panel">
+                    <div class="card flex-1">
+                        <div class="card-header">
+                            <h2>Quick Actions</h2>
+                        </div>
+                        <div class="status-list">
+                            <button class="filter-button w-100 justify-between" style="padding: 15px;">
+                                <span><i class="fa-solid fa-file-contract" style="margin-right: 8px;"></i> Generate Contracts</span>
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                            <button class="filter-button w-100 justify-between" style="padding: 15px;">
+                                <span><i class="fa-solid fa-sitemap" style="margin-right: 8px;"></i> Department Config</span>
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="../js/employee-management.js"></script>
+</body>
+</html>

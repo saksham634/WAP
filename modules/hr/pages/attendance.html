@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Attendance - WAP</title>
+    <link rel="stylesheet" href="../styles/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <div id="global-sidebar"></div>
+
+        <main class="main-content">
+            <header class="page-header">
+                <div class="welcome-section">
+                    <h1>Attendance Overview</h1>
+                    <p>Monitor daily check-ins and organizational attendance health.</p>
+                </div>
+                <div class="profile-section">
+                    <div class="profile-avatar">HR</div>
+                    <div class="profile-details">
+                        <h3>Saksham Sharma</h3>
+                        <span>HR Manager</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="top-section">
+                <div class="left-panel">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                        <div class="card text-center" style="padding: 20px;">
+                            <h2 style="color: var(--primary); font-size: 32px;">94%</h2>
+                            <p style="font-size: 14px; margin-top: 5px;">Today's Attendance</p>
+                        </div>
+                        <div class="card text-center" style="padding: 20px;">
+                            <h2 style="color: #d97706; font-size: 32px;">12</h2>
+                            <p style="font-size: 14px; margin-top: 5px;">On Leave Today</p>
+                        </div>
+                        <div class="card text-center" style="padding: 20px;">
+                            <h2 style="color: #dc2626; font-size: 32px;">04</h2>
+                            <p style="font-size: 14px; margin-top: 5px;">Late Arrivals</p>
+                        </div>
+                    </div>
+
+                    <div class="card flex-1">
+                        <div class="card-header">
+                            <h2>Live Attendance Feed</h2>
+                        </div>
+                        <div class="info-row align-center">
+                            <span style="font-weight: 500;">EMP-1024 (John Doe)</span>
+                            <span style="color: #007a7a;"><i class="fa-solid fa-clock"></i> Checked In - 09:02 AM</span>
+                        </div>
+                        <div class="info-row align-center">
+                            <span style="font-weight: 500;">EMP-1025 (Aarav Sharma)</span>
+                            <span style="color: #007a7a;"><i class="fa-solid fa-clock"></i> Checked In - 09:15 AM</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="../js/attendance.js"></script>
+</body>
+</html>

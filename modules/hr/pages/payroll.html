@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Payroll - WAP</title>
+    <link rel="stylesheet" href="../styles/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <div id="global-sidebar"></div>
+
+        <main class="main-content">
+            <header class="page-header">
+                <div class="welcome-section">
+                    <h1>Payroll Administration</h1>
+                    <p>Manage company salaries, bonuses, and slips.</p>
+                </div>
+                <div class="profile-section">
+                    <div class="profile-avatar">HR</div>
+                </div>
+            </header>
+
+            <div class="top-section">
+                <div class="left-panel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Current Pay Cycle (June 2026)</h2>
+                            <button class="filter-button"><i class="fa-solid fa-play" style="margin-right: 8px;"></i> Run Payroll</button>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="chart-placeholder" style="height: 100px; flex-direction: column;">
+                                <h2 style="font-size: 24px;">₹ 12,45,000</h2>
+                                <span style="font-size: 13px;">Total Basic Salary</span>
+                            </div>
+                            <div class="chart-placeholder" style="height: 100px; flex-direction: column; background: var(--primary); color: white;">
+                                <h2 style="font-size: 24px;">₹ 14,80,000</h2>
+                                <span style="font-size: 13px; color: rgba(255,255,255,0.8);">Total Net Payout</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="../js/payroll.js"></script>
+</body>
+</html>

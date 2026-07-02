@@ -1,0 +1,143 @@
+/* ==========================================================
+   TODAY'S MEETINGS
+========================================================== */
+
+.meeting-list{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+    flex:1;
+}
+
+/* ==========================================================
+   MEETING ITEM
+========================================================== */
+
+.meeting-item{
+    display:flex;
+    align-items:flex-start;
+    gap:16px;
+    padding:16px;
+    border:1px solid var(--border);
+    border-radius:16px;
+    background:var(--surface);
+    transition:all .25s ease;
+}
+
+.meeting-item:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 20px rgba(0,0,0,.06);
+    border-color:var(--primary);
+}
+
+/* ==========================================================
+   TIME BADGE
+========================================================== */
+
+.meeting-time{
+    width:68px;
+    min-width:68px;
+    height:68px;
+    border-radius:16px;
+    background:rgba(52,152,219,.10);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    color:var(--primary);
+}
+
+.meeting-time .time{
+    font-size:1rem;
+    font-weight:700;
+    line-height:1.2;
+}
+
+.meeting-time .period{
+    font-size:.72rem;
+    font-weight:600;
+    text-transform:uppercase;
+    opacity:.75;
+    margin-top:2px;
+}
+
+/* ==========================================================
+   MEETING DETAILS
+========================================================== */
+
+.meeting-details{
+    flex:1;
+    min-width:0;
+}
+
+.meeting-title{
+    margin:0;
+    font-size:1rem;
+    font-weight:600;
+    color:var(--text-primary);
+}
+
+.meeting-location{
+    margin:6px 0;
+    font-size:.88rem;
+    color:var(--text-secondary);
+}
+
+.meeting-participants{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-top:10px;
+    flex-wrap:wrap;
+}
+
+/* ==========================================================
+   PARTICIPANT AVATARS
+========================================================== */
+
+.participant{
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    background:linear-gradient(
+        135deg,
+        var(--primary),
+        var(--primary-dark)
+    );
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:.75rem;
+    font-weight:700;
+    border:2px solid var(--surface);
+}
+
+.participant-count{
+    font-size:.8rem;
+    font-weight:600;
+    color:var(--text-secondary);
+    margin-left:4px;
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width:768px){
+
+    .meeting-item{
+        padding:14px;
+    }
+
+    .meeting-time{
+        width:60px;
+        min-width:60px;
+        height:60px;
+    }
+
+    .meeting-time .time{
+        font-size:.9rem;
+    }
+
+}

@@ -1,0 +1,101 @@
+/* Layout */
+.layout{
+    display:grid;
+    grid-template-columns:260px 1fr;
+    width:100vw;
+    height:100vh;
+    overflow:hidden;
+}
+
+/* Main Content */
+.main-content{
+    display:flex;
+    flex-direction:column;
+    flex:1;
+    min-width:0;
+    height:100vh;
+    padding:22px;
+    overflow:hidden;
+    background:var(--background);
+}
+
+/* Page Content */
+.page-content{
+    display:flex;
+    flex-direction:column;
+    flex:1;
+    min-width:0;
+    min-height:0;
+    gap:18px;
+}
+
+/* Page Section */
+.page-section{
+    display:flex;
+    flex-direction:column;
+    min-width:0;
+    min-height:0;
+}
+
+/* Content Row */
+.content-row{
+    display:flex;
+    gap:18px;
+    min-width:0;
+    min-height:0;
+}
+
+/* Content Column */
+.content-column{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+    flex:1;
+    min-width:0;
+    min-height:0;
+}
+
+/* Fill Available Space */
+.flex-1{
+    flex:1;
+    min-width:0;
+    min-height:0;
+}
+
+/* Auto Height */
+.flex-auto{
+    flex:0 0 auto;
+}
+
+/* Scroll Area */
+.scroll-area{
+    flex:1;
+    min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+}
+
+/* Responsive */
+@media (max-width:992px){
+    .layout{
+        grid-template-columns:220px 1fr;
+    }
+
+    .main-content{
+        padding:18px;
+    }
+}
+
+@media (max-width:768px){
+    .layout{
+        grid-template-columns:80px 1fr;
+    }
+
+    .main-content{
+        padding:16px;
+    }
+
+    .content-row{
+        flex-direction:column;
+    }
+}

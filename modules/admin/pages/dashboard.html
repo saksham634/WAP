@@ -3,112 +3,236 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Admin | Dashboard</title>
+
+    <!-- Shared CSS -->
     <link rel="stylesheet" href="../../../shared/css/variables.css">
     <link rel="stylesheet" href="../../../shared/css/global.css">
     <link rel="stylesheet" href="../../../shared/css/layout.css">
+    <link rel="stylesheet" href="../../../shared/css/utilities.css">
     <link rel="stylesheet" href="../../../shared/css/animations.css">
+
+    <!-- Shared Components -->
     <link rel="stylesheet" href="../../../shared/css/sidebar.css">
     <link rel="stylesheet" href="../../../shared/css/header.css">
-    <link rel="stylesheet" href="../../../shared/css/cards.css">
+    <!-- <link rel="stylesheet" href="../../../shared/css/cards.css"> -->
     <link rel="stylesheet" href="../../../shared/css/buttons.css">
     <link rel="stylesheet" href="../../../shared/css/forms.css">
     <link rel="stylesheet" href="../../../shared/css/tables.css">
     <link rel="stylesheet" href="../../../shared/css/badges.css">
     <link rel="stylesheet" href="../../../shared/css/components.css">
-    <link rel="stylesheet" href="../../../shared/css/utilities.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <!-- Admin Base CSS -->
+    <link rel="stylesheet" href="../styles/base-styles/layout.css">
+    <link rel="stylesheet" href="../styles/base-styles/header.css">
+    <link rel="stylesheet" href="../styles/base-styles/search.css">
+    <link rel="stylesheet" href="../styles/base-styles/profile.css">
+    <link rel="stylesheet" href="../styles/base-styles/card.css">
+    <link rel="stylesheet" href="../styles/base-styles/kpi.css">
+    <link rel="stylesheet" href="../styles/base-styles/filter.css">
+    <link rel="stylesheet" href="../styles/base-styles/status.css">
+
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet" href="../styles/dashboard.css">
+
+    <!-- Icons -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <!-- Charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="../../../shared/js/layout-loader.js" defer></script>   <!-- Global Sidebar Loader -->
+
+    <!-- Shared Layout Loader -->
+    <script src="../../../shared/js/layout-loader.js" defer></script>
+
 </head>
 <body>
-    <div class="dashboard-container">
-        <!-- Global Sidebar Injected here -->
+    <div class="layout">
         <div id="global-sidebar" data-sidebar="admin"></div>
 
         <!-- Main Content -->
         <main class="main-content">
+            <div class="page-content">
 
-            <!-- Header -->
-            <header class="page-header">
-                <div class="welcome-section">
-                    <h1>Welcome Freak,</h1>
-                    <p>Here's your workforce overview for today.</p>
-                </div>
-
-                <div class="profile-section">
-                    <div class="profile-avatar">
-                        JD
+                <!-- Header -->
+                <header class="page-header">
+                    <div class="header-left">
+                        <h1>Good Morning, Admin</h1>
+                        <p>Here's what's happening in your organization today.</p>
                     </div>
 
-                    <div class="profile-details">
-                        <h3>Freak</h3>
-                        <span>Software Engineer</span>
-                    </div>
-
-                    <button class="profile-menu">
-                        <ix class="fa-solid fa-chevron-down"></i>
-                    </button>
-                </div>
-            </header>
-
-            <!-- Dashboard -->
-            <section class="top-section">
-
-                <!-- Left Panel -->
-                <div class="left-panel">
-
-                    <!-- Attendance Trend -->
-                    <section class="card attendance-card">
-                        <div class="card-header">
-                            <div>
-                                <h2>Attendance Trend</h2>
-                                <p>Weekly Attendance Overview</p>
-                            </div>
-
-                            <button class="filter-button">
-                                This Week
-                                <i class="fa-solid fa-chevron-down"></i>
-                            </button>
+                    <div class="header-right">
+                        <div class="search-box">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" placeholder="Search anything...">
                         </div>
 
-                        <div class="chart-container">
+                        <button class="notification-btn">
+                            <i class="fa-regular fa-bell"></i>
+                            <span class="notification-count">3</span>
+                        </button>
+
+                        <div class="profile-menu">
+                            <img src="../../../assests/icons/avatar.png" alt="Admin">
+                            <span>Admin</span>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- KPI Grid -->
+                <section class="kpi-grid">
+                    <div class="card card-compact kpi-card">
+                        <div class="kpi-icon kpi-primary">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+
+                        <div class="kpi-content">
+                            <span class="kpi-title">Total Employees</span>
+                            <h2 class="kpi-value">245</h2>
+                            <span class="kpi-change status-success">
+                                <i class="fa-solid fa-arrow-up"></i>
+                                12 from last month
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="card card-compact kpi-card">
+                        <div class="kpi-icon kpi-success">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+
+                        <div class="kpi-content">
+                            <span class="kpi-title">Present Today</span>
+                            <h2 class="kpi-value">198</h2>
+                            <span class="kpi-change status-success">
+                                <i class="fa-solid fa-arrow-up"></i>
+                                8 from yesterday
+                            </span>
+                        </div>
+
+                    </div>
+                    <div class="card card-compact kpi-card">
+                        <div class="kpi-icon kpi-warning">
+                            <i class="fa-regular fa-clock"></i>
+                        </div>
+
+                        <div class="kpi-content">
+                            <span class="kpi-title">On Leave</span>
+                            <h2 class="kpi-value">18</h2>
+                            <span class="kpi-change status-danger">
+                                <i class="fa-solid fa-arrow-down"></i>
+                                3 from yesterday
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="card card-compact kpi-card">
+                        <div class="kpi-icon kpi-danger">
+                            <i class="fa-solid fa-list-check"></i>
+                        </div>
+
+                        <div class="kpi-content">
+                            <span class="kpi-title">Active Tasks</span>
+                            <h2 class="kpi-value">32</h2>
+
+                            <span class="kpi-change status-success">
+                                <i class="fa-solid fa-arrow-up"></i>
+                                5 from last week
+                            </span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Charts -->
+                <section class="charts-grid">
+                    <div class="card chart-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Attendance Overview</h3>
+                            <select class="filter-select">
+                                <option>Last 7 Days</option>
+                                <option>Last 30 Days</option>
+                                <option>Last Year</option>
+                            </select>
+                        </div>
+
+                        <div class="card-body">
                             <canvas id="attendanceChart"></canvas>
                         </div>
-                    </section>
+                    </div>
 
-                    <!-- Recent Activity -->
-                    <section class="card activity-card">
+                    <div class="card chart-card">
                         <div class="card-header">
-                            <h2>Recent Activity</h2>
-                            <a href="#" class="view-all">View All</a>
+                            <h3 class="card-title">Task Status</h3>
                         </div>
-                        <div id="activityContainer"></div>
-                    </section>
 
+                        <div class="card-body">
+                            <canvas id="taskChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+            <!-- Bottom Grid -->
+            <section class="bottom-grid">
+
+                <!-- Recent Employees -->
+                <div class="card widget-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Employees</h3>
+                        <a href="#" class="card-link">View All</a>
+                    </div>
+
+                    <div class="card-body widget-content">
+                        <!-- Inject Employee Components -->
+                        <div id="recentEmployees" class="employee-list"></div>
+                    </div>
                 </div>
 
-                <!-- Right Panel -->
-                <div class="right-panel">
+                <!-- Recent Activities -->
+                <div class="card widget-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Activities</h3>
+                        <a href="#" class="card-link">View All</a>
+                    </div>
 
-                    <!-- Team Updates -->
-                    <section class="card updates-card">
-                        <div class="card-header">
-                            <h2>Team Updates</h2>
-                        </div>
-                        <div id="teamUpdatesContainer"></div>
-                    </section>
+                    <div class="card-body widget-content">
+                        <!-- Inject Activity Components -->
+                        <div id="recentActivities" class="activity-list"></div>
+                    </div>
+                </div>
 
-                    <!-- Upcoming Events -->
-                    <section class="card events-card">
+                <!-- Right Column -->
+                <div class="right-column">
+
+                    <!-- Today's Meetings -->
+                    <div class="card widget-card">
                         <div class="card-header">
-                            <h2>Upcoming Events</h2>
+                            <h3 class="card-title">Today's Meetings</h3>
+                            <a href="#" class="card-link">Calendar</a>
                         </div>
-                        <div id="eventsContainer"></div>
-                    </section>
+
+                        <div class="card-body widget-content">
+                            <!-- Inject Meeting Components -->
+                            <div id="meetingsList" class="meeting-list"></div>
+                        </div>
+                    </div>
+
+                    <!-- Notifications -->
+                    <div class="card widget-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Notifications</h3>
+                            <a href="#" class="card-link">View All</a>
+                        </div>
+
+                        <div class="card-body widget-content">
+                            <!-- Inject Notification Components -->
+                            <div id="notificationList" class="notification-list"></div>
+                        </div>
+                    </div>
                 </div>
             </section>
-        </main>
-    </div>
+        </div>
+    </main>
+</div>
 </body>
 </html>

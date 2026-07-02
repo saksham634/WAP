@@ -1,0 +1,92 @@
+/* Notification Button */
+.notification-btn{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:46px;
+    height:46px;
+    border:none;
+    outline:none;
+    border-radius:12px;
+    background:var(--surface);
+    color:var(--text-primary);
+    cursor:pointer;
+    transition:.3s;
+}
+
+.notification-btn:hover{
+    background:var(--surface-hover);
+}
+
+.notification-btn i{
+    font-size:1.1rem;
+}
+
+/* Notification Badge */
+.notification-count{
+    position:absolute;
+    top:8px;
+    right:8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    background:var(--danger);
+    color:#fff;
+    font-size:.7rem;
+    font-weight:600;
+}
+
+/* Profile */
+.profile-menu{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:6px 10px 6px 6px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:12px;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.profile-menu:hover{
+    border-color:var(--primary);
+}
+
+/* Avatar */
+.profile-menu img{
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    object-fit:cover;
+}
+
+/* Username */
+.profile-menu span{
+    font-size:.95rem;
+    font-weight:500;
+    color:var(--text-primary);
+    white-space:nowrap;
+}
+
+/* Dropdown Icon */
+.profile-menu .fa-chevron-down{
+    font-size:.8rem;
+    color:var(--text-secondary);
+    transition:.3s;
+}
+
+.profile-menu:hover .fa-chevron-down{
+    transform:rotate(180deg);
+}
+
+/* Responsive */
+@media (max-width:768px){
+    .profile-menu span{
+        display:none;
+    }
+}

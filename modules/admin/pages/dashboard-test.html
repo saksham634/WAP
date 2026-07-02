@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin | Dashboard</title>
+
+    <!-- Shared CSS -->
+    <link rel="stylesheet" href="../../../shared/css/variables.css">
+    <link rel="stylesheet" href="../../../shared/css/global.css">
+    <link rel="stylesheet" href="../../../shared/css/layout.css">
+    <link rel="stylesheet" href="../../../shared/css/utilities.css">
+    <link rel="stylesheet" href="../../../shared/css/animations.css">
+
+    <!-- Shared Components -->
+    <link rel="stylesheet" href="../../../shared/css/sidebar.css">
+    <link rel="stylesheet" href="../../../shared/css/header.css">
+    <link rel="stylesheet" href="../../../shared/css/cards.css">
+    <link rel="stylesheet" href="../../../shared/css/buttons.css">
+    <link rel="stylesheet" href="../../../shared/css/forms.css">
+    <link rel="stylesheet" href="../../../shared/css/tables.css">
+    <link rel="stylesheet" href="../../../shared/css/badges.css">
+    <link rel="stylesheet" href="../../../shared/css/components.css">
+
+    <!-- Admin Base CSS -->
+    <link rel="stylesheet" href="../styles/base-styles/layout.css">
+    <link rel="stylesheet" href="../styles/base-styles/header.css">
+    <link rel="stylesheet" href="../styles/base-styles/search.css">
+    <link rel="stylesheet" href="../styles/base-styles/profile.css">
+    <link rel="stylesheet" href="../styles/base-styles/card.css">
+    <link rel="stylesheet" href="../styles/base-styles/kpi.css">
+    <link rel="stylesheet" href="../styles/base-styles/filter.css">
+    <link rel="stylesheet" href="../styles/base-styles/status.css">
+
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet" href="../styles/dashboard/dashboard.css">
+
+    <!-- Icons -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <!-- Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+
+    <!-- Shared Layout Loader -->
+    <script src="../../../shared/js/layout-loader.js" defer></script>
+    
+    <!-- Dashboard Entry File -->
+    <script type="module" src="../js/admin-dashboard.js" defer></script>
+</head>
+
+<body>
+
+<div class="dashboard-container">
+
+    <!-- Sidebar -->
+    <div id="global-sidebar" data-sidebar="admin"></div>
+
+    <!-- Main -->
+    <main class="main-content">
+
+        <!-- Header -->
+        <header class="page-header">
+
+            <div class="welcome-section">
+                <h1>Welcome Admin,</h1>
+                <p>Here's what's happening in your organization today.</p>
+            </div>
+
+            <div class="profile-section">
+
+                <div class="profile-avatar">
+                    AD
+                </div>
+
+                <div class="profile-details">
+                    <h3>Admin</h3>
+                    <span>System Administrator</span>
+                </div>
+
+                <button class="profile-menu">
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+
+            </div>
+
+        </header>
+
+        <!-- Dashboard -->
+        <section class="top-section">
+
+            <!-- LEFT PANEL -->
+            <div class="left-panel">
+
+                <!-- Task Status -->
+                <section class="card attendance-card">
+
+                    <div class="card-header">
+
+                        <div>
+                            <h2>Task Status</h2>
+                            <p>Weekly Task Overview</p>
+                        </div>
+
+                        <button class="filter-button">
+                            This Week
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+
+                    </div>
+
+                    <!-- JS Populates Everything Below -->
+
+                    <div class="task-status-wrapper">
+
+    <div class="task-circle">
+        <span class="task-percent">0%</span>
+    </div>
+
+    <div class="task-stats">
+
+        <div class="task-item">
+            <h3 class="completed-count">0</h3>
+            <span>Completed</span>
+        </div>
+
+        <div class="task-item">
+            <h3 class="pending-count">0</h3>
+            <span>Pending</span>
+        </div>
+
+        <div class="task-item">
+            <h3 class="overdue-count">0</h3>
+            <span>Overdue</span>
+        </div>
+    </div>
+</div>
+                </section>
+
+                <!-- Recent Employees -->
+
+                <section class="card activity-card">
+
+                    <div class="card-header">
+
+                        <h2>Recent Employees</h2>
+
+                        <a href="#" class="view-all">
+                            View All
+                        </a>
+
+                    </div>
+
+                    <div class="employee-list"></div>
+
+                </section>
+
+            </div>
+
+            <!-- RIGHT PANEL -->
+
+            <div class="right-panel">
+
+                <!-- Recent Activity -->
+
+                <section class="card updates-card">
+
+                    <div class="card-header">
+                        <h2>Recent Activity</h2>
+                    </div>
+
+                    <div class="activity-list"></div>
+
+                </section>
+
+                <!-- Today's Meetings -->
+
+                <section class="card events-card">
+
+                    <div class="card-header">
+                        <h2>Today's Meetings</h2>
+                    </div>
+
+                    <div class="meeting-list"></div>
+                </section>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

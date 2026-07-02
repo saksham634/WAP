@@ -1,0 +1,126 @@
+/* ==========================================================
+   DASHBOARD LAYOUT
+   Controls only the dashboard structure
+========================================================== */
+
+.top-section{
+    display:flex;
+    gap:24px;
+    flex:1;
+    min-height:0;
+    align-items:stretch;
+}
+
+/* ==========================================================
+   LEFT PANEL
+========================================================== */
+
+.left-panel{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:24px;
+    min-width:0;
+    min-height:0;
+}
+
+/* ==========================================================
+   RIGHT PANEL
+========================================================== */
+
+.right-panel{
+    width:360px;
+    display:flex;
+    flex-direction:column;
+    gap:24px;
+    flex-shrink:0;
+}
+
+/* ==========================================================
+   CARD SIZING
+========================================================== */
+
+.attendance-card{
+    min-height:280px;
+}
+
+.activity-card{
+    flex:1;
+    min-height:280px;
+}
+
+.updates-card,
+.events-card{
+    flex:1;
+    min-height:280px;
+}
+
+/* ==========================================================
+   CARD HEADER
+========================================================== */
+
+.card-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:24px;
+}
+
+.card-header h2{
+    font-size:1.45rem;
+    font-weight:700;
+    color:var(--text-primary);
+    margin:0;
+}
+
+.card-header p{
+    margin-top:4px;
+    font-size:0.9rem;
+    color:var(--text-secondary);
+}
+
+/* ==========================================================
+   VIEW ALL LINK
+========================================================== */
+
+.view-all{
+    text-decoration:none;
+    color:var(--primary);
+    font-size:0.9rem;
+    font-weight:600;
+    transition:.25s;
+}
+
+.view-all:hover{
+    opacity:.75;
+}
+
+/* Responsive */
+@media (max-width:1200px){
+    .top-section{
+        flex-direction:column;
+    }
+
+    .right-panel{
+        width:100%;
+    }
+}
+
+@media (max-width:768px){
+    .top-section{
+        gap:20px;
+    }
+
+    .left-panel,
+    .right-panel{
+        gap:20px;
+    }
+}
+
+@media (max-width:600px){
+    .card-header{
+        flex-direction:column;
+        gap:12px;
+        align-items:flex-start;
+    }
+}

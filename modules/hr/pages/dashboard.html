@@ -43,6 +43,8 @@
             </header>
 
             <div class="top-section">
+                
+                <!-- Left Panel -->
                 <div class="left-panel">
                     <div class="card flex-1">
                         <div class="card-header">
@@ -77,7 +79,63 @@
                     </div>
                 </div>
 
+                <!-- Right Panel -->
                 <div class="right-panel">
+                    
+                    <!-- NEW: Generate Payroll Card -->
+                    <div class="card payroll-generation-card" style="margin-bottom: 1.5rem;">
+                        <div class="card-header">
+                            <h2>Generate Employee Payroll</h2>
+                            <p style="color: #64748b; font-size: 0.875rem;">Process monthly salary</p>
+                        </div>
+                        <div class="card-body" style="padding: 1.5rem;">
+                            <form id="generatePayrollForm" style="display: grid; gap: 1rem;">
+                                
+                                <div class="form-group">
+                                    <label for="payrollUserId" style="font-weight: 500; display: block; margin-bottom: 0.5rem;">Employee System ID</label>
+                                    <input type="number" id="payrollUserId" class="form-control" placeholder="e.g., 2" required style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 4px;">
+                                    <small style="color: #64748b; display: block; margin-top: 0.25rem;">Enter the database ID of the user</small>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                    <div class="form-group">
+                                        <label for="payrollMonth" style="font-weight: 500; display: block; margin-bottom: 0.5rem;">Month</label>
+                                        <select id="payrollMonth" class="form-control" required style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 4px;">
+                                            <option value="" disabled selected>Select Month</option>
+                                            <option value="1">January</option>
+                                            <option value="2">February</option>
+                                            <option value="3">March</option>
+                                            <option value="4">April</option>
+                                            <option value="5">May</option>
+                                            <option value="6">June</option>
+                                            <option value="7">July</option>
+                                            <option value="8">August</option>
+                                            <option value="9">September</option>
+                                            <option value="10">October</option>
+                                            <option value="11">November</option>
+                                            <option value="12">December</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="payrollYear" style="font-weight: 500; display: block; margin-bottom: 0.5rem;">Year</label>
+                                        <input type="number" id="payrollYear" class="form-control" value="2026" required style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 4px;">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="payrollBaseSalary" style="font-weight: 500; display: block; margin-bottom: 0.5rem;">Base Salary (₹)</label>
+                                    <input type="number" id="payrollBaseSalary" class="form-control" placeholder="e.g., 50000" required style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 4px;">
+                                </div>
+
+                                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem; padding: 0.75rem; background-color: #007a7a; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                                    Process Payroll
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- End Generate Payroll Card -->
+
                     <div class="card">
                         <div class="card-header">
                             <h2>Department Updates</h2>
@@ -95,7 +153,7 @@
                         </div>
                     </div>
 
-                    <div class="card flex-1">
+                    <div class="card flex-1" style="margin-top: 1.5rem;">
                         <div class="card-header">
                             <h2>Pending Approvals</h2>
                         </div>
@@ -118,6 +176,8 @@
         </main>
     </div>
 
+    <!-- Scripts -->
     <script src="../js/dashboard.js"></script>
+    <script src="../js/payroll-management.js" defer></script>
 </body>
 </html>

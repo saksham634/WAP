@@ -1,0 +1,45 @@
+.roles-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+.role-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+}
+.role-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border);
+}
+.role-header h2 { font-size: 20px; color: var(--text); }
+.role-header i { font-size: 24px; color: var(--primary); }
+.perm-list {
+    list-style: none;
+    margin-bottom: 20px;
+}
+.perm-list li {
+    font-size: 14px;
+    color: var(--text-light);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.perm-list li i { color: #22C55E; font-size: 12px; }
+.role-card button {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    background: #eef8f8;
+    color: var(--primary);
+    font-weight: 600;
+    transition: .3s;
+}
+.role-card button:hover { background: #def4f4; }

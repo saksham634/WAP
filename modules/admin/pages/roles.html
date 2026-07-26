@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roles & Permissions - Admin</title>
+    <link rel="stylesheet" href="../../../shared/css/variables.css">
+    <link rel="stylesheet" href="../../../shared/css/global.css">
+    <link rel="stylesheet" href="../../../shared/css/layout.css">
+    <link rel="stylesheet" href="../../../shared/css/sidebar.css">
+    <link rel="stylesheet" href="../../../shared/css/header.css">
+    <link rel="stylesheet" href="../../../shared/css/cards.css">
+    <link rel="stylesheet" href="../styles/roles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="../js/roles.js" defer></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div id="global-sidebar"></div>
+        <main class="main-content">
+            <header class="page-header">
+                <div class="welcome-section">
+                    <h1>Roles & Permissions</h1>
+                    <p>Manage system access levels via RBAC</p>
+                </div>
+                <div class="profile-section">
+                    <div class="profile-avatar" style="background: linear-gradient(135deg, #1f2937, #4b5563);">AD</div>
+                    <div class="profile-details">
+                        <h3>Admin</h3>
+                        <span>System Administrator</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="roles-grid" id="rolesContainer">
+                <!-- Populated by JS -->
+            </div>
+        </main>
+    </div>
+</body>
+</html>

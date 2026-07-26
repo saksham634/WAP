@@ -3,175 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EMS Login</title>
-    <script src="../Js/Login.js" defer></script>
+    <title>EMS Login & Registration</title>
+    <script src="Login.js" defer></script>
     <link rel="stylesheet" href="LogIn.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body>
 <div class="container">
 
-    <!-- Left Side -->
+    <!-- Left Side (Unchanged) -->
     <div class="left-panel">
         <div class="logo">
             <i class="fas fa-users"></i>
             <span>WAP v1.0</span>
         </div>
-
-        <!-- Left-Content -->
         <div class="content">
             <h1>Workforce<br>Analytics Platform</h1>
-            <div class="line"></div>  <!-- Decorative line -->
+            <div class="line"></div>
             <p>Connect. Analyze. Grow.</p>
-            
-            <!-- Left-Side Features -->
             <div class="features">
-
-<!--Feature 1-->    <div class="feature">
+                <div class="feature">
                     <i class="fas fa-shield-alt"></i>
-                    <div>
-                        <h3>Secure</h3>
-                        <p>Role Based Access (RBAC)</p>
-                    </div>
+                    <div><h3>Secure</h3><p>Role Based Access (RBAC)</p></div>
                 </div>
-
-<!--Feature 2-->    <div class="feature">
+                <div class="feature">
                     <i class="fas fa-chart-line"></i>
-                    <div>
-                        <h3>Smart</h3>
-                        <p>Intelligent Analytics</p>
-                    </div>
+                    <div><h3>Smart</h3><p>Intelligent Analytics</p></div>
                 </div>
-
-<!--Feature 3-->    <div class="feature">
+                <div class="feature">
                     <i class="fas fa-clock"></i>
-                    <div>
-                        <h3>Efficient</h3>
-                        <p>Seamless Operations</p>
-                    </div>
+                    <div><h3>Efficient</h3><p>Seamless Operations</p></div>
                 </div>
             </div>
         </div>
     </div>
 
-<!-- Right Side -->
-<div class="right-panel">
-    <div class="login-card">  
-        <div class="slider-container">
+    <!-- Right Side -->
+    <div class="right-panel">
+        <div class="login-card">  
+            <div class="slider-container">
 
-            <!-- LOGIN FORM -->
-            <div class="form-slide login-slide">
-
-                <div class="avatar">
-                    <i class="fas fa-user"></i>
+                <!-- [SLIDE 0] LOGIN FORM -->
+                <div class="form-slide login-slide">
+                    <div class="avatar"><i class="fas fa-user"></i></div>
+                    <h2>Welcome Back!</h2>
+                    <p class="subtitle"><b>Sign in to continue to your dashboard</b></p>
+                    <form id="loginForm" method="post">
+                        <div class="input-box">
+                            <i class="fas fa-envelope"></i>
+                            <input type="text" id="loginEmail" placeholder="Employee ID/Email" required>
+                        </div>
+                        <div class="input-box">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                        </div>
+                        <div class="links-row">
+    <a href="javascript:void(0);" onclick="goToSlide(1)">Forgot Password?</a>
+    <a href="javascript:void(0);" onclick="goToSlide(5)">New Organization?</a>
+</div>
+                        <button type="button" onclick="handleLogin()">Sign In</button>
+                    </form>
                 </div>
 
-                <h2>Welcome Back!</h2>
-                <p class="subtitle"><b>Sign in to continue to your dashboard</b></p>
+                <!-- [SLIDE 1] FORGOT PASSWORD FORM -->
+                <div class="form-slide forgot-slide">
+                    <div class="avatar"><i class="fas fa-key"></i></div>
+                    <h2>Reset Password</h2>
+                    <p class="subtitle"><b>Enter your registered email address</b></p>
+                    <form method="post">
+                        <div class="input-box">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="resetpass" placeholder="Enter your email" required>
+                        </div>
+                        <div class="links-row">
+                            <a href="#" onclick="goToSlide(0); return false;">← Back to Login</a>
+                        </div>
+                        <button type="button" onclick="goToOTP()">Send OTP</button>
+                    </form>
+                </div>
 
-                <form method="post">
-                    <div class="input-box">
-                        <i class="fas fa-envelope"></i>
-                        <input type="text" id="loginEmail" placeholder="Employee ID/Email" required>
+                <!-- [SLIDE 2] OTP VERIFICATION CARD (FORGOT PASSWORD) -->
+                <div class="form-slide otp-slide">
+                    <div class="avatar"><i class="fas fa-envelope-open-text"></i></div>
+                    <h2>OTP Verification</h2>
+                    <p class="subtitle"><b>Enter the 6-digit OTP sent to your email</b></p>
+                    <div class="otp-container" id="forgotOtpContainer">
+                        <input type="text" maxlength="1" class="otp-input">
+                        <input type="text" maxlength="1" class="otp-input">
+                        <input type="text" maxlength="1" class="otp-input">
+                        <input type="text" maxlength="1" class="otp-input">
+                        <input type="text" maxlength="1" class="otp-input">
+                        <input type="text" maxlength="1" class="otp-input">
                     </div>
-
-                    <div class="input-box">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="loginPassword" placeholder="Enter your password" required>
-                    </div>
-
                     <div class="links-row">
-                        <a href="#" onclick="goToSlide(1); return false;">Forgot Password?</a>
-                        <a href="#">New Organization?</a>
+                        <a href="#" onclick="goToSlide(1); return false;">← Back</a>
                     </div>
-                    <button type="submit">Sign In</button>
-                </form>
-            </div>
-
-            <!-- FORGOT PASSWORD FORM -->
-            <div class="form-slide forgot-slide">
-                <div class="avatar">
-                    <i class="fas fa-key"></i>
+                    <button type="button" onclick="goToUpdatePassword()"> Verify OTP </button>
                 </div>
 
-                <h2>Reset Password</h2>
-                <p class="subtitle"><b>Enter your registered email address</b></p>
+                <!-- [SLIDE 3] RESET PASSWORD CARD -->
+                <div class="form-slide reset-slide">
+                    <div class="avatar"><i class="fas fa-lock"></i></div>
+                    <h2>Reset Password</h2>
+                    <p class="subtitle"><b>Create a new secure password</b></p>
+                    <form id="resetPasswordForm">
+                        <div class="input-box">
+                            <i class="fas fa-key"></i>
+                            <input type="password" id="oldPassword" placeholder="Old Password" required>
+                        </div>
+                        <div class="input-box">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="newPassword" placeholder="New Password" required>
+                        </div>
+                        <div class="input-box">
+                            <i class="fas fa-check-circle"></i>
+                            <input type="password" id="confirmPassword" placeholder="Confirm New Password" required>
+                        </div>
+                        <button type="button" class="signin-btn" onclick="updatePassword()"> Update Password </button>
+                    </form>
+                </div>
+                
+                <!-- [SLIDE 4] PASSWORD UPDATED SUCCESS CARD -->
+                <div class="form-slide success-slide">
+                    <div class="success-icon"><i class="fas fa-shield-alt"></i></div>
+                    <h2>Password Updated Successfully</h2>
+                    <p class="redirect-message"><b>Please sign in again using your new password.</b></p>
+                    <a href="#" class="signin-link" onclick="resetAuthFlow(); return false;">Sign In<i class="fas fa-arrow-right"></i></a>
+                </div>
 
-                <form method="post">
-                    <div class="input-box">
-                        <i class="fas fa-envelope"></i>
-                        <input type="email" id="resetpass" placeholder="Enter your email" required>
+                <!-- ============================================== -->
+                <!-- NEW REGISTRATION SLIDES -->
+                <!-- ============================================== -->
+
+                <!-- [SLIDE 5] ORGANIZATION REGISTRATION FORM -->
+                <div class="form-slide register-slide">
+                    <div class="avatar"><i class="fas fa-building"></i></div>
+                    <h2>Create Organization</h2>
+                    <p class="subtitle"><b>Setup your WAP Admin account</b></p>
+                    <form id="registerForm">
+                        <div class="input-box" style="margin-bottom: 12px;">
+                            <i class="fas fa-sitemap"></i>
+                            <input type="text" id="regCompany" placeholder="Company Name" required>
+                        </div>
+                        <div class="input-box" style="margin-bottom: 12px;">
+                            <i class="fas fa-user-tie"></i>
+                            <input type="text" id="regAdminName" placeholder="Admin Full Name" required>
+                        </div>
+                        <div class="input-box" style="margin-bottom: 12px;">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="regEmail" placeholder="Official Email Address" required>
+                        </div>
+                        <div class="input-box" style="margin-bottom: 12px;">
+                            <i class="fas fa-phone"></i>
+                            <input type="text" id="regPhone" placeholder="Phone Number" required>
+                        </div>
+                        <div class="input-box" style="margin-bottom: 12px;">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="regPassword" placeholder="Create Password" required>
+                        </div>
+                        
+                        <div class="links-row" style="margin-bottom: 10px; padding-top: 0;">
+                            <a href="#" onclick="goToSlide(0); return false;">← Back to Login</a>
+                        </div>
+                        <button type="button" onclick="sendOrgRegistration()">Send Email OTP</button>
+                    </form>
+                </div>
+
+                <!-- [SLIDE 6] REGISTRATION OTP VERIFICATION -->
+                <div class="form-slide otp-slide">
+                    <div class="avatar"><i class="fas fa-user-check"></i></div>
+                    <h2>Verify Official Email</h2>
+                    <p class="subtitle"><b>Enter the 6-digit OTP sent to your email</b></p>
+                    <div class="otp-container" id="registerOtpContainer">
+                        <input type="text" maxlength="1" class="otp-input">
+                        <input type="text" maxlength="1" class="otp-input">
+                        <input type="text" maxlength="1" class="otp-input">
+                        <input type="text" maxlength="1" class="otp-input">
+                        <input type="text" maxlength="1" class="otp-input">
+                        <input type="text" maxlength="1" class="otp-input">
                     </div>
-
                     <div class="links-row">
-                        <a href="#" onclick="goToSlide(0); return false;">← Back to Login</a>
+                        <a href="#" onclick="goToSlide(5); return false;">← Edit Details</a>
                     </div>
-
-                    <button type="button" onclick="goToOTP()">Send OTP</button>
-                </form>
-            </div>
-
-            <!-- OTP VERIFICATION CARD -->
-            <div class="form-slide otp-slide">
-
-                <div class="avatar">
-                    <i class="fas fa-envelope-open-text"></i>
+                    <button type="button" onclick="verifyOrgOTP()"> Verify & Create Account </button>
                 </div>
 
-                <h2>OTP Verification</h2>
-                <p class="subtitle"><b>Enter the 6-digit OTP sent to your email</b></p>
-
-                <div class="otp-container">
-                    <input type="text" maxlength="1" class="otp-input">
-                    <input type="text" maxlength="1" class="otp-input">
-                    <input type="text" maxlength="1" class="otp-input">
-                    <input type="text" maxlength="1" class="otp-input">
-                    <input type="text" maxlength="1" class="otp-input">
-                    <input type="text" maxlength="1" class="otp-input">
+                <!-- [SLIDE 7] REGISTRATION SUCCESS -->
+                <div class="form-slide success-slide">
+                    <div class="success-icon"><i class="fas fa-check-circle"></i></div>
+                    <h2>Organization Created</h2>
+                    <p class="redirect-message"><b>Your WAP Admin account is ready.</b></p>
+                    <a href="#" class="signin-link" onclick="resetAuthFlow(); return false;">Login as Admin<i class="fas fa-arrow-right"></i></a>
                 </div>
 
-                <button type="button" onclick="goToUpdatePassword()"> Verify OTP </button>
-            </div>
-
-            <!-- RESET PASSWORD CARD -->
-            <div class="form-slide reset-slide">
-
-                <div class="avatar">
-                    <i class="fas fa-lock"></i>
-                </div>
-
-                <h2>Reset Password</h2>
-                <p class="subtitle"><b>Create a new secure password</b></p>
-
-                <form id="resetPasswordForm">
-                    <div class="input-box">
-                        <i class="fas fa-key"></i>
-                        <input type="password" id="oldPassword" placeholder="Old Password" required>
-                    </div>
-
-                    <div class="input-box">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="newPassword" placeholder="New Password" required>
-                    </div>
-
-                    <div class="input-box">
-                        <i class="fas fa-check-circle"></i>
-                        <input type="password" id="confirmPassword" placeholder="Confirm New Password" required>
-                    </div>
-
-                    <button type="button" class="signin-btn" onclick="updatePassword()"> Update Password </button>
-                </form>
-            </div>
-            
-            <!-- PASSWORD UPDATED SUCCESS CARD -->
-            <div class="form-slide success-slide">
-                <div class="success-icon">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-
-                <h2>Password Updated Successfully</h2>
-                <p class="redirect-message"><b>Please sign in again using your new password.</b></p>
-                <a href="#" class="signin-link" onclick="resetAuthFlow(); return false;">Sign In<i class="fas fa-arrow-right"></i></a>
             </div>
         </div>
     </div>

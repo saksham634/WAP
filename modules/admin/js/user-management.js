@@ -1,0 +1,162 @@
+// Base API URL for Admin endpoints
+const API_BASE_URL = "http://localhost:8080/api/admin";
+
+document.addEventListener("DOMContentLoaded", () => {
+    // 1. Sidebar Loader Logic
+    const sidebarPath = "../../../shared/components/sidebar-admin.html"; 
+    fetch(sidebarPath)
+        .then(res => res.text())
+        .then(html => {
+            const sidebarContainer = document.getElementById("global-sidebar");
+            if(sidebarContainer) {
+                sidebarContainer.innerHTML = html;
+                const currentPage = window.location.pathname.split("/").pop().replace(".html", "");
+                document.querySelectorAll(".sidebar a[data-page]").forEach(link => {
+                    if (link.dataset.page === currentPage) link.parentElement.classList.add("active");
+                });
+            }
+        })
+        .catch(err => console.error("Error loading global sidebar:", err));
+
+    // 2. Fetch Live User Data on Load
+    fetchAndRenderUsers();
+
+    // 3. Attach listener to the Add User Form
+    const addUserForm = document.getElementById("addUserForm");
+    if (addUserForm) {
+        addUserForm.addEventListener("submit", handleAddUser);
+    }
+});
+
+// ==========================================
+// ADD NEW USER LOGIC
+// ==========================================
+async function handleAddUser(e) {
+    e.preventDefault(); // Prevent page refresh
+
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    // Build the payload matching our Java AddUserRequest DTO
+    const payload = {
+        fullName: document.getElementById("newUserName").value.trim(),
+        email: document.getElementById("newUserEmail").value.trim(),
+        phone: document.getElementById("newUserPhone").value.trim(),
+        role: document.getElementById("newUserRole").value, // "ROLE_EMPLOYEE" or "ROLE_HR"
+        password: document.getElementById("newUserPassword").value.trim()
+    };
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/users`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            alert("User successfully added to the system!");
+            document.getElementById("addUserForm").reset(); // Clear inputs
+            closeModal("addUserModal"); // Hide the modal
+            fetchAndRenderUsers(); // Instantly refresh the data table
+        } else {
+            const data = await response.json();
+            alert("Registration Failed: " + (data.error || "Unknown error occurred."));
+        }
+    } catch (error) {
+        console.error("Error adding user:", error);
+        alert("Could not connect to the server. Ensure Spring Boot is running.");
+    }
+}
+
+// ==========================================
+// MODAL HELPER FUNCTIONS
+// ==========================================
+
+// NEW: Function to open the modal
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = "flex";
+    }
+}
+
+// Existing: Function to close the modal
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = "none"; 
+    }
+}
+
+// ==========================================
+// FETCH AND RENDER USERS (Existing Logic)
+// ==========================================
+async function fetchAndRenderUsers() {
+    const tbody = document.getElementById("userTableBody");
+    if (!tbody) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+        window.location.href = "../../../public/Login/LogIn.html";
+        return;
+    }
+
+    try {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center;">Loading users...</td></tr>`;
+
+        const response = await fetch(`${API_BASE_URL}/users`, {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            alert("Session expired or unauthorized access. Please log in again.");
+            localStorage.removeItem("token");
+            localStorage.removeItem("role");
+            window.location.href = "../../../public/Login/LogIn.html";
+            return;
+        }
+
+        const users = await response.json();
+
+        if (users.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center;">No users found in the system.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = users.map(user => {
+            const statusClass = user.status ? user.status.toLowerCase() : "inactive";
+            const rawRole = user.role.replace("ROLE_", "");
+            const displayRole = rawRole.charAt(0) + rawRole.slice(1).toLowerCase();
+
+            return `
+                <tr>
+                    <td><b>${user.employeeId}</b></td>
+                    <td>${user.fullName}</td>
+                    <td>${user.email}</td>
+                    <td>${displayRole}</td>
+                    <td><span class="badge ${statusClass}">${user.status}</span></td>
+                    <td class="action-icons">
+                        <i class="fa-solid fa-pen-to-square" title="Edit User"></i>
+                        <i class="fa-solid fa-trash" style="color: #DC2626;" title="Delete User"></i>
+                    </td>
+                </tr>
+            `;
+        }).join("");
+
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align: center; color: #DC2626;">
+                    Failed to connect to the server. Please ensure Spring Boot is running.
+                </td>
+            </tr>`;
+    }
+}

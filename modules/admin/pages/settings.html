@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Admin</title>
+    <link rel="stylesheet" href="../../../shared/css/variables.css">
+    <link rel="stylesheet" href="../../../shared/css/global.css">
+    <link rel="stylesheet" href="../../../shared/css/layout.css">
+    <link rel="stylesheet" href="../../../shared/css/sidebar.css">
+    <link rel="stylesheet" href="../../../shared/css/header.css">
+    <link rel="stylesheet" href="../../../shared/css/cards.css">
+    <link rel="stylesheet" href="../../../shared/css/forms.css">
+    <link rel="stylesheet" href="../styles/settings.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="../js/settings.js" defer></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div id="global-sidebar"></div>
+        <main class="main-content">
+            <header class="page-header">
+                <div class="welcome-section">
+                    <h1>System Settings</h1>
+                    <p>Configure global platform preferences</p>
+                </div>
+                <div class="profile-section">
+                    <div class="profile-avatar" style="background: linear-gradient(135deg, #1f2937, #4b5563);">AD</div>
+                    <div class="profile-details">
+                        <h3>Admin</h3>
+                        <span>System Administrator</span>
+                    </div>
+                </div>
+            </header>
+
+            <section class="card w-100 flex-1">
+                <div class="settings-grid">
+                    <div class="settings-nav">
+                        <button class="active">General Settings</button>
+                        <button>Security</button>
+                        <button>Notifications</button>
+                    </div>
+                    
+                    <div class="settings-form-area leave-form">
+                        <div class="card-header">
+                            <h2>General Configuration</h2>
+                        </div>
+                        <div class="form-row">
+                            <div style="flex:1;">
+                                <label>Company Name</label>
+                                <input type="text" value="StarWatt Technologies Pvt. Ltd." style="margin-top: 8px;">
+                            </div>
+                            <div style="flex:1;">
+                                <label>Support Email</label>
+                                <input type="email" value="support@starwatt.com" style="margin-top: 8px;">
+                            </div>
+                        </div>
+                        <div class="form-row" style="margin-top: 15px;">
+                            <div style="flex:1;">
+                                <label>Timezone</label>
+                                <select style="margin-top: 8px;">
+                                    <option>Asia/Kolkata (IST)</option>
+                                    <option>America/New_York (EST)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="button" style="width: 150px; margin-top: 25px;">Save Changes</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

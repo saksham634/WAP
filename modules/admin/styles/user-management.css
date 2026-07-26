@@ -1,0 +1,54 @@
+.primary-btn {
+    padding: 10px 18px;
+    border-radius: 10px;
+    background: var(--primary);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: var(--transition);
+}
+.primary-btn:hover { background: var(--primary-light); }
+
+.table-container {
+    overflow-x: auto;
+    margin-top: 10px;
+}
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+.admin-table th {
+    padding: 16px;
+    background: #f8fafc;
+    color: var(--text-light);
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--border);
+}
+.admin-table td {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    color: var(--text);
+}
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.badge.active { background: #DCFCE7; color: #15803D; }
+.badge.inactive { background: #FEE2E2; color: #DC2626; }
+.action-icons i {
+    cursor: pointer;
+    color: var(--text-light);
+    margin-right: 12px;
+    font-size: 16px;
+    transition: var(--transition);
+}
+.action-icons i:hover { color: var(--primary); }

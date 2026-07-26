@@ -133,18 +133,19 @@ overflow:hidden;
 box-shadow:0 15px 50px rgba(0,0,0,.12);
 }
 
-.slider-container{
-width:500%;
-height:100%;
-display:flex;
-transition:transform .6s ease;
+/* UPDATE THESE TWO CLASSES IN YOUR LOGIN.CSS */
+.slider-container {
+    width: 800%; /* 100% * 8 slides */
+    height: 100%;
+    display: flex;
+    transition: transform .6s ease;
 }
 
-.form-slide{
-width:20%;
-flex-shrink:0;
-padding:40px;
-overflow-y:auto;
+.form-slide {
+    width: 12.5%; /* 100% / 8 slides */
+    flex-shrink: 0;
+    padding: 40px;
+    overflow-y: auto;
 }
 
 /* Common Elements */
@@ -220,6 +221,9 @@ color:#009090;
 text-decoration:none;
 font-size:15px;
 font-weight:500;
+position: relative;
+    z-index: 50; 
+    cursor: pointer;
 }
 
 .links-row a:hover{

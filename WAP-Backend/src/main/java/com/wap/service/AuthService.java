@@ -54,6 +54,15 @@ public class AuthService {
         return new AuthResponse(token, user.getRole().getRoleName(), "Login successful");
     }
 
+    public void resetPassword(String email, String newPassword) {
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+        
+        // Fixed: Use setPasswordHash to match the User entity definition
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
     public AuthResponse registerOrganization(RegisterOrgRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already in use.");
@@ -78,7 +87,7 @@ public class AuthService {
         User adminUser = new User();
         adminUser.setOrganization(org);
         adminUser.setRole(adminRole);
-        adminUser.setEmployeeId("ADMIN-" + System.currentTimeMillis()); // Generate a unique ID
+        adminUser.setEmployeeId("ADMIN-" + System.currentTimeMillis());
         adminUser.setFullName(request.getAdminName());
         adminUser.setEmail(request.getEmail());
         adminUser.setPhoneNumber(request.getPhone());

@@ -37,3 +37,29 @@ function renderAudit() {
         </div>
     `).join("");
 }
+
+async function loadAuditLogs() {
+    try {
+        const response = await fetch("http://localhost:8080/api/admin/audit-logs", {
+            headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
+        });
+        if (response.ok) {
+            const logs = await response.json();
+            const container = document.querySelector(".Recent-activity, .audit-container");
+            if (!container) return;
+            
+            container.innerHTML = "<h3>Recent Activity</h3>";
+            logs.forEach(log => {
+                container.innerHTML += `
+                    <div class="activity-item" style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                        <strong>${log.action}</strong>
+                        <p>${log.description}</p>
+                        <small style="color: gray;">${new Date(log.timestamp).toLocaleString()}</small>
+                    </div>`;
+            });
+        }
+    } catch (e) {
+        console.log("Using static or fallback audit logs.");
+    }
+}
+document.addEventListener("DOMContentLoaded", loadAuditLogs);

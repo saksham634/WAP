@@ -160,3 +160,55 @@ async function fetchAndRenderUsers() {
             </tr>`;
     }
 }
+
+
+const API_USERS_URL = "http://localhost:8080/api/users"; // Adjust to your actual backend user endpoint
+
+async function deleteUser(userId) {
+    if (!confirm("Are you sure you want to delete this user?")) return;
+
+    try {
+        const response = await fetch(`${API_USERS_URL}/${userId}`, {
+            method: "DELETE",
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            }
+        });
+
+        if (response.ok) {
+            alert("User deleted successfully.");
+            location.reload();
+        } else {
+            alert("Failed to delete user.");
+        }
+    } catch (error) {
+        console.error("Delete Error:", error);
+        alert("Server connection error.");
+    }
+}
+
+async function editUser(userId) {
+    const newName = prompt("Enter updated full name:");
+    if (!newName) return;
+
+    try {
+        const response = await fetch(`${API_USERS_URL}/${userId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+            body: JSON.stringify({ fullName: newName })
+        });
+
+        if (response.ok) {
+            alert("User updated successfully.");
+            location.reload();
+        } else {
+            alert("Failed to update user.");
+        }
+    } catch (error) {
+        console.error("Edit Error:", error);
+        alert("Server connection error.");
+    }
+}

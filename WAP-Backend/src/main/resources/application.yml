@@ -1,6 +1,5 @@
 spring:
   datasource:
-    # Notice the added allowPublicKeyRetrieval=true at the end of the URL
     url: jdbc:mysql://localhost:3306/wap_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
     username: root
     password: 123363
@@ -12,5 +11,17 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        # Notice the dialect is now just MySQLDialect
         dialect: org.hibernate.dialect.MySQLDialect
+  
+  # Gmail SMTP Configuration
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: wap.ems.notifications@gmail.com
+    password: ypxcumxblxdehslj
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true

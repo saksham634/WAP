@@ -2,23 +2,7 @@
 const API_BASE_URL = "http://localhost:8080/api/admin";
 
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. Sidebar Loader Logic
-    const sidebarPath = "../../../shared/components/sidebar-admin.html"; 
-    fetch(sidebarPath)
-        .then(res => res.text())
-        .then(html => {
-            const sidebarContainer = document.getElementById("global-sidebar");
-            if(sidebarContainer) {
-                sidebarContainer.innerHTML = html;
-                const currentPage = window.location.pathname.split("/").pop().replace(".html", "");
-                document.querySelectorAll(".sidebar a[data-page]").forEach(link => {
-                    if (link.dataset.page === currentPage) link.parentElement.classList.add("active");
-                });
-            }
-        })
-        .catch(err => console.error("Error loading global sidebar:", err));
-
-    // 2. Fetch Live User Data on Load
+    // Fetch Live User Data on Load
     fetchAndRenderUsers();
 
     // 3. Attach listener to the Add User Form
@@ -143,8 +127,8 @@ async function fetchAndRenderUsers() {
                     <td>${displayRole}</td>
                     <td><span class="badge ${statusClass}">${user.status}</span></td>
                     <td class="action-icons">
-                        <i class="fa-solid fa-pen-to-square" title="Edit User"></i>
-                        <i class="fa-solid fa-trash" style="color: #DC2626;" title="Delete User"></i>
+                        <i class="fa-solid fa-pen-to-square" title="Edit User" onclick="editUser('${user.employeeId}')" style="cursor: pointer;"></i>
+                        <i class="fa-solid fa-trash" style="color: #DC2626; cursor: pointer;" title="Delete User" onclick="deleteUser('${user.employeeId}')"></i>
                     </td>
                 </tr>
             `;
@@ -162,7 +146,7 @@ async function fetchAndRenderUsers() {
 }
 
 
-const API_USERS_URL = "http://localhost:8080/api/users"; // Adjust to your actual backend user endpoint
+const API_USERS_URL = "http://localhost:8080/api/admin/users";
 
 async function deleteUser(userId) {
     if (!confirm("Are you sure you want to delete this user?")) return;

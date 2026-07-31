@@ -40,6 +40,14 @@
 }
 
 /* Responsive */
+@media (max-width:992px){
+    .header-left {
+        flex-direction: row;
+        align-items: center;
+        gap: 15px;
+    }
+}
+
 @media (max-width:768px){
     .page-header{
         flex-direction:column;
@@ -50,6 +58,7 @@
     .header-right{
         width:100%;
         justify-content:space-between;
+        margin-right: 0;
     }
 
     .header-left h1{
@@ -58,5 +67,6 @@
 
     .header-left p{
         font-size:.9rem;
+        margin-top: 0; /* Remove top margin when placed in a row with the hamburger */
     }
 }

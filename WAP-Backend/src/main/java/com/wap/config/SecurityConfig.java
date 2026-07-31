@@ -35,8 +35,9 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Updated CORS configuration
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/api/auth/**").permitAll() 
-                    .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN") 
-                    .requestMatchers("/api/leave/hr/**").hasAnyAuthority("ROLE_HR", "ROLE_ADMIN") // NEW LINE: Secure HR routes
+                    .requestMatchers("/api/admin/users/me", "/api/admin/users/me/profile").authenticated()
+                    .requestMatchers("/api/admin/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_HR")
+                    .requestMatchers("/api/leave/hr/**").hasAnyAuthority("ROLE_HR", "ROLE_ADMIN") 
                     .requestMatchers("/api/payroll/hr/**").hasAnyAuthority("ROLE_HR", "ROLE_ADMIN")
                     .anyRequest().authenticated()                
                 )

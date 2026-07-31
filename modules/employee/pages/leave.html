@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../../../shared/js/layout-loader.js" defer></script>   <!-- Global Sidebar Loader -->
-    <script src="../js/leaves.js" defer></script>
+    <script src="../js/leave.js" defer></script>
 </head>
 <body>
 <div class="dashboard-container">
@@ -69,22 +69,22 @@
                     <div class="leave-grid">
 
                         <div class="leave-box">
-                            <h3>12</h3>
-                            <span>Total Leaves</span>
+                            <h3 id="leaveTotal">24</h3>
+                            <span>Total Quota</span>
                         </div>
 
                         <div class="leave-box">
-                            <h3>5</h3>
+                            <h3 id="leaveUsed">0</h3>
                             <span>Used</span>
                         </div>
 
                         <div class="leave-box">
-                            <h3>7</h3>
+                            <h3 id="leaveRemaining">24</h3>
                             <span>Remaining</span>
                         </div>
 
                         <div class="leave-box">
-                            <h3>2</h3>
+                            <h3 id="leavePending">0</h3>
                             <span>Pending</span>
                         </div>
                     </div>
@@ -95,23 +95,24 @@
                     <div class="card-header">
                         <div>
                             <h2>Apply Leave</h2>
+                            <p style="color: #64748b; font-size: 13px;">Submit request for HR approval</p>
                         </div>
                     </div>
 
-                    <form class="leave-form">
+                    <form class="leave-form" id="applyLeaveForm">
 
                         <div class="form-row">
-                            <input type="date">
-                            <input type="date">
+                            <input type="date" id="leaveStartDate" required>
+                            <input type="date" id="leaveEndDate" required>
                         </div>
 
-                        <select>
-                            <option>Casual Leave</option>
-                            <option>Annual Leave</option>
-                            <option>Sick Leave</option>
+                        <select id="leaveTypeSelect" required>
+                            <option value="Casual Leave">Casual Leave</option>
+                            <option value="Annual Leave">Annual Leave</option>
+                            <option value="Sick Leave">Sick Leave</option>
                         </select>
 
-                        <textarea class="reasonarea" placeholder="Reason for leave..."></textarea>
+                        <textarea class="reasonarea" id="leaveReasonText" required placeholder="Reason for leave..."></textarea>
                         <button type="submit">Submit Request</button>
                     </form>
                 </div>
@@ -124,35 +125,13 @@
                 <div class="card upcoming-leaves-card">
                     <div class="card-header">
                         <div>
-                            <h2>Upcoming Leaves</h2>
-                            <p>Approved & pending leaves</p>
+                            <h2>Leave Records & Status</h2>
+                            <p>Real-time leave applications history</p>
                         </div>
                     </div>
 
-                    <div class="leave-list">
-                        <div class="leave-item">
-                            <div class="leave-date">
-                                <h3>05</h3>
-                                <span>JUL</span>
-                            </div>
-
-                            <div class="leave-content">
-                                <h4>Casual Leave</h4>
-                                <p>Approved</p>
-                            </div>
-                        </div>
-
-                        <div class="leave-item">
-                            <div class="leave-date">
-                                <h3>18</h3>
-                                <span>JUL</span>
-                            </div>
-
-                            <div class="leave-content">
-                                <h4>Annual Leave</h4>
-                                <p>Pending Approval</p>
-                            </div>
-                        </div>
+                    <div class="leave-list" id="upcomingLeavesContainer">
+                        <p style="padding: 15px; color: #64748b;">Loading leave records...</p>
                     </div>
                 </div>
             </div>

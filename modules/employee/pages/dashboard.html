@@ -120,7 +120,7 @@
                 <div class="right-panel">
 
                     <!-- NEW: Daily Attendance Actions -->
-                    <section class="card quick-actions-card" style="margin-bottom: 1.5rem;">
+                    <section class="card quick-actions-card" style="margin-bottom: 1.5rem; flex-shrink: 0;">
                         <div class="card-header">
                             <h2>Daily Attendance</h2>
                         </div>
@@ -128,12 +128,15 @@
                             <p id="attendanceStatusText" style="margin-bottom: 1rem; color: var(--text-secondary); font-weight: 500;">
                                 Loading status...
                             </p>
-                            <div style="display: flex; gap: 10px; justify-content: center;">
+                            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
                                 <button id="checkInBtn" onclick="handleCheckIn()" class="btn btn-primary" disabled>
                                     Check In
                                 </button>
                                 <button id="checkOutBtn" onclick="handleCheckOut()" class="btn btn-secondary" disabled>
                                     Check Out
+                                </button>
+                                <button onclick="resetAttendance()" class="btn" style="background: var(--bg-color); color: var(--text-secondary); border: 1px solid var(--border-color); font-size: 0.8rem; padding: 5px 10px;">
+                                    <i class="fa-solid fa-rotate-left"></i> Reset (Test)
                                 </button>
                             </div>
                         </div>
@@ -147,13 +150,6 @@
                         <div id="teamUpdatesContainer"></div>
                     </section>
 
-                    <!-- Upcoming Events -->
-                    <section class="card events-card">
-                        <div class="card-header">
-                            <h2>Upcoming Events</h2>
-                        </div>
-                        <div id="eventsContainer"></div>
-                    </section>
                 </div>
             </section>
         </main>

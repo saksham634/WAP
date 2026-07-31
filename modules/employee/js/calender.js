@@ -13,19 +13,47 @@
 // IMPORTS
 // ==========================================================
 
-import { getAttendanceData } from "./api.js";
-
+// Removed api.js since it doesn't exist
 
 // ==========================================================
 // INITIALIZE CALENDAR
 // ==========================================================
 
 export async function initializeCalendar() {
+    // Determine the current year and month for real-world accuracy
+    const today = new Date();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+    const currentDay = today.getDate();
 
-    const attendanceData = await getAttendanceData();
+    // Generate mock attendance data for the calendar up to today
+    const attendanceData = {
+        present: [],
+        leave: [],
+        absent: []
+    };
 
-    renderCalendar(new Date(), attendanceData);
+    // Mark most weekdays as present, and a few as leave/absent
+    for (let day = 1; day <= currentDay; day++) {
+        const date = new Date(currentYear, currentMonth, day);
+        const dayOfWeek = date.getDay();
+        
+        // Skip weekends
+        if (dayOfWeek === 0 || dayOfWeek === 6) continue;
+        
+        // Today doesn't get marked until checked out, but we'll mark past days
+        if (day === currentDay) continue;
 
+        if (day % 10 === 0) {
+            attendanceData.leave.push(day);
+        } else if (day % 15 === 0) {
+            attendanceData.absent.push(day);
+        } else {
+            attendanceData.present.push(day);
+        }
+    }
+
+    renderCalendar(today, attendanceData);
 }
 
 

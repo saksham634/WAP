@@ -4,8 +4,39 @@ document.addEventListener("DOMContentLoaded", () => {
     const payrollForm = document.getElementById("generatePayrollForm");
     if (payrollForm) {
         payrollForm.addEventListener("submit", handleGeneratePayroll);
+        loadPayrollEmployees();
     }
 });
+
+async function loadPayrollEmployees() {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+        const response = await fetch("http://localhost:8080/api/admin/users", {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            const users = await response.json();
+            const selectEl = document.getElementById("payrollUserId");
+            if (!selectEl) return;
+            
+            selectEl.innerHTML = `<option value="" disabled selected>-- Select Employee --</option>`;
+            
+            users.forEach(user => {
+                if (user.role !== "ROLE_ADMIN") {
+                    const opt = document.createElement("option");
+                    opt.value = user.id;
+                    opt.textContent = `${user.fullName} (${user.employeeId})`;
+                    selectEl.appendChild(opt);
+                }
+            });
+        }
+    } catch (e) {
+        console.error("Failed to load employees for payroll:", e);
+    }
+}
 
 async function handleGeneratePayroll(e) {
     e.preventDefault(); // Prevent page refresh
@@ -17,8 +48,7 @@ async function handleGeneratePayroll(e) {
     const payload = {
         userId: parseInt(document.getElementById("payrollUserId").value),
         month: parseInt(document.getElementById("payrollMonth").value),
-        year: parseInt(document.getElementById("payrollYear").value),
-        baseSalary: parseFloat(document.getElementById("payrollBaseSalary").value)
+        year: parseInt(document.getElementById("payrollYear").value)
     };
 
     try {

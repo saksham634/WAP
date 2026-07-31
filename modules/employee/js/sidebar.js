@@ -9,7 +9,6 @@
 // INITIALIZE SIDEBAR
 export function initializeSidebar() {
     highlightActiveMenu();
-    initializeLogout();
 }
 
 // HIGHLIGHT ACTIVE MENU
@@ -28,18 +27,4 @@ function highlightActiveMenu() {
         }
     });
 }
-
-// LOGOUT
-function initializeLogout() {
-    const logoutButton = document.querySelector(".sidebar-bottom a");
-    if (!logoutButton) return;
-    logoutButton.addEventListener("click", function (event) {
-        event.preventDefault();
-        const confirmed = confirm("Are you sure you want to logout?");
-        if (confirmed) {
-            // Spring Security Logout URL
-            // window.location.href = "/logout";
-            console.log("Logout Successful");
-        }
-    });
-}
+

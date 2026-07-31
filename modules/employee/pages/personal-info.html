@@ -19,9 +19,8 @@
     <link rel="stylesheet" href="../../../shared/css/utilities.css">
     <link rel="stylesheet" href="../styles/personalinfo.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../../../shared/js/layout-loader.js" defer></script>   <!-- Global Sidebar Loader -->
-    <script src="../js/dashboard.js" defer></script>
+    <script src="../js/personal-info.js" defer></script>
 </head>
 <body>
 <div class="dashboard-container">
@@ -40,15 +39,11 @@
             </div>
 
             <div class="profile-section">
-                <div class="profile-avatar">F</div>
+                <div class="profile-avatar">E</div>
                 <div class="profile-details">
-                    <h3>Freak</h3>
+                    <h3>Employee</h3>
                     <span>Software Engineer</span>
                 </div>
-
-                <button class="profile-menu">
-                    <i class="fa-solid fa-ellipsis-vertical"></i>
-                </button>
             </div>
         </div>
 
@@ -66,18 +61,18 @@
                             <p>Basic personal details</p>
                         </div>
 
-                        <button class="edit-btn">
-                            <i class="fa-solid fa-pen"></i> Edit
+                        <button class="edit-btn" id="editProfileBtn">
+                            <i class="fa-solid fa-pen"></i> Edit Contact Info
                         </button>
                     </div>
 
                     <div class="profile-grid">
-                        <div class="profile-item"><span>Full Name</span><b>Freak</b></div>
-                        <div class="profile-item"><span>Employee ID</span><b>EMP1024</b></div>
-                        <div class="profile-item"><span>Email</span><b>freak@company.com</b></div>
-                        <div class="profile-item"><span>Phone</span><b>+91 9876543210</b></div>
-                        <div class="profile-item"><span>Designation</span><b>Software Engineer</b></div>
-                        <div class="profile-item"><span>Department</span><b>IT</b></div>
+                        <div class="profile-item"><span>Full Name</span><b id="infoFullName">User</b></div>
+                        <div class="profile-item"><span>Employee ID</span><b id="infoEmpId">EMP-1024</b></div>
+                        <div class="profile-item"><span>Email</span><b id="infoEmail">user@company.com</b></div>
+                        <div class="profile-item"><span>Phone</span><b id="infoPhone">+91 9876543210</b></div>
+                        <div class="profile-item"><span>Designation</span><b id="infoDesignation">Software Engineer</b></div>
+                        <div class="profile-item"><span>Department</span><b id="infoDepartment">Engineering</b></div>
                     </div>
                 </div>
 
@@ -90,21 +85,15 @@
                         </div>
                     </div>
 
-                    <div class="action-grid">
-
-                        <div class="action-box">
+                    <div class="action-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="action-box" id="showEmpIdBox" style="cursor: pointer;">
                             <i class="fa-solid fa-id-card"></i>
-                            <span>Employee ID</span>
+                            <span>Employee ID Badge</span>
                         </div>
 
-                        <div class="action-box">
-                            <i class="fa-solid fa-file"></i>
+                        <div class="action-box" id="requestDocsBox" style="cursor: pointer;">
+                            <i class="fa-solid fa-file-pdf"></i>
                             <span>Request Docs</span>
-                        </div>
-
-                        <div class="action-box">
-                            <i class="fa-solid fa-file-contract"></i>
-                            <span>Contracts</span>
                         </div>
                     </div>
                 </div>
@@ -121,19 +110,19 @@
                             <p>Current residential information</p>
                         </div>
 
-                        <button class="edit-btn">
-                            <i class="fa-solid fa-pen"></i>
+                        <button class="edit-btn" id="editAddressBtn">
+                            <i class="fa-solid fa-pen"></i> Edit
                         </button>
                     </div>
 
-                    <div class="address-content">
-                        <p>123, Green Park Avenue</p>
-                        <p>Meerut, Uttar Pradesh</p>
-                        <p>India - 250001</p>
+                    <div class="address-content" id="addressContent">
+                        <p id="addrStreet">123, Green Park Avenue</p>
+                        <p id="addrCityState">Meerut, Uttar Pradesh</p>
+                        <p id="addrZip">India - 250001</p>
                     </div>
                 </div>
 
-                <!-- EMERGENCY -->
+                <!-- EMERGENCY CONTACT -->
                 <div class="card">
                     <div class="card-header">
                         <div>
@@ -141,53 +130,25 @@
                             <p>In case of emergency</p>
                         </div>
 
-                        <button class="edit-btn">
-                            <i class="fa-solid fa-pen"></i>
+                        <button class="edit-btn" id="editEmergencyBtn">
+                            <i class="fa-solid fa-pen"></i> Edit
                         </button>
                     </div>
 
                     <div class="emergency-info">
                         <div class="info-row">
                             <span>Name</span>
-                            <b>John Doe</b>
+                            <b id="emergName">John Doe</b>
                         </div>
 
                         <div class="info-row">
                             <span>Relation</span>
-                            <b>Father</b>
+                            <b id="emergRelation">Father</b>
                         </div>
 
                         <div class="info-row">
                             <span>Phone</span>
-                            <b>+91 9123456780</b>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ACCOUNT STATUS  -->
-                <div class="card">
-
-                    <div class="card-header">
-                        <div>
-                            <h2>Account Status</h2>
-                            <p>Security & login info</p>
-                        </div>
-                    </div>
-
-                    <div class="status-list">
-                        <div class="info-row">
-                            <span>Last Login</span>
-                            <b>Today 10:45 AM</b>
-                        </div>
-
-                        <div class="info-row">
-                            <span>Email Verification</span>
-                            <b style="color:green;">Verified</b>
-                        </div>
-
-                        <div class="info-row">
-                            <span>Two Factor Auth</span>
-                            <b style="color:red;">Disabled</b>
+                            <b id="emergPhone">+91 9123456780</b>
                         </div>
                     </div>
                 </div>

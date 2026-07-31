@@ -10,8 +10,9 @@ public class LeaveResponseDTO {
     private LocalDate endDate;
     private String reason;
     private String status;
+    private String rejectionReason;
 
-    public LeaveResponseDTO(Long id, String employeeName, String leaveType, LocalDate startDate, LocalDate endDate, String reason, String status) {
+    public LeaveResponseDTO(Long id, String employeeName, String leaveType, LocalDate startDate, LocalDate endDate, String reason, String status, String rejectionReason) {
         this.id = id;
         this.employeeName = employeeName;
         this.leaveType = leaveType;
@@ -19,6 +20,7 @@ public class LeaveResponseDTO {
         this.endDate = endDate;
         this.reason = reason;
         this.status = status;
+        this.rejectionReason = rejectionReason;
     }
 
     // Getters
@@ -29,4 +31,5 @@ public class LeaveResponseDTO {
     public LocalDate getEndDate() { return endDate; }
     public String getReason() { return reason; }
     public String getStatus() { return status; }
+    public String getRejectionReason() { return rejectionReason; }
 }

@@ -33,13 +33,18 @@
 /* Attendance Card */
 .attendance-card{
     flex:1;
-    min-height:0;
+    display:flex;
+    flex-direction:column;
+    min-height:320px;
 }
 
 .chart-container{
     flex:1;
     position:relative;
-    min-height:0;
+    width:100%;
+    min-height:280px;
+    height:100%;
+    padding:10px 0;
 }
 
 /* Team Updates */
@@ -203,7 +208,7 @@
     color:var(--text-light);
 }
 
-/* Responsive */
+/* Responsive Breakpoints */
 @media(max-width:1200px){
     .right-panel{
         flex:1;
@@ -219,8 +224,23 @@
     }
 }
 
-@media(max-width:768px){
+@media(max-width:992px){
+    .top-section{
+        flex-direction:column;
+    }
+    .right-panel{
+        flex:1;
+        width:100%;
+    }
+    .chart-container{
+        height:240px;
+        min-height:200px;
+    }
 }
 
 @media(max-width:600px){
+    .chart-container{
+        height:210px;
+        min-height:180px;
+    }
 }

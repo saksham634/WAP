@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../../../shared/js/layout-loader.js" defer></script>   <!-- Global Sidebar Loader -->
+    <script src="../js/auth-guard.js" defer></script>
 </head>
 <body>
 
@@ -46,16 +47,22 @@
                 
                 <!-- Left Panel -->
                 <div class="left-panel">
-                    <div class="card flex-1">
-                        <div class="card-header">
+                    <div class="card" style="margin-bottom: 20px;">
+                        <div class="card-header" style="position: relative;">
                             <div>
                                 <h2>Workforce Attendance Trend</h2>
-                                <p>Weekly Organization Overview</p>
+                                <p>Organization Overview</p>
                             </div>
-                            <button class="filter-button">This Week <i class="fa-solid fa-chevron-down" style="margin-left: 5px;"></i></button>
+                            <div class="dropdown" style="position: relative;">
+                                <button class="filter-button" id="chartFilterBtn" onclick="toggleChartDropdown()">This Week <i class="fa-solid fa-chevron-down" style="margin-left: 5px;"></i></button>
+                                <div id="chartDropdown" style="display: none; position: absolute; right: 0; top: 100%; margin-top: 5px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); z-index: 10; min-width: 140px;">
+                                    <div onclick="selectChartFilter('This Week')" style="padding: 10px 15px; cursor: pointer; border-bottom: 1px solid #e2e8f0; font-size: 13px;">This Week</div>
+                                    <div onclick="selectChartFilter('This Month')" style="padding: 10px 15px; cursor: pointer; font-size: 13px;">This Month</div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="chart-placeholder">
-                            [ Chart Graphic Will Render Here ]
+                        <div class="chart-placeholder" style="position: relative; height: 280px; width: 100%;">
+                            <canvas id="attendanceChart" style="width: 100%; height: 100%;"></canvas>
                         </div>
                     </div>
 
@@ -92,9 +99,11 @@
                             <form id="generatePayrollForm" style="display: grid; gap: 1rem;">
                                 
                                 <div class="form-group">
-                                    <label for="payrollUserId" style="font-weight: 500; display: block; margin-bottom: 0.5rem;">Employee System ID</label>
-                                    <input type="number" id="payrollUserId" class="form-control" placeholder="e.g., 2" required style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 4px;">
-                                    <small style="color: #64748b; display: block; margin-top: 0.25rem;">Enter the database ID of the user</small>
+                                    <label for="payrollUserId" style="font-weight: 500; display: block; margin-bottom: 0.5rem;">Select Employee</label>
+                                    <select id="payrollUserId" class="form-control" required style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 4px;">
+                                        <option value="" disabled selected>Loading employees...</option>
+                                    </select>
+                                    <small style="color: #64748b; display: block; margin-top: 0.25rem;">Choose an employee to process payroll</small>
                                 </div>
 
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
@@ -121,11 +130,6 @@
                                         <label for="payrollYear" style="font-weight: 500; display: block; margin-bottom: 0.5rem;">Year</label>
                                         <input type="number" id="payrollYear" class="form-control" value="2026" required style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 4px;">
                                     </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="payrollBaseSalary" style="font-weight: 500; display: block; margin-bottom: 0.5rem;">Base Salary (₹)</label>
-                                    <input type="number" id="payrollBaseSalary" class="form-control" placeholder="e.g., 50000" required style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 4px;">
                                 </div>
 
                                 <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem; padding: 0.75rem; background-color: #007a7a; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">

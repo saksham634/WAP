@@ -9,6 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.HashMap;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
+import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -19,6 +23,20 @@ public class AuthController {
 
     public AuthController(AuthService authService) {
         this.authService = authService;
+    }
+    
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth.getName().equals("anonymousUser")) {
+            return ResponseEntity.status(401).body(Map.of("message", "Not authenticated"));
+        }
+        
+        try {
+            return ResponseEntity.ok(authService.getUserProfile(auth.getName()));
+        } catch(Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
     }
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
@@ -39,7 +57,7 @@ public class AuthController {
             AuthResponse response = authService.login(request);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.status(401).body(new AuthResponse(null, null, "Invalid email or password"));
+            return ResponseEntity.status(401).body(new AuthResponse(null, null, null, null, null, "Invalid email or password"));
         }
     }
 
@@ -49,7 +67,7 @@ public class AuthController {
             AuthResponse response = authService.registerOrganization(request);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new AuthResponse(null, null, e.getMessage()));
+            return ResponseEntity.badRequest().body(new AuthResponse(null, null, null, null, null, e.getMessage()));
         }
     }
 }

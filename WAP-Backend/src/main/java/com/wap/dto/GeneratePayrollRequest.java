@@ -4,7 +4,6 @@ public class GeneratePayrollRequest {
     private Long userId;
     private Integer month;
     private Integer year;
-    private Double baseSalary;
 
     // Getters and Setters
     public Long getUserId() { return userId; }
@@ -15,7 +14,4 @@ public class GeneratePayrollRequest {
 
     public Integer getYear() { return year; }
     public void setYear(Integer year) { this.year = year; }
-
-    public Double getBaseSalary() { return baseSalary; }
-    public void setBaseSalary(Double baseSalary) { this.baseSalary = baseSalary; }
 }

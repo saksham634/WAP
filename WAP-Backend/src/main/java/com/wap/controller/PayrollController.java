@@ -33,6 +33,15 @@ public class PayrollController {
         }
     }
 
+    @GetMapping("/hr/all")
+    public ResponseEntity<?> getAllOrganizationPayslips() {
+        try {
+            return ResponseEntity.ok(payrollService.getAllOrganizationPayslips());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     // ==========================================
     // EMPLOYEE ENDPOINTS
     // ==========================================

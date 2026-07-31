@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../../../shared/js/layout-loader.js" defer></script>   <!-- Global Sidebar Loader -->
+    <script src="../js/auth-guard.js" defer></script>
 </head>
 <body>
     <div class="dashboard-container">
@@ -43,20 +44,22 @@
                             <h2>Pending Approvals</h2>
                         </div>
                         
-                        <div class="info-row align-center" style="padding: 20px 0;">
-                            <div class="d-flex align-center" style="gap: 15px;">
-                                <div class="event-date">
-                                    <h3>05</h3>
-                                    <span>JUL</span>
+                        <div id="leaveList">
+                            <div class="info-row align-center" style="padding: 20px 0;">
+                                <div class="d-flex align-center" style="gap: 15px;">
+                                    <div class="event-date">
+                                        <h3>05</h3>
+                                        <span>JUL</span>
+                                    </div>
+                                    <div>
+                                        <h4 style="font-size: 15px; margin-bottom: 4px;">Casual Leave • 2 Days</h4>
+                                        <span style="font-size: 13px; color: var(--text-light);">Requested by: Amit Kumar (IT)</span>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h4 style="font-size: 15px; margin-bottom: 4px;">Casual Leave • 2 Days</h4>
-                                    <span style="font-size: 13px; color: var(--text-light);">Requested by: Amit Kumar (IT)</span>
+                                <div class="d-flex" style="gap: 10px;">
+                                    <button class="filter-button" style="background: #dc2626; color: white;">Reject</button>
+                                    <button class="filter-button" style="background: #007a7a; color: white;">Approve</button>
                                 </div>
-                            </div>
-                            <div class="d-flex" style="gap: 10px;">
-                                <button class="filter-button" style="background: #dc2626; color: white;">Reject</button>
-                                <button class="filter-button" style="background: #007a7a; color: white;">Approve</button>
                             </div>
                         </div>
 
@@ -65,5 +68,6 @@
             </div>
         </main>
     </div>
+    <script src="../js/leave.js" defer></script>
 </body>
 </html>

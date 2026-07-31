@@ -12,17 +12,18 @@
     <link rel="stylesheet" href="../../../shared/css/cards.css">
     <link rel="stylesheet" href="../styles/roles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="../../../shared/js/layout-loader.js" defer></script>
     <script src="../js/roles.js" defer></script>
     <script src="../js/auth-guard.js" defer></script>
 </head>
 <body>
     <div class="dashboard-container">
-        <div id="global-sidebar"></div>
+        <div id="global-sidebar" data-sidebar="admin"></div>
         <main class="main-content">
             <header class="page-header">
                 <div class="welcome-section">
                     <h1>Roles & Permissions</h1>
-                    <p>Manage system access levels via RBAC</p>
+                    <p>Configure user-specific access permissions and feature toggles</p>
                 </div>
                 <div class="profile-section">
                     <div class="profile-avatar" style="background: linear-gradient(135deg, #1f2937, #4b5563);">AD</div>
@@ -33,8 +34,61 @@
                 </div>
             </header>
 
-            <div class="roles-grid" id="rolesContainer">
-                <!-- Populated by JS -->
+            <!-- User Selector & Control Panel -->
+            <div class="card selector-card" style="margin-bottom: 24px;">
+                <div class="selector-header">
+                    <div>
+                        <h2><i class="fa-solid fa-user-gear" style="color: #007a7a; margin-right: 10px;"></i> Select User Account</h2>
+                        <p style="color: #64748b; font-size: 14px; margin-top: 4px;">Choose an employee or HR manager to customize their permissions</p>
+                    </div>
+                    <div class="filter-group">
+                        <select id="roleFilter" class="select-input">
+                            <option value="ALL">All Roles</option>
+                            <option value="ROLE_EMPLOYEE">Employees Only</option>
+                            <option value="ROLE_HR">HR Managers Only</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="user-select-row" style="margin-top: 16px;">
+                    <div class="select-wrapper flex-1">
+                        <select id="userSelect" class="select-input user-dropdown">
+                            <option value="" disabled selected>Loading system users...</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Selected User Banner -->
+            <div id="selectedUserBanner" class="card user-banner-card" style="display: none; margin-bottom: 24px;">
+                <div class="user-info-left">
+                    <div id="userAvatarBadge" class="user-avatar-lg">U</div>
+                    <div class="user-meta">
+                        <h2 id="userNameDisplay">Select a User</h2>
+                        <div class="user-subtext">
+                            <span id="userIdBadge" class="badge badge-id">EMP-0000</span>
+                            <span id="userEmailDisplay">email@example.com</span>
+                            <span id="userRoleBadge" class="badge badge-role">Employee</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="user-actions-right">
+                    <button id="resetDefaultsBtn" class="btn btn-outline" type="button">
+                        <i class="fa-solid fa-rotate-left" style="margin-right: 6px;"></i> Reset Defaults
+                    </button>
+                    <button id="savePermissionsBtn" class="btn btn-primary" type="button">
+                        <i class="fa-solid fa-floppy-disk" style="margin-right: 6px;"></i> Save Permissions
+                    </button>
+                </div>
+            </div>
+
+            <!-- Permission Toggles Container -->
+            <div id="permissionsGrid" class="permissions-grid">
+                <div class="empty-state-card">
+                    <i class="fa-solid fa-hand-pointer" style="font-size: 40px; color: #cbd5e1; margin-bottom: 12px;"></i>
+                    <h3>No User Selected</h3>
+                    <p style="color: #64748b; font-size: 14px;">Select a user from the dropdown above to manage their access permissions.</p>
+                </div>
             </div>
         </main>
     </div>

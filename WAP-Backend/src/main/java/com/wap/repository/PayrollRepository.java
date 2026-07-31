@@ -12,4 +12,7 @@ public interface PayrollRepository extends JpaRepository<Payroll, Long> {
     
     // Check if payroll already exists for a user in a specific month/year
     Optional<Payroll> findByUser_IdAndPayMonthAndPayYear(Long userId, Integer month, Integer year);
+
+    // Fetch all payslips for an organization
+    List<Payroll> findByUser_Organization_IdOrderByPayYearDescPayMonthDesc(Long orgId);
 }

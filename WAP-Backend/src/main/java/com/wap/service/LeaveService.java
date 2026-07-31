@@ -33,6 +33,7 @@ public class LeaveService {
     // Employee: Submit a new leave request
     public void submitLeaveRequest(LeaveSubmitRequest request) {
         User user = getAuthenticatedUser();
+        com.wap.util.PermissionUtil.validatePermission(user, "LEAVES");
 
         LeaveRequest leave = new LeaveRequest();
         leave.setUser(user);
@@ -53,18 +54,47 @@ public class LeaveService {
         return requests.stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
-    // HR/Admin: View all pending requests company-wide
+    // Employee: Get live leave summary KPI totals
+    public com.wap.dto.LeaveSummaryDTO getLeaveSummary() {
+        User user = getAuthenticatedUser();
+        List<LeaveRequest> requests = leaveRepository.findByUser_IdOrderByCreatedAtDesc(user.getId());
+
+        int totalLeaves = 24;
+        int usedLeaves = 0;
+        int pendingLeaves = 0;
+
+        for (LeaveRequest req : requests) {
+            if ("APPROVED".equalsIgnoreCase(req.getStatus())) {
+                usedLeaves++;
+            } else if ("PENDING".equalsIgnoreCase(req.getStatus())) {
+                pendingLeaves++;
+            }
+        }
+
+        int remainingLeaves = Math.max(0, totalLeaves - usedLeaves);
+        return new com.wap.dto.LeaveSummaryDTO(totalLeaves, usedLeaves, remainingLeaves, pendingLeaves);
+    }
+
+    // HR/Admin: View all pending requests for their organization
     public List<LeaveResponseDTO> getPendingLeaves() {
-        List<LeaveRequest> requests = leaveRepository.findByStatusOrderByCreatedAtDesc("PENDING");
+        User user = getAuthenticatedUser();
+        Long orgId = user.getOrganization().getId();
+        List<LeaveRequest> requests = leaveRepository.findByUser_Organization_IdAndStatusOrderByCreatedAtDesc(orgId, "PENDING");
         return requests.stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
     // HR/Admin: Approve or Reject a request
-    public void updateLeaveStatus(Long leaveId, String newStatus) {
+    public void updateLeaveStatus(Long leaveId, String newStatus, String reason) {
+        User user = getAuthenticatedUser();
+        com.wap.util.PermissionUtil.validatePermission(user, "LEAVE_APPROVALS");
+
         LeaveRequest leave = leaveRepository.findById(leaveId)
                 .orElseThrow(() -> new RuntimeException("Leave request not found"));
         
         leave.setStatus(newStatus.toUpperCase());
+        if ("REJECTED".equalsIgnoreCase(newStatus) && reason != null && !reason.isBlank()) {
+            leave.setRejectionReason(reason);
+        }
         leaveRepository.save(leave);
     }
 
@@ -77,7 +107,8 @@ public class LeaveService {
                 leave.getStartDate(),
                 leave.getEndDate(),
                 leave.getReason(),
-                leave.getStatus()
+                leave.getStatus(),
+                leave.getRejectionReason()
         );
     }
 }

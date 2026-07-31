@@ -33,6 +33,9 @@ public class LeaveRequest {
     @Column(nullable = false, length = 20)
     private String status = "PENDING"; // "PENDING", "APPROVED", "REJECTED"
 
+    @Column(length = 500)
+    private String rejectionReason;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
@@ -58,6 +61,9 @@ public class LeaveRequest {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public String getRejectionReason() { return rejectionReason; }
+    public void setRejectionReason(String rejectionReason) { this.rejectionReason = rejectionReason; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

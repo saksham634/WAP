@@ -34,9 +34,19 @@ public class LeaveController {
         }
     }
 
+    @PostMapping("/apply")
+    public ResponseEntity<?> applyLeave(@RequestBody LeaveSubmitRequest request) {
+        return submitLeave(request);
+    }
+
     @GetMapping("/my-leaves")
     public ResponseEntity<List<LeaveResponseDTO>> getMyLeaves() {
         return ResponseEntity.ok(leaveService.getMyLeaves());
+    }
+
+    @GetMapping("/summary")
+    public ResponseEntity<com.wap.dto.LeaveSummaryDTO> getLeaveSummary() {
+        return ResponseEntity.ok(leaveService.getLeaveSummary());
     }
 
     // ==========================================
@@ -52,7 +62,8 @@ public class LeaveController {
     public ResponseEntity<?> updateLeaveStatus(@PathVariable Long id, @RequestBody Map<String, String> payload) {
         try {
             String status = payload.get("status"); // "APPROVED" or "REJECTED"
-            leaveService.updateLeaveStatus(id, status);
+            String reason = payload.getOrDefault("reason", null);
+            leaveService.updateLeaveStatus(id, status, reason);
             return ResponseEntity.ok(Map.of("message", "Leave status updated to " + status));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

@@ -38,4 +38,23 @@ public class AttendanceController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @PostMapping("/reset")
+    public ResponseEntity<?> resetToday() {
+        try {
+            attendanceService.resetTodayAttendance();
+            return ResponseEntity.ok(java.util.Map.of("message", "Today's attendance has been reset for testing."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/org-today")
+    public ResponseEntity<?> getOrgTodayAttendance() {
+        try {
+            return ResponseEntity.ok(attendanceService.getOrgTodayAttendance());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
+        }
+    }
 }

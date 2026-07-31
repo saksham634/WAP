@@ -39,6 +39,10 @@ async function handleLogin() {
         if (response.ok) {
             localStorage.setItem("token", data.token);
             localStorage.setItem("role", data.role);
+            localStorage.setItem("employeeId", data.employeeId || "");
+            localStorage.setItem("fullName", data.fullName || "");
+            localStorage.setItem("userEmail", data.email || email);
+            localStorage.setItem("userName", data.fullName || data.employeeId || data.email || "Admin User");
 
             if (data.role === "ROLE_ADMIN") {
                 window.location.href = "../../modules/admin/pages/dashboard.html";

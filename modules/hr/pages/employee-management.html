@@ -18,8 +18,8 @@
     <link rel="stylesheet" href="../../../shared/css/components.css">
     <link rel="stylesheet" href="../../../shared/css/utilities.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="../../../shared/js/layout-loader.js" defer></script>   <!-- Global Sidebar Loader -->
+    <script src="../../../shared/js/layout-loader.js" defer></script>
+    <script src="../js/auth-guard.js" defer></script>
 </head>
 <body>
     <div class="dashboard-container">
@@ -29,14 +29,13 @@
             <header class="page-header">
                 <div class="welcome-section">
                     <h1>Employee Management</h1>
-                    <p>View, add, and manage the organization's workforce.</p>
+                    <p>View, manage, and configure employee designations.</p>
                 </div>
                 <div class="profile-section">
-                    <button class="profile-menu"><i class="fa-solid fa-bell"></i></button>
                     <div class="profile-avatar">HR</div>
                     <div class="profile-details">
-                        <h3>Saksham Sharma</h3>
-                        <span>HR Manager</span>
+                        <h3>HR Manager</h3>
+                        <span>Human Resources</span>
                     </div>
                 </div>
             </header>
@@ -47,31 +46,12 @@
                         <div class="card-header">
                             <div>
                                 <h2>Active Staff Directory</h2>
-                                <p>142 Total Employees</p>
+                                <p id="employeeCount">Loading...</p>
                             </div>
-                            <button class="filter-button"><i class="fa-solid fa-user-plus" style="margin-right: 8px;"></i> Add New</button>
                         </div>
                         
-                        <div class="info-row align-center">
-                            <div class="d-flex align-center" style="gap: 15px;">
-                                <div class="profile-avatar" style="width: 40px; height: 40px; font-size: 14px;">JD</div>
-                                <div>
-                                    <h4 style="font-size: 15px; margin-bottom: 2px;">John Doe</h4>
-                                    <span style="font-size: 13px; color: var(--text-light);">EMP-1024 • Software Engineer</span>
-                                </div>
-                            </div>
-                            <span style="color: #007a7a; font-weight: 600; background: #eef8f8; padding: 6px 12px; border-radius: 8px;">Active</span>
-                        </div>
-
-                        <div class="info-row align-center">
-                            <div class="d-flex align-center" style="gap: 15px;">
-                                <div class="profile-avatar" style="width: 40px; height: 40px; font-size: 14px; background: #666;">AS</div>
-                                <div>
-                                    <h4 style="font-size: 15px; margin-bottom: 2px;">Aarav Sharma</h4>
-                                    <span style="font-size: 13px; color: var(--text-light);">EMP-1025 • Cloud Architect</span>
-                                </div>
-                            </div>
-                            <span style="color: #007a7a; font-weight: 600; background: #eef8f8; padding: 6px 12px; border-radius: 8px;">Active</span>
+                        <div id="employeeList">
+                            <p style="padding: 20px; color: var(--text-light);">Loading employees...</p>
                         </div>
                     </div>
                 </div>
@@ -82,11 +62,7 @@
                             <h2>Quick Actions</h2>
                         </div>
                         <div class="status-list">
-                            <button class="filter-button w-100 justify-between" style="padding: 15px;">
-                                <span><i class="fa-solid fa-file-contract" style="margin-right: 8px;"></i> Generate Contracts</span>
-                                <i class="fa-solid fa-chevron-right"></i>
-                            </button>
-                            <button class="filter-button w-100 justify-between" style="padding: 15px;">
+                            <button class="filter-button w-100 justify-between" style="padding: 15px;" id="btnDeptConfig">
                                 <span><i class="fa-solid fa-sitemap" style="margin-right: 8px;"></i> Department Config</span>
                                 <i class="fa-solid fa-chevron-right"></i>
                             </button>
@@ -96,6 +72,44 @@
             </div>
         </main>
     </div>
+
+    <!-- Designation Assignment Modal -->
+    <div id="designationModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:white; border-radius:16px; padding:28px 32px; width:420px; max-width:90vw; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <h3 style="margin:0 0 6px; font-size:18px; color:#0f172a;">Assign Designation</h3>
+            <p id="designationEmpName" style="margin:0 0 18px; font-size:13px; color:#64748b;">Employee Name</p>
+            
+            <label style="font-size:13px; font-weight:600; color:#334155; display:block; margin-bottom:6px;">Select Designation</label>
+            <select id="designationSelect" style="width:100%; padding:10px 12px; border:1px solid #e2e8f0; border-radius:10px; font-size:14px; margin-bottom:12px;">
+                <option value="">-- Choose Designation --</option>
+                <option value="Junior Developer">Junior Developer</option>
+                <option value="Senior Developer">Senior Developer</option>
+                <option value="Lead Developer">Lead Developer</option>
+                <option value="Junior Tester">Junior Tester</option>
+                <option value="Senior Tester">Senior Tester</option>
+                <option value="QA Lead">QA Lead</option>
+                <option value="DevOps Engineer">DevOps Engineer</option>
+                <option value="UI/UX Designer">UI/UX Designer</option>
+                <option value="Product Manager">Product Manager</option>
+                <option value="Project Manager">Project Manager</option>
+                <option value="Team Lead">Team Lead</option>
+                <option value="Business Analyst">Business Analyst</option>
+                <option value="Data Analyst">Data Analyst</option>
+                <option value="Cloud Architect">Cloud Architect</option>
+                <option value="HR Executive">HR Executive</option>
+                <option value="Intern">Intern</option>
+            </select>
+
+            <label style="font-size:13px; font-weight:600; color:#334155; display:block; margin-bottom:6px;">Or type custom</label>
+            <input type="text" id="designationCustom" placeholder="e.g., Senior Cloud Engineer" style="width:100%; padding:10px 12px; border:1px solid #e2e8f0; border-radius:10px; font-size:14px; margin-bottom:18px; box-sizing:border-box;">
+
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button onclick="closeDesignationModal()" style="padding:8px 18px; border:1px solid #e2e8f0; border-radius:10px; background:white; cursor:pointer; font-size:13px;">Cancel</button>
+                <button onclick="saveDesignation()" style="padding:8px 18px; border:none; border-radius:10px; background:#007a7a; color:white; cursor:pointer; font-weight:600; font-size:13px;">Save</button>
+            </div>
+        </div>
+    </div>
+
     <script src="../js/employee-management.js"></script>
 </body>
 </html>

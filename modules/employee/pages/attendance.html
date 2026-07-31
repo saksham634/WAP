@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../../../shared/js/layout-loader.js" defer></script>   <!-- Global Sidebar Loader -->
-    <script src="../js/attendance.js" defer></script>
+    <script type="module" src="../js/attendance.js" defer></script>
 </head>
 <body>
 <div class="dashboard-container">
@@ -32,48 +32,28 @@
     <!-- MAIN CONTENT -->
     <main class="main-content">
 
-        <!-- TOP HEADER -->
-        <section class="top-header">
-
-            <!-- Greeting -->
+        <!-- PAGE HEADER -->
+        <header class="page-header" style="margin-bottom: 20px;">
             <div class="welcome-section">
-                <h1>Good Morning, Freak</h1>
-                <p>Hope you are having a great day!</p>
+                <h1>Attendance</h1>
+                <p>View your attendance, leaves, and daily status</p>
             </div>
 
-            <!-- Day Card -->
-            <div class="day-card">
-                <div class="day-box">
-                    <i class="fa-regular fa-calendar"></i>
-                    <div>
-                        <span class="label">Day & Date</span>
-                        <h3 id="currentDate">
-                            Friday, 27 June 2026
-                        </h3>
-                    </div>
+            <div class="profile-section">
+                <div class="profile-avatar">F</div>
+                <div class="profile-details">
+                    <h3>Freak</h3>
+                    <span>Software Engineer</span>
                 </div>
-                <hr>
-                <div class="time-box">
-                    <i class="fa-regular fa-clock"></i>
-                    <div>
-                        <span class="label">
-                            Live Time
-                        </span>
-
-                        <h2 id="liveClock">
-                            09:42:18 AM
-                        </h2>
-                    </div>
-                </div>
+                <button class="profile-menu">
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
             </div>
+        </header>
 
-            <!-- Profile -->
-            <div class="profile-card">
-                <img src="../Images/profile.jpg" alt="Profile">
-                <h3>Freak</h3>
-                <span>Software Engineer</span>
-            </div>
-        </section>
+        <section class="top-section">
+            <!-- LEFT PANEL -->
+            <div class="left-panel">
 
         <!-- KPI SECTION -->
         <section class="kpi-section">
@@ -85,8 +65,8 @@
 
                 <div>
                     <h4>Attendance</h4>
-                    <h2>94%</h2>
-                    <small>+3% this month</small>
+                    <h2 id="kpiAttendancePct">--%</h2>
+                    <small>Real-Time Rate</small>
                 </div>
             </div>
 
@@ -127,11 +107,10 @@
             </div>
         </section>
 
-        <!-- BOTTOM SECTION -->
-        <section class="bottom-section">
+                <section>
 
-            <!-- Attendance Calendar -->
-            <div class="calendar-card">
+                    <!-- Attendance Calendar -->
+                    <div class="calendar-card" style="width: 100%;">
                 <div class="card-header">
                     <h2>Attendance Calendar</h2>
                 </div>
@@ -141,9 +120,30 @@
                 </div>
             </div>
 
-            <!-- Right Panel -->
-            <aside class="right-panel">
-
+            </div>
+            </section>
+        </div>
+            
+        <!-- RIGHT PANEL -->
+        <div class="right-panel">
+                <!-- Day Card -->
+                <div class="day-card" style="margin-bottom: 20px;">
+                    <div class="day-box">
+                        <i class="fa-regular fa-calendar"></i>
+                        <div>
+                            <span class="label">Day & Date</span>
+                            <h3 id="currentDate">Friday, 27 June 2026</h3>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="time-box">
+                        <i class="fa-regular fa-clock"></i>
+                        <div>
+                            <span class="label">Live Time</span>
+                            <h2 id="liveClock">09:42:18 AM</h2>
+                        </div>
+                    </div>
+                </div>
                 <!-- Holidays -->
                 <div class="holiday-card">
                     <h3>Upcoming Holidays</h3>
@@ -159,9 +159,35 @@
                         <!-- leaves.js -->
                     </div>
                 </div>
-            </aside>
+            </div>
         </section>
     </main>
 </div>
+
+<script>
+    // Fetch KPIs for the attendance page
+    async function fetchAttendanceKPIs() {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        try {
+            const response = await fetch("http://localhost:8080/api/employee/dashboard", {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                const kpiValues = document.querySelectorAll(".kpi-card h2");
+                if (kpiValues.length >= 4) {
+                    kpiValues[0].innerText = data.attendancePercentage || "N/A";
+                    kpiValues[1].innerText = data.leavesTaken !== undefined ? data.leavesTaken : "N/A";
+                    kpiValues[2].innerText = data.balanceLeaves !== undefined ? data.balanceLeaves : "N/A";
+                    kpiValues[3].innerText = data.todayStatus || "N/A";
+                }
+            }
+        } catch (error) {
+            console.error("Failed to load KPIs", error);
+        }
+    }
+    document.addEventListener("DOMContentLoaded", fetchAttendanceKPIs);
+</script>
 </body>
 </html>

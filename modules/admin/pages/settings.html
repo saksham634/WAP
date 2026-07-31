@@ -13,13 +13,13 @@
     <link rel="stylesheet" href="../../../shared/css/forms.css">
     <link rel="stylesheet" href="../styles/settings.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="../../../shared/js/layout-loader.js" defer></script>
     <script src="../js/settings.js" defer></script>
     <script src="../js/auth-guard.js" defer></script>
-    <script src="../js/user-management.js"></script>
 </head>
 <body>
     <div class="dashboard-container">
-        <div id="global-sidebar"></div>
+        <div id="global-sidebar" data-sidebar="admin"></div>
         <main class="main-content">
             <header class="page-header">
                 <div class="welcome-section">
@@ -38,35 +38,65 @@
             <section class="card w-100 flex-1">
                 <div class="settings-grid">
                     <div class="settings-nav">
-                        <button class="active">General Settings</button>
-                        <button>Security</button>
-                        <button>Notifications</button>
+                        <button class="active" data-tab="general">General Settings</button>
+                        <button data-tab="security">Security</button>
                     </div>
                     
-                    <div class="settings-form-area leave-form">
-                        <div class="card-header">
-                            <h2>General Configuration</h2>
-                        </div>
-                        <div class="form-row">
-                            <div style="flex:1;">
-                                <label>Company Name</label>
-                                <input type="text" value="StarWatt Technologies Pvt. Ltd." style="margin-top: 8px;">
+                    <div class="settings-content" style="flex: 1;">
+                        <!-- General Settings -->
+                        <div id="general-tab" class="settings-form-area leave-form">
+                            <div class="card-header">
+                                <h2>General Configuration</h2>
                             </div>
-                            <div style="flex:1;">
-                                <label>Support Email</label>
-                                <input type="email" value="support@starwatt.com" style="margin-top: 8px;">
-                            </div>
+                            <form id="generalSettingsForm">
+                                <div class="form-row">
+                                    <div style="flex:1;">
+                                        <label>Company Name</label>
+                                        <input type="text" id="companyName" required style="margin-top: 8px;">
+                                    </div>
+                                    <div style="flex:1;">
+                                        <label>Your Email (Read-only)</label>
+                                        <input type="email" id="userEmailReadOnly" readonly style="margin-top: 8px; background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;">
+                                    </div>
+                                </div>
+                                <div class="form-row" style="margin-top: 15px;">
+                                    <div style="flex:1;">
+                                        <label>Timezone</label>
+                                        <select id="timezoneSelect" style="margin-top: 8px;">
+                                            <option value="Asia/Kolkata">Asia/Kolkata (IST)</option>
+                                            <option value="America/New_York">America/New_York (EST)</option>
+                                            <option value="Europe/London">Europe/London (GMT)</option>
+                                            <option value="Australia/Sydney">Australia/Sydney (AEST)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="width: 150px; margin-top: 25px;">Save Changes</button>
+                            </form>
                         </div>
-                        <div class="form-row" style="margin-top: 15px;">
-                            <div style="flex:1;">
-                                <label>Timezone</label>
-                                <select style="margin-top: 8px;">
-                                    <option>Asia/Kolkata (IST)</option>
-                                    <option>America/New_York (EST)</option>
-                                </select>
+
+                        <!-- Security Tab -->
+                        <div id="security-tab" class="settings-form-area leave-form" style="display: none;">
+                            <div class="card-header">
+                                <h2>Change Password</h2>
                             </div>
+                            <form id="changePasswordForm">
+                                <div class="form-row" style="flex-direction: column;">
+                                    <div style="margin-bottom: 15px;">
+                                        <label>Current Password</label>
+                                        <input type="password" id="currentPassword" required style="margin-top: 8px;">
+                                    </div>
+                                    <div style="margin-bottom: 15px;">
+                                        <label>New Password</label>
+                                        <input type="password" id="newPassword" required style="margin-top: 8px;">
+                                    </div>
+                                    <div style="margin-bottom: 15px;">
+                                        <label>Confirm New Password</label>
+                                        <input type="password" id="confirmPassword" required style="margin-top: 8px;">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="width: 150px; margin-top: 10px;">Update Password</button>
+                            </form>
                         </div>
-                        <button type="button" style="width: 150px; margin-top: 25px;">Save Changes</button>
                     </div>
                 </div>
             </section>

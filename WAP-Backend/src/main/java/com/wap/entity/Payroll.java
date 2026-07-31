@@ -26,6 +26,9 @@ public class Payroll {
     @Column(nullable = false)
     private Double baseSalary;
 
+    @Column(columnDefinition = "double default 0.0")
+    private Double allowances = 0.0;
+
     @Column(nullable = false)
     private Integer presentDays;
 
@@ -56,9 +59,19 @@ public class Payroll {
     public void setPayYear(Integer payYear) { this.payYear = payYear; }
 
     public Double getBaseSalary() { return baseSalary; }
-    public void setBaseSalary(Double baseSalary) { this.baseSalary = baseSalary; }
+    public void setBaseSalary(Double baseSalary) {
+		this.baseSalary = baseSalary;
+	}
 
-    public Integer getPresentDays() { return presentDays; }
+	public Double getAllowances() {
+		return allowances;
+	}
+
+	public void setAllowances(Double allowances) {
+		this.allowances = allowances;
+	}
+
+	public Integer getPresentDays() { return presentDays; }
     public void setPresentDays(Integer presentDays) { this.presentDays = presentDays; }
 
     public Double getDeductions() { return deductions; }

@@ -1,78 +1,66 @@
+<!--              admin          -->
 <aside class="sidebar">
     <div class="sidebar-top">
-
-        <!-- LOGO -->
         <div class="logo">
             <div class="logo-icon">
                 <i class="fa-solid fa-chart-line"></i>
             </div>
-
             <div class="logo-text">
                 <h2>Workforce</h2>
                 <span>Analytics Platform</span>
             </div>
         </div>
 
-        <!-- MENU -->
         <nav class="sidebar-menu">
             <ul>
                 <li>
-                    <a href="#" data-page="dashboard">
+                    <a href="./dashboard.html" data-page="dashboard">
                         <i class="fa-solid fa-house"></i>
                         <span>Dashboard</span>
                     </a>
                 </li>
-
                 <li>
-                    <a href="#" data-page="emp-management">
-                        <i class="fa-solid fa-house"></i>
-                        <span>Employee Management</span>
+                    <a href="./user-management.html" data-page="user-management">
+                        <i class="fa-solid fa-users-gear"></i>
+                        <span>User Mgt</span>
                     </a>
                 </li>
-
                 <li>
-                    <a href="#" data-page="organization">
-                        <i class="fa-solid fa-calendar-check"></i>
-                        <span>Organization</span>
+                    <a href="./roles.html" data-page="roles">
+                        <i class="fa-solid fa-user-shield"></i>
+                        <span>Roles</span>
                     </a>
                 </li>
-
                 <li>
-                    <a href="#" data-page="leave-management">
-                        <i class="fa-solid fa-calendar-days"></i>
-                        <span>Leave Management</span>
+                    <a href="./audit.html" data-page="audit">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                        <span>Audit Logs</span>
                     </a>
                 </li>
-
                 <li>
-                    <a href="#" data-page="command center">
-                        <i class="fa-solid fa-wallet"></i>
-                        <span>Command Center</span>
+                    <a href="./settings.html" data-page="settings">
+                        <i class="fa-solid fa-gear"></i>
+                        <span>Settings</span>
                     </a>
                 </li>
-
                 <li>
-                    <a href="#" data-page="system-settings">
-                        <i class="fa-solid fa-user"></i>
-                        <span>System Settings</span>
+                    <a href="./projects.html" data-page="projects">
+                        <i class="fa-solid fa-diagram-project"></i>
+                        <span>Projects</span>
                     </a>
                 </li>
             </ul>
         </nav>
-
     </div>
 
-    <!-- BOTTOM -->
     <div class="sidebar-bottom">
         <ul>
             <li>
-                <a href="#">
+                <a href="#" class="logout-btn" onclick="performLogout(event)">
                     <i class="fa-solid fa-right-from-bracket"></i>
                     <span>Logout</span>
                 </a>
             </li>
         </ul>
     </div>
-
 </aside>
-

@@ -19,10 +19,11 @@
     <link rel="stylesheet" href="../../../shared/css/utilities.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="../../../shared/js/layout-loader.js" defer></script>   <!-- Global Sidebar Loader -->
+    <script src="../js/auth-guard.js" defer></script>
 </head>
 <body>
     <div class="dashboard-container">
-        <div id="global-sidebar" data-sideba="hr"></div>
+        <div id="global-sidebar" data-sidebar="hr"></div>
 
         <main class="main-content">
             <header class="page-header">
@@ -43,16 +44,16 @@
                 <div class="left-panel">
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
                         <div class="card text-center" style="padding: 20px;">
-                            <h2 style="color: var(--primary); font-size: 32px;">94%</h2>
+                            <h2 id="hrAttPct" style="color: var(--primary); font-size: 32px;">--%</h2>
                             <p style="font-size: 14px; margin-top: 5px;">Today's Attendance</p>
                         </div>
                         <div class="card text-center" style="padding: 20px;">
-                            <h2 style="color: #d97706; font-size: 32px;">12</h2>
+                            <h2 id="hrOnLeave" style="color: #d97706; font-size: 32px;">0</h2>
                             <p style="font-size: 14px; margin-top: 5px;">On Leave Today</p>
                         </div>
                         <div class="card text-center" style="padding: 20px;">
-                            <h2 style="color: #dc2626; font-size: 32px;">04</h2>
-                            <p style="font-size: 14px; margin-top: 5px;">Late Arrivals</p>
+                            <h2 id="hrCheckedIn" style="color: #10b981; font-size: 32px;">0</h2>
+                            <p style="font-size: 14px; margin-top: 5px;">Checked In</p>
                         </div>
                     </div>
 
@@ -72,6 +73,7 @@
                 </div>
             </div>
         </main>
-    </div>
+</div>
+    <script src="../js/attendance.js" defer></script>
 </body>
 </html>

@@ -51,7 +51,7 @@ public class AuthService {
         
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow();
         
-        return new AuthResponse(token, user.getRole().getRoleName(), "Login successful");
+        return new AuthResponse(token, user.getRole().getRoleName(), user.getEmployeeId(), user.getFullName(), user.getEmail(), "Login successful");
     }
 
     public void resetPassword(String email, String newPassword) {
@@ -96,6 +96,27 @@ public class AuthService {
         
         userRepository.save(adminUser);
 
-        return new AuthResponse(null, "ROLE_ADMIN", "Organization created successfully. Please login.");
+        return new AuthResponse(null, "ROLE_ADMIN", adminUser.getEmployeeId(), adminUser.getFullName(), adminUser.getEmail(), "Organization created successfully. Please login.");
+    }
+
+    public com.wap.dto.UserProfileDTO getUserProfile(String email) {
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+            
+        return new com.wap.dto.UserProfileDTO(
+            user.getFullName(),
+            user.getProfilePicture(), // profilePicture
+            user.getEmployeeId(),
+            user.getEmail(),
+            user.getPhoneNumber(),
+            user.getRole().getRoleName().replace("ROLE_", ""), // Prettify role
+            user.getDesignation(), // Use designation as department
+            user.getAddressStreet(),
+            user.getAddressCityState(),
+            user.getAddressZip(),
+            user.getEmergencyName(),
+            user.getEmergencyRelation(),
+            user.getEmergencyPhone()
+        );
     }
 }

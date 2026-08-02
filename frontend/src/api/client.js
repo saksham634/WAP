@@ -33,26 +33,34 @@ export async function request(endpoint, options = {}) {
       }
     }
 
+    // Safely read response text once
+    const responseText = await response.text();
+    let parsedData = null;
+
+    if (responseText && responseText.trim().length > 0) {
+      try {
+        parsedData = JSON.parse(responseText);
+      } catch {
+        parsedData = responseText;
+      }
+    }
+
     if (!response.ok) {
       let errorMessage = `HTTP Error ${response.status}`;
-      try {
-        const errorData = await response.json();
-        errorMessage = errorData.message || errorData.error || errorMessage;
-      } catch {
-        const text = await response.text();
-        if (text) errorMessage = text;
+      if (parsedData) {
+        if (typeof parsedData === 'object') {
+          errorMessage = parsedData.message || parsedData.error || errorMessage;
+        } else if (typeof parsedData === 'string') {
+          errorMessage = parsedData;
+        }
       }
       const err = new Error(errorMessage);
       err.status = response.status;
+      err.data = parsedData;
       throw err;
     }
 
-    // Check if empty body
-    const contentType = response.headers.get('content-type');
-    if (contentType && contentType.includes('application/json')) {
-      return await response.json();
-    }
-    return await response.text();
+    return parsedData;
   } catch (error) {
     console.error(`API Request Error [${endpoint}]:`, error);
     throw error;

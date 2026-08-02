@@ -234,19 +234,6 @@ public class AdminService {
         userRepository.save(user);
     }
 
-    public Map<String, String> getSettings() {
-        String adminEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        User adminUser = userRepository.findByEmail(adminEmail)
-                .orElseThrow(() -> new RuntimeException("Admin context not found."));
-
-        Organization org = adminUser.getOrganization();
-        Map<String, String> settings = new HashMap<>();
-        if (org != null) {
-            settings.put("companyName", org.getCompanyName());
-            settings.put("timezone", org.getTimezone());
-        }
-        return settings;
-    }
 
     public Map<String, Object> getCurrentUser(String email) {
         User user = userRepository.findByEmail(email)

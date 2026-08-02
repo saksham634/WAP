@@ -1,12 +1,8 @@
 package com.wap.entity;
 
 import jakarta.persistence.*;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDate;
-
-@NoArgsConstructor
 @Entity
 @Table(name = "projects")
 public class Project {

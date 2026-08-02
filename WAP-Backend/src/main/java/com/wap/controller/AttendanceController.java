@@ -26,7 +26,7 @@ public class AttendanceController {
         try {
             return ResponseEntity.ok(attendanceService.checkIn());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage(), "message", e.getMessage()));
         }
     }
 
@@ -35,7 +35,7 @@ public class AttendanceController {
         try {
             return ResponseEntity.ok(attendanceService.checkOut());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage(), "message", e.getMessage()));
         }
     }
 
@@ -45,7 +45,7 @@ public class AttendanceController {
             attendanceService.resetTodayAttendance();
             return ResponseEntity.ok(java.util.Map.of("message", "Today's attendance has been reset for testing."));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage(), "message", e.getMessage()));
         }
     }
 

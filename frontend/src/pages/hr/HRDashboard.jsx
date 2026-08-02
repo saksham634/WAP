@@ -66,7 +66,7 @@ export default function HRDashboard() {
   const handleGeneratePayroll = async (e) => {
     e.preventDefault();
     if (!selectedUserId) {
-      alert('Please select an employee');
+      setPayrollMessage({ type: 'error', text: 'Please select an employee first.' });
       return;
     }
     setPayrollLoading(true);

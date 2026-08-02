@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { projectAPI, userAPI } from '../../api';
 import Header from '../../components/layout/Header';
+import ConfirmModal from '../../components/common/ConfirmModal';
 
 export default function ProjectsManagement() {
   const [projects, setProjects] = useState([]);
@@ -25,6 +26,10 @@ export default function ProjectsManagement() {
 
   // Status feedback
   const [feedback, setFeedback] = useState(null);
+
+  // Delete Confirm Modal State
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const fetchProjects = async () => {
     setLoading(true);
@@ -79,15 +84,22 @@ export default function ProjectsManagement() {
     }
   };
 
-  const handleDeleteProject = async (id, title) => {
-    if (window.confirm(`Are you sure you want to delete project "${title}"?`)) {
-      try {
-        await projectAPI.deleteProject(id);
-        setFeedback({ type: 'success', text: `Project "${title}" deleted.` });
-        fetchProjects();
-      } catch (err) {
-        setFeedback({ type: 'error', text: err.message || 'Failed to delete project.' });
-      }
+  const handleDeleteClick = (project) => {
+    setDeleteTarget(project);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleteLoading(true);
+    try {
+      await projectAPI.deleteProject(deleteTarget.id);
+      setFeedback({ type: 'success', text: `Project "${deleteTarget.title}" deleted successfully.` });
+      setDeleteTarget(null);
+      fetchProjects();
+    } catch (err) {
+      setFeedback({ type: 'error', text: err.message || 'Failed to delete project.' });
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -304,14 +316,20 @@ export default function ProjectsManagement() {
                     >
                       <i className="fa-solid fa-users-viewfinder"></i> View Team
                     </button>
-                    <button
-                      className="btn btn-outline"
-                      onClick={() => handleDeleteProject(proj.id, proj.title)}
-                      style={{ color: '#ef4444', borderColor: '#fecaca', padding: '8px 14px' }}
-                      title="Delete Project"
-                    >
-                      <i className="fa-solid fa-trash-can"></i>
-                    </button>
+                      <button
+                        className="btn btn-outline"
+                        onClick={() => handleDeleteClick(proj)}
+                        style={{
+                          padding: '8px 12px',
+                          color: '#ef4444',
+                          borderColor: '#fca5a5',
+                          backgroundColor: '#fef2f2',
+                          borderRadius: '8px',
+                        }}
+                        title="Delete Project"
+                      >
+                        <i className="fa-solid fa-trash-can"></i>
+                      </button>
                   </div>
                 </div>
               </div>
@@ -558,6 +576,18 @@ export default function ProjectsManagement() {
           </div>
         </div>
       )}
+      {/* Custom In-App Confirmation Modal */}
+      <ConfirmModal
+        isOpen={!!deleteTarget}
+        title="Delete Project"
+        message={deleteTarget ? `Are you sure you want to delete project "${deleteTarget.title}"? All task logs and team allocations will be removed.` : ''}
+        confirmText="Delete Project"
+        cancelText="Cancel"
+        isDestructive={true}
+        loading={deleteLoading}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

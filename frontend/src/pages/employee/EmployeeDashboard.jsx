@@ -14,6 +14,7 @@ export default function EmployeeDashboard() {
   const [payslips, setPayslips] = useState([]);
   const [teamProjects, setTeamProjects] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [feedback, setFeedback] = useState(null);
 
   const userName = user?.fullName || localStorage.getItem('fullName') || 'Team Member';
 
@@ -63,12 +64,13 @@ export default function EmployeeDashboard() {
 
   const handleCheckIn = async () => {
     setLoading(true);
+    setFeedback(null);
     try {
       await attendanceAPI.punchIn();
-      alert('Successfully checked in for the day!');
+      setFeedback({ type: 'success', text: 'Successfully checked in for the day!' });
       loadData();
     } catch (err) {
-      alert('Check-in failed: ' + (err.message || 'Server error'));
+      setFeedback({ type: 'error', text: err.message || 'Check-in failed. Please try again.' });
     } finally {
       setLoading(false);
     }
@@ -76,24 +78,26 @@ export default function EmployeeDashboard() {
 
   const handleCheckOut = async () => {
     setLoading(true);
+    setFeedback(null);
     try {
       await attendanceAPI.punchOut();
-      alert('Successfully checked out. Have a great evening!');
+      setFeedback({ type: 'success', text: 'Successfully checked out. Have a great evening!' });
       loadData();
     } catch (err) {
-      alert('Check-out failed: ' + (err.message || 'Server error'));
+      setFeedback({ type: 'error', text: err.message || 'Check-out failed. Please try again.' });
     } finally {
       setLoading(false);
     }
   };
 
   const handleResetAttendance = async () => {
+    setFeedback(null);
     try {
       await attendanceAPI.resetAttendance();
-      alert('Attendance reset! You can now check in again.');
+      setFeedback({ type: 'success', text: 'Attendance reset! You can now check in again.' });
       loadData();
     } catch (err) {
-      alert('Reset failed: ' + (err.message || 'Server error'));
+      setFeedback({ type: 'error', text: err.message || 'Reset failed.' });
     }
   };
 
@@ -293,6 +297,35 @@ export default function EmployeeDashboard() {
               <h2>Daily Attendance</h2>
             </div>
             <div className="card-body" style={{ textAlign: 'center', padding: '1.5rem 1rem' }}>
+              {feedback && (
+                <div
+                  style={{
+                    padding: '10px 14px',
+                    borderRadius: '8px',
+                    marginBottom: '1rem',
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    backgroundColor: feedback.type === 'success' ? '#f0fdf4' : '#fef2f2',
+                    color: feedback.type === 'success' ? '#166534' : '#991b1b',
+                    border: `1px solid ${feedback.type === 'success' ? '#bbf7d0' : '#fecaca'}`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '8px',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <i className={feedback.type === 'success' ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-exclamation'}></i>
+                    <span>{feedback.text}</span>
+                  </div>
+                  <button
+                    onClick={() => setFeedback(null)}
+                    style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0 }}
+                  >
+                    <i className="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
+              )}
               <p style={{ marginBottom: '1.2rem', color: 'var(--text-secondary, #64748b)', fontWeight: 500 }}>
                 {isCheckedOut
                   ? 'Shift completed for today.'

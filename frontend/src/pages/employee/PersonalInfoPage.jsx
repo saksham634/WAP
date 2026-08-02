@@ -95,7 +95,7 @@ export default function PersonalInfoPage() {
         videoRef.current.srcObject = stream;
       }
     } catch (err) {
-      alert('Could not access webcam: ' + err.message);
+      setFeedback({ type: 'error', text: 'Could not access webcam: ' + (err.message || 'Permission denied') });
       setIsWebcamOpen(false);
     }
   };

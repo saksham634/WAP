@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { userAPI } from '../../api';
 import Header from '../../components/layout/Header';
+import ConfirmModal from '../../components/common/ConfirmModal';
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -28,6 +29,10 @@ export default function UserManagement() {
 
   // Status feedback
   const [feedback, setFeedback] = useState(null);
+
+  // Delete Confirm Modal State
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -89,15 +94,22 @@ export default function UserManagement() {
     }
   };
 
-  const handleDeleteUser = async (id, name) => {
-    if (window.confirm(`Are you sure you want to delete or deactivate account for "${name}"?`)) {
-      try {
-        await userAPI.deleteUser(id);
-        setFeedback({ type: 'success', text: `User "${name}" removed.` });
-        fetchUsers();
-      } catch (err) {
-        setFeedback({ type: 'error', text: err.message || 'Failed to delete user.' });
-      }
+  const handleDeleteClick = (user) => {
+    setDeleteTarget(user);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleteLoading(true);
+    try {
+      await userAPI.deleteUser(deleteTarget.id);
+      setFeedback({ type: 'success', text: `User "${deleteTarget.fullName}" removed successfully.` });
+      setDeleteTarget(null);
+      fetchUsers();
+    } catch (err) {
+      setFeedback({ type: 'error', text: err.message || 'Failed to delete user.' });
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -320,9 +332,15 @@ export default function UserManagement() {
                         </button>
                         {u.role !== 'ROLE_ADMIN' && (
                           <button
-                            className="btn btn-danger"
-                            onClick={() => handleDeleteUser(u.id, u.fullName)}
-                            style={{ padding: '6px 12px', fontSize: '12px' }}
+                            className="btn btn-outline"
+                            onClick={() => handleDeleteClick(u)}
+                            style={{
+                              padding: '6px 10px',
+                              color: '#ef4444',
+                              borderColor: '#fca5a5',
+                              backgroundColor: '#fef2f2',
+                            }}
+                            title="Delete or Deactivate User"
                           >
                             <i className="fa-solid fa-trash-can"></i>
                           </button>
@@ -336,6 +354,14 @@ export default function UserManagement() {
           </table>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        title="Delete User"
+        message={`Are you sure you want to delete ${deleteConfirm.userName}? This action cannot be undone.`}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteConfirm({ isOpen: false, userId: null, userName: '' })}
+      />
 
       {/* ADD USER MODAL */}
       {isAddModalOpen && (
@@ -564,6 +590,18 @@ export default function UserManagement() {
           </div>
         </div>
       )}
+      {/* Custom In-App Confirmation Modal */}
+      <ConfirmModal
+        isOpen={!!deleteTarget}
+        title="Deactivate / Delete User"
+        message={deleteTarget ? `Are you sure you want to delete or deactivate the account for "${deleteTarget.fullName}" (${deleteTarget.email})?` : ''}
+        confirmText="Delete Account"
+        cancelText="Cancel"
+        isDestructive={true}
+        loading={deleteLoading}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

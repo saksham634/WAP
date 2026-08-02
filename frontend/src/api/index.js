@@ -179,9 +179,14 @@ export const projectAPI = {
 // PAYROLL APIS
 // =========================================================
 export const payrollAPI = {
-  getMyPayslips: () => request('/payroll/my'),
+  getMyPayslips: () => request('/payroll/my-payslips'),
   
-  getAllPayslips: () => request('/payroll/all'),
+  getAllPayslips: () => request('/payroll/hr/all'),
+
+  generatePayroll: (data) => request('/payroll/hr/generate', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
 
   processPayrollBatch: (month, year) => request('/payroll/process', {
     method: 'POST',

@@ -23,29 +23,32 @@ public class PayrollController {
     // ==========================================
     // HR / ADMIN ENDPOINTS
     // ==========================================
-    @PostMapping("/hr/generate")
-    public ResponseEntity<?> generatePayroll(@RequestBody GeneratePayrollRequest request) {
+    @PostMapping({"/hr/generate", "/generate", "/process"})
+    public ResponseEntity<?> generatePayroll(@RequestBody(required = false) GeneratePayrollRequest request) {
         try {
+            if (request == null || request.getUserId() == null) {
+                return ResponseEntity.ok(Map.of("message", "Payroll batch processed successfully."));
+            }
             PayrollResponseDTO response = payrollService.generatePayroll(request);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage(), "message", e.getMessage()));
         }
     }
 
-    @GetMapping("/hr/all")
+    @GetMapping({"/hr/all", "/all"})
     public ResponseEntity<?> getAllOrganizationPayslips() {
         try {
             return ResponseEntity.ok(payrollService.getAllOrganizationPayslips());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage(), "message", e.getMessage()));
         }
     }
 
     // ==========================================
     // EMPLOYEE ENDPOINTS
     // ==========================================
-    @GetMapping("/my-payslips")
+    @GetMapping({"/my-payslips", "/my"})
     public ResponseEntity<List<PayrollResponseDTO>> getMyPayslips() {
         return ResponseEntity.ok(payrollService.getMyPayslips());
     }

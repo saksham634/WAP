@@ -1,12 +1,8 @@
 package com.wap.entity;
 
 import jakarta.persistence.*;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDateTime;
-
-@NoArgsConstructor
 @Entity
 @Table(name = "direct_messages")
 public class DirectMessage {

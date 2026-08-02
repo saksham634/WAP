@@ -13,13 +13,7 @@ export default function AuditLogs() {
         setLogs(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Failed to load audit logs:', err);
-        // Fallback demo audit items if initial logs are empty
-        setLogs([
-          { id: 1, action: 'USER_LOGIN', userEmail: 'admin@workforce.com', timestamp: '2026-08-01 09:15:20', details: 'Administrator logged into WAP Portal' },
-          { id: 2, action: 'ROLE_UPDATE', userEmail: 'admin@workforce.com', timestamp: '2026-08-01 10:02:11', details: 'Updated feature matrix for ROLE_HR' },
-          { id: 3, action: 'PROJECT_CREATED', userEmail: 'admin@workforce.com', timestamp: '2026-08-01 11:30:45', details: 'Created Project: Cloud Infrastructure Migration' },
-          { id: 4, action: 'PAYROLL_GENERATED', userEmail: 'hr@workforce.com', timestamp: '2026-08-01 14:00:00', details: 'Monthly payroll batch generated' },
-        ]);
+        setLogs([]);
       } finally {
         setLoading(false);
       }

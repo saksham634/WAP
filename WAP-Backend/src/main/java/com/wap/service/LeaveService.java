@@ -75,6 +75,14 @@ public class LeaveService {
         return new com.wap.dto.LeaveSummaryDTO(totalLeaves, usedLeaves, remainingLeaves, pendingLeaves);
     }
 
+    // HR/Admin: View all leave submissions across organization
+    public List<LeaveResponseDTO> getAllOrganizationLeaves() {
+        User user = getAuthenticatedUser();
+        Long orgId = user.getOrganization().getId();
+        List<LeaveRequest> requests = leaveRepository.findByUser_Organization_IdOrderByCreatedAtDesc(orgId);
+        return requests.stream().map(this::mapToDTO).collect(Collectors.toList());
+    }
+
     // HR/Admin: View all pending requests for their organization
     public List<LeaveResponseDTO> getPendingLeaves() {
         User user = getAuthenticatedUser();

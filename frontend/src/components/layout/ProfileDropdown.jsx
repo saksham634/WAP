@@ -11,8 +11,8 @@ export default function ProfileDropdown() {
   const navigate = useNavigate();
 
   const userName = user?.fullName || localStorage.getItem('fullName') || 'User';
-  const userEmail = user?.email || localStorage.getItem('userEmail') || 'user@workforce.com';
-  const employeeId = user?.employeeId || localStorage.getItem('employeeId') || 'EMP-001';
+  const userEmail = user?.email || localStorage.getItem('userEmail') || '';
+  const employeeId = user?.employeeId || localStorage.getItem('employeeId') || '';
   
   const roleName =
     role === 'ROLE_ADMIN'
@@ -177,20 +177,36 @@ export default function ProfileDropdown() {
                   <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {userName}
                   </h4>
-                  <span
-                    style={{
-                      display: 'inline-block',
-                      fontSize: '11px',
-                      padding: '2px 8px',
-                      backgroundColor: '#e6f4f4',
-                      color: '#007a7a',
-                      borderRadius: '12px',
-                      fontWeight: 600,
-                      marginTop: '4px',
-                    }}
-                  >
-                    {roleName}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px', flexWrap: 'wrap' }}>
+                    <span
+                      style={{
+                        display: 'inline-block',
+                        fontSize: '11px',
+                        padding: '2px 8px',
+                        backgroundColor: '#e6f4f4',
+                        color: '#007a7a',
+                        borderRadius: '12px',
+                        fontWeight: 600,
+                      }}
+                    >
+                      {roleName}
+                    </span>
+                    {employeeId && (
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          fontSize: '11px',
+                          padding: '2px 8px',
+                          backgroundColor: '#f1f5f9',
+                          color: '#475569',
+                          borderRadius: '12px',
+                          fontWeight: 500,
+                        }}
+                      >
+                        {employeeId}
+                      </span>
+                    )}
+                  </div>
                   <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {userEmail}
                   </p>

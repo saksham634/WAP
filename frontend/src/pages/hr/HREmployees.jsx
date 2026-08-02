@@ -33,15 +33,9 @@ export default function HREmployees() {
     e.preventDefault();
     if (!selectedEmp) return;
     try {
-      await userAPI.updateUser(selectedEmp.id, selectedEmp);
-      if (selectedEmp.employeeId) {
-        await userAPI.updateSalary(selectedEmp.employeeId, {
-          baseSalary: selectedEmp.baseSalary,
-          allowances: selectedEmp.allowances,
-          deductions: selectedEmp.deductions,
-        });
-      }
-      setFeedback({ type: 'success', text: 'Employee details & compensation updated!' });
+      const identifier = selectedEmp.id || selectedEmp.employeeId;
+      await userAPI.updateUser(identifier, selectedEmp);
+      setFeedback({ type: 'success', text: 'Employee details & compensation updated successfully!' });
       setIsEditModalOpen(false);
       fetchEmployees();
     } catch (err) {
@@ -175,7 +169,7 @@ export default function HREmployees() {
                   <h3 style={{ margin: 0, fontSize: '16px', color: '#0f172a', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {emp.fullName}
                   </h3>
-                  <span style={{ fontSize: '12px', color: '#64748b' }}>{emp.employeeId || 'ID: EMP-001'}</span>
+                  <span style={{ fontSize: '12px', color: '#64748b' }}>{emp.employeeId || ''}</span>
                   <p style={{ margin: '2px 0 0 0', fontSize: '13px', color: '#475569', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {emp.email}
                   </p>

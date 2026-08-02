@@ -8,4 +8,5 @@ public interface DirectMessageRepository extends JpaRepository<DirectMessage, Lo
     List<DirectMessage> findByOrganization_IdOrderByCreatedAtDesc(Long orgId);
     List<DirectMessage> findByOrganization_IdAndRecipientRoleOrderByCreatedAtDesc(Long orgId, String recipientRole);
     List<DirectMessage> findBySender_IdOrderByCreatedAtDesc(Long senderId);
+    void deleteBySender_Id(Long senderId);
 }

@@ -8,12 +8,15 @@ public class UserProfileDTO {
     private String phone;
     private String role;
     private String department;
+    private String address;
     private String addressStreet;
     private String addressCityState;
     private String addressZip;
     private String emergencyName;
+    private String emergencyContactName;
     private String emergencyRelation;
     private String emergencyPhone;
+    private String emergencyContactPhone;
 
     public UserProfileDTO() {}
 
@@ -89,8 +92,16 @@ public class UserProfileDTO {
         this.department = department;
     }
 
+    public String getAddress() {
+        return address != null ? address : addressStreet;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
     public String getAddressStreet() {
-        return addressStreet;
+        return addressStreet != null ? addressStreet : address;
     }
 
     public void setAddressStreet(String addressStreet) {
@@ -114,11 +125,19 @@ public class UserProfileDTO {
     }
 
     public String getEmergencyName() {
-        return emergencyName;
+        return emergencyName != null ? emergencyName : emergencyContactName;
     }
 
     public void setEmergencyName(String emergencyName) {
         this.emergencyName = emergencyName;
+    }
+
+    public String getEmergencyContactName() {
+        return emergencyContactName != null ? emergencyContactName : emergencyName;
+    }
+
+    public void setEmergencyContactName(String emergencyContactName) {
+        this.emergencyContactName = emergencyContactName;
     }
 
     public String getEmergencyRelation() {
@@ -130,10 +149,19 @@ public class UserProfileDTO {
     }
 
     public String getEmergencyPhone() {
-        return emergencyPhone;
+        return emergencyPhone != null ? emergencyPhone : emergencyContactPhone;
     }
 
     public void setEmergencyPhone(String emergencyPhone) {
         this.emergencyPhone = emergencyPhone;
     }
+
+    public String getEmergencyContactPhone() {
+        return emergencyContactPhone != null ? emergencyContactPhone : emergencyPhone;
+    }
+
+    public void setEmergencyContactPhone(String emergencyContactPhone) {
+        this.emergencyContactPhone = emergencyContactPhone;
+    }
 }
+

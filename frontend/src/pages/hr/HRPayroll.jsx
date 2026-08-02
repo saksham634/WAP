@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { payrollAPI, userAPI } from '../../api';
 import PayslipModal from '../../components/common/PayslipModal';
 import Header from '../../components/layout/Header';
@@ -12,7 +12,7 @@ export default function HRPayroll() {
   const [activePayslipModal, setActivePayslipModal] = useState(null);
   const [feedback, setFeedback] = useState(null);
 
-  const fetchPayroll = async () => {
+  const fetchPayroll = useCallback(async () => {
     setLoading(true);
     try {
       const data = await payrollAPI.getAllPayslips();
@@ -22,22 +22,22 @@ export default function HRPayroll() {
         // Fallback: construct demo records from current users if not yet processed
         const users = await userAPI.getAllUsers();
         const demo = (users || []).map((u, i) => {
-          const base = Number(u.baseSalary || 60000);
-          const allow = Number(u.allowances || 15000);
-          const ded = Number(u.deductions || 5000);
+          const base = Number(u.baseSalary || 0);
+          const allow = Number(u.allowances || 0);
+          const ded = Number(u.deductions || 0);
           return {
-            id: i + 1,
-            employeeName: u.fullName,
-            employeeEmail: u.email,
-            employeeId: u.employeeId || `EMP-${100 + i}`,
-            designation: u.department ? `${u.department} Staff` : 'Software Engineer',
+            id: u.id || i + 1,
+            employeeName: u.fullName || 'Staff Member',
+            employeeEmail: u.email || '',
+            employeeId: u.employeeId || '',
+            designation: u.department || u.designation || 'Staff',
             month: selectedMonth,
             year: selectedYear,
             baseSalary: base,
             allowances: allow,
             deductions: ded,
-            netSalary: base + allow - ded,
-            status: 'PAID',
+            netSalary: Math.max(0, base + allow - ded),
+            status: 'PENDING',
           };
         });
         setPayslips(demo);
@@ -47,11 +47,11 @@ export default function HRPayroll() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedMonth, selectedYear]);
 
   useEffect(() => {
     fetchPayroll();
-  }, []);
+  }, [fetchPayroll]);
 
   const handleProcessBatch = async () => {
     setProcessing(true);
@@ -200,7 +200,50 @@ export default function HRPayroll() {
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <select
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+              style={{
+                padding: '8px 12px',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
+                fontSize: '13px',
+                outline: 'none',
+              }}
+            >
+              <option value="January">January</option>
+              <option value="February">February</option>
+              <option value="March">March</option>
+              <option value="April">April</option>
+              <option value="May">May</option>
+              <option value="June">June</option>
+              <option value="July">July</option>
+              <option value="August">August</option>
+              <option value="September">September</option>
+              <option value="October">October</option>
+              <option value="November">November</option>
+              <option value="December">December</option>
+            </select>
+
+            <select
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(e.target.value)}
+              style={{
+                padding: '8px 12px',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
+                fontSize: '13px',
+                outline: 'none',
+              }}
+            >
+              <option value="2025">2025</option>
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+            </select>
+          </div>
+
           <button
             className="btn btn-outline"
             onClick={handleDownloadOrgReport}
@@ -327,7 +370,7 @@ export default function HRPayroll() {
                       <span style={{ fontSize: '12px', color: '#64748b' }}>{p.employeeEmail || ''}</span>
                     </td>
                     <td style={{ padding: '14px 20px', fontSize: '13px', fontWeight: 600, color: '#334155' }}>
-                      {p.employeeId || 'EMP-001'}
+                      {p.employeeId || ''}
                     </td>
                     <td style={{ padding: '14px 20px', fontSize: '13px', color: '#0f172a' }}>
                       ₹{Number(p.baseSalary || 0).toLocaleString()}

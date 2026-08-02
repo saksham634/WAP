@@ -5,7 +5,6 @@ import Header from '../../components/layout/Header';
 export default function HRAttendance() {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [attendanceRecords, setAttendanceRecords] = useState([]);
-  const [usersList, setUsersList] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -13,7 +12,6 @@ export default function HRAttendance() {
       setLoading(true);
       try {
         const users = await userAPI.getAllUsers();
-        if (Array.isArray(users)) setUsersList(users);
 
         const logs = await attendanceAPI.getAllAttendance(selectedDate);
         if (Array.isArray(logs)) {
@@ -21,15 +19,15 @@ export default function HRAttendance() {
         } else {
           // If no explicit log records for date, construct standard view from users
           const demoLogs = (users || []).map((u, i) => ({
-            id: i + 1,
-            employeeName: u.fullName,
-            employeeEmail: u.email,
-            employeeId: u.employeeId || `EMP-${100 + i}`,
-            department: u.department || 'Engineering',
-            status: i % 7 === 0 ? 'ABSENT' : i % 5 === 0 ? 'ON_LEAVE' : 'PRESENT',
-            punchIn: i % 7 === 0 || i % 5 === 0 ? '--' : '09:05 AM',
-            punchOut: i % 7 === 0 || i % 5 === 0 ? '--' : '06:12 PM',
-            workDuration: i % 7 === 0 || i % 5 === 0 ? '--' : '8h 07m',
+            id: u.id || i + 1,
+            employeeName: u.fullName || 'Staff Member',
+            employeeEmail: u.email || '',
+            employeeId: u.employeeId || '',
+            department: u.department || u.designation || 'Staff',
+            status: 'ABSENT',
+            punchIn: '--',
+            punchOut: '--',
+            workDuration: '--',
           }));
           setAttendanceRecords(demoLogs);
         }
@@ -158,7 +156,7 @@ export default function HRAttendance() {
                         </div>
                       </td>
                       <td style={{ padding: '14px 20px', fontSize: '13px', fontWeight: 600, color: '#334155' }}>
-                        {rec.employeeId || 'EMP-001'}
+                        {rec.employeeId || ''}
                       </td>
                       <td style={{ padding: '14px 20px' }}>
                         <span

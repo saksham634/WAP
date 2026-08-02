@@ -77,16 +77,9 @@ export default function UserManagement() {
     e.preventDefault();
     if (!editingUser) return;
     try {
-      await userAPI.updateUser(editingUser.id, editingUser);
-      // Also update salary if present
-      if (editingUser.employeeId) {
-        await userAPI.updateSalary(editingUser.employeeId, {
-          baseSalary: editingUser.baseSalary,
-          allowances: editingUser.allowances,
-          deductions: editingUser.deductions,
-        });
-      }
-      setFeedback({ type: 'success', text: 'User details updated successfully!' });
+      const identifier = editingUser.id || editingUser.employeeId;
+      await userAPI.updateUser(identifier, editingUser);
+      setFeedback({ type: 'success', text: 'User details & salary updated successfully!' });
       setIsEditModalOpen(false);
       fetchUsers();
     } catch (err) {
@@ -102,7 +95,8 @@ export default function UserManagement() {
     if (!deleteTarget) return;
     setDeleteLoading(true);
     try {
-      await userAPI.deleteUser(deleteTarget.id);
+      const identifier = deleteTarget.id || deleteTarget.employeeId;
+      await userAPI.deleteUser(identifier);
       setFeedback({ type: 'success', text: `User "${deleteTarget.fullName}" removed successfully.` });
       setDeleteTarget(null);
       fetchUsers();
@@ -354,14 +348,6 @@ export default function UserManagement() {
           </table>
         </div>
       </div>
-
-      <ConfirmModal
-        isOpen={deleteConfirm.isOpen}
-        title="Delete User"
-        message={`Are you sure you want to delete ${deleteConfirm.userName}? This action cannot be undone.`}
-        onConfirm={handleConfirmDelete}
-        onCancel={() => setDeleteConfirm({ isOpen: false, userId: null, userName: '' })}
-      />
 
       {/* ADD USER MODAL */}
       {isAddModalOpen && (

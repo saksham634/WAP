@@ -177,8 +177,14 @@ export default function RolesManagement() {
           </span>
         </h3>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px' }}>
-          {availablePermissions.map((perm) => {
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '40px 0', color: '#64748b' }}>
+            <i className="fa-solid fa-spinner fa-spin" style={{ fontSize: '24px', color: '#007a7a' }}></i>
+            <p style={{ marginTop: '10px' }}>Loading permissions matrix...</p>
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px' }}>
+            {availablePermissions.map((perm) => {
             const isChecked = activePermissions.includes(perm.key);
             return (
               <div
@@ -220,6 +226,7 @@ export default function RolesManagement() {
             );
           })}
         </div>
+        )}
       </div>
     </div>
   );

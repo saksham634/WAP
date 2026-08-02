@@ -41,6 +41,10 @@ export default function PersonalInfoPage() {
             ...data,
             fullName: data.fullName || prev.fullName,
             email: data.email || prev.email,
+            phone: data.phone || data.phoneNumber || prev.phone,
+            address: data.address || data.addressStreet || prev.address,
+            emergencyContactName: data.emergencyContactName || data.emergencyName || prev.emergencyContactName,
+            emergencyContactPhone: data.emergencyContactPhone || data.emergencyPhone || prev.emergencyContactPhone,
             profilePicture: data.profilePicture || prev.profilePicture,
           }));
         }
@@ -58,8 +62,18 @@ export default function PersonalInfoPage() {
     setSaving(true);
     setFeedback(null);
     try {
-      const updated = await userAPI.updateMyProfile(profile);
-      updateUser(updated || profile);
+      const payload = {
+        ...profile,
+        addressStreet: profile.address,
+        address: profile.address,
+        emergencyName: profile.emergencyContactName,
+        emergencyContactName: profile.emergencyContactName,
+        emergencyPhone: profile.emergencyContactPhone,
+        emergencyContactPhone: profile.emergencyContactPhone,
+        phone: profile.phone,
+      };
+      const updated = await userAPI.updateMyProfile(payload);
+      updateUser(payload);
       setFeedback({ type: 'success', text: 'Personal information saved & persisted successfully!' });
     } catch (err) {
       setFeedback({ type: 'error', text: err.message || 'Failed to save profile changes.' });
@@ -80,7 +94,7 @@ export default function PersonalInfoPage() {
           updateUser({ profilePicture: base64 });
           setFeedback({ type: 'success', text: 'Profile picture updated successfully!' });
         } catch (err) {
-          setFeedback({ type: 'error', text: 'Failed to upload profile picture.' });
+          setFeedback({ type: 'error', text: err.message || 'Failed to upload profile picture.' });
         }
       };
       reader.readAsDataURL(file);
@@ -120,7 +134,7 @@ export default function PersonalInfoPage() {
         updateUser({ profilePicture: base64 });
         setFeedback({ type: 'success', text: 'Snapshot saved to profile picture!' });
       } catch (err) {
-        setFeedback({ type: 'error', text: 'Failed to upload photo.' });
+        setFeedback({ type: 'error', text: err.message || 'Failed to upload photo.' });
       }
     }
   };
@@ -131,6 +145,17 @@ export default function PersonalInfoPage() {
     }
     setIsWebcamOpen(false);
   };
+
+  if (loading) {
+    return (
+      <div className="page-content" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <div style={{ textAlign: 'center', color: '#007a7a', fontSize: '16px', fontWeight: 600 }}>
+          <i className="fa-solid fa-spinner fa-spin" style={{ marginRight: '10px' }}></i>
+          Loading personal information...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="page-content" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -206,7 +231,7 @@ export default function PersonalInfoPage() {
                   color: '#007a7a',
                 }}
               >
-                {profile.employeeId || 'EMP-1001'}
+                {profile.employeeId || ''}
               </span>
             </div>
           </div>

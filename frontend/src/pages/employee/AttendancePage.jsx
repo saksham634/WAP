@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { attendanceAPI } from '../../api';
 import Header from '../../components/layout/Header';
 
@@ -14,10 +14,10 @@ export default function AttendancePage() {
   });
   const [feedback, setFeedback] = useState(null);
 
-  const fetchAttendance = async () => {
+  const fetchAttendance = useCallback(async () => {
     setLoading(true);
     try {
-      // 1. Today
+      // 1. Today status
       try {
         const today = await attendanceAPI.getTodayStatus();
         if (today) {
@@ -38,7 +38,7 @@ export default function AttendancePage() {
         const generated = [];
         const daysInMonth = 28;
         for (let day = 1; day <= daysInMonth; day++) {
-          const dateObj = new Date(2026, Number(selectedMonth) - 1, day);
+          const dateObj = new Date(Number(selectedYear), Number(selectedMonth) - 1, day);
           const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
           const isWeekend = dayName === 'Sat' || dayName === 'Sun';
 
@@ -72,11 +72,11 @@ export default function AttendancePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedMonth, selectedYear]);
 
   useEffect(() => {
     fetchAttendance();
-  }, [selectedMonth, selectedYear]);
+  }, [fetchAttendance]);
 
   const handlePunchIn = async () => {
     setFeedback(null);
@@ -145,7 +145,50 @@ export default function AttendancePage() {
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <select
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+              style={{
+                padding: '8px 12px',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
+                fontSize: '13px',
+                outline: 'none',
+              }}
+            >
+              <option value="1">January</option>
+              <option value="2">February</option>
+              <option value="3">March</option>
+              <option value="4">April</option>
+              <option value="5">May</option>
+              <option value="6">June</option>
+              <option value="7">July</option>
+              <option value="8">August</option>
+              <option value="9">September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+
+            <select
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(e.target.value)}
+              style={{
+                padding: '8px 12px',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
+                fontSize: '13px',
+                outline: 'none',
+              }}
+            >
+              <option value="2025">2025</option>
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+            </select>
+          </div>
+
           {!todayStatus.punchedIn ? (
             <button className="btn btn-primary" onClick={handlePunchIn}>
               <i className="fa-solid fa-right-to-bracket"></i> Check In (Punch In)

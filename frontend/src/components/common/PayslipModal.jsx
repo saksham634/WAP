@@ -85,11 +85,11 @@ export default function PayslipModal({ isOpen, onClose, payslip }) {
             </div>
             <div>
               <p style={{ margin: '0 0 4px 0', fontSize: '12px', color: '#64748b' }}>Employee ID</p>
-              <h4 style={{ margin: 0, fontSize: '15px', color: '#0f172a' }}>{payslip.employeeId || 'EMP-001'}</h4>
+              <h4 style={{ margin: 0, fontSize: '15px', color: '#0f172a' }}>{payslip.employeeId || 'N/A'}</h4>
             </div>
             <div>
               <p style={{ margin: '0 0 4px 0', fontSize: '12px', color: '#64748b' }}>Designation / Role</p>
-              <h4 style={{ margin: 0, fontSize: '15px', color: '#0f172a' }}>{payslip.designation || 'Software Engineer'}</h4>
+              <h4 style={{ margin: 0, fontSize: '15px', color: '#0f172a' }}>{payslip.designation || 'Staff'}</h4>
             </div>
             <div>
               <p style={{ margin: '0 0 4px 0', fontSize: '12px', color: '#64748b' }}>Payment Status</p>

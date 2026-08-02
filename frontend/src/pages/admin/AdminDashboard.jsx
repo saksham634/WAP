@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -37,8 +37,6 @@ export default function AdminDashboard() {
     weeklyAttendanceTrend: null,
     systemAlerts: [],
   });
-  const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     async function fetchMetrics() {
       try {
@@ -48,8 +46,6 @@ export default function AdminDashboard() {
         }
       } catch (err) {
         console.warn('Failed to load admin dashboard metrics:', err);
-      } finally {
-        setLoading(false);
       }
     }
     fetchMetrics();

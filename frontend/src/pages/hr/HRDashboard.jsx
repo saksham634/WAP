@@ -13,7 +13,7 @@ import {
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import Header from '../../components/layout/Header';
-import { adminAPI, userAPI, payrollAPI, leaveAPI } from '../../api';
+import { adminAPI, userAPI, payrollAPI } from '../../api';
 
 ChartJS.register(
   CategoryScale,

@@ -112,6 +112,10 @@ export const attendanceAPI = {
   punchIn: () => request('/attendance/punch-in', { method: 'POST' }),
   
   punchOut: () => request('/attendance/punch-out', { method: 'POST' }),
+
+  resetAttendance: () => request('/attendance/reset', { method: 'POST' }),
+
+  resetToday: () => request('/attendance/reset', { method: 'POST' }),
   
   getMyAttendance: (month, year) => {
     let q = '';

@@ -39,7 +39,7 @@ public class ProjectService {
         List<Project> projects = projectRepository.findByOrganization_IdOrderByDeadlineAsc(orgId);
 
         String roleName = user.getRole().getRoleName();
-        if ("EMPLOYEE".equals(roleName)) {
+        if ("ROLE_EMPLOYEE".equals(roleName) || "EMPLOYEE".equals(roleName)) {
             projects = projects.stream()
                 .filter(p -> p.getAssignedUsers().stream().anyMatch(u -> u.getId().equals(user.getId())))
                 .collect(Collectors.toList());

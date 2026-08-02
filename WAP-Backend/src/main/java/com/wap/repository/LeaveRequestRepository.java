@@ -22,10 +22,14 @@ public interface LeaveRequestRepository extends JpaRepository<LeaveRequest, Long
     long countActiveLeavesByDate(@Param("date") LocalDate date);
 
     // Organization-Scoped Methods
+    List<LeaveRequest> findByUser_Organization_IdOrderByCreatedAtDesc(Long orgId);
+
     List<LeaveRequest> findByUser_Organization_IdAndStatusOrderByCreatedAtDesc(Long orgId, String status);
 
     long countByUser_Organization_IdAndStatus(Long orgId, String status);
 
     @Query("SELECT COUNT(l) FROM LeaveRequest l WHERE l.user.organization.id = :orgId AND l.status = 'APPROVED' AND :date BETWEEN l.startDate AND l.endDate")
     long countActiveLeavesByOrganization_IdAndDate(@Param("orgId") Long orgId, @Param("date") LocalDate date);
+
+    void deleteByUser_Id(Long userId);
 }

@@ -67,6 +67,7 @@ export default function SettingsPage() {
       await adminAPI.updateSettings({
         companyName: orgSettings.companyName,
         timezone: orgSettings.timezone,
+        workHours: orgSettings.workHours,
       });
       setFeedback({ type: 'success', text: 'Organization system preferences saved successfully!' });
       await fetchSettings();

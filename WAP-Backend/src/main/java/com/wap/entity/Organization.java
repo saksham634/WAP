@@ -45,6 +45,14 @@ public class Organization {
 		this.timezone = timezone;
 	}
 
+	public String getWorkHours() {
+		return workHours;
+	}
+
+	public void setWorkHours(String workHours) {
+		this.workHours = workHours;
+	}
+
 	public LocalDateTime getCreatedAt() {
 		return createdAt;
 	}
@@ -64,6 +72,8 @@ public class Organization {
     private String supportEmail;
     
     private String timezone = "Asia/Kolkata";
+    
+    private String workHours = "9:00 AM - 6:00 PM";
     
     @CreationTimestamp
     @Column(updatable = false)

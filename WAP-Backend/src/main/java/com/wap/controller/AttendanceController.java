@@ -16,12 +16,12 @@ public class AttendanceController {
         this.attendanceService = attendanceService;
     }
 
-    @GetMapping("/status")
+    @GetMapping({"/status", "/today"})
     public ResponseEntity<AttendanceStatusResponse> getStatus() {
         return ResponseEntity.ok(attendanceService.getTodayStatus());
     }
 
-    @PostMapping("/check-in")
+    @PostMapping({"/check-in", "/punch-in"})
     public ResponseEntity<?> checkIn() {
         try {
             return ResponseEntity.ok(attendanceService.checkIn());
@@ -30,7 +30,7 @@ public class AttendanceController {
         }
     }
 
-    @PostMapping("/check-out")
+    @PostMapping({"/check-out", "/punch-out"})
     public ResponseEntity<?> checkOut() {
         try {
             return ResponseEntity.ok(attendanceService.checkOut());
@@ -39,7 +39,7 @@ public class AttendanceController {
         }
     }
 
-    @PostMapping("/reset")
+    @PostMapping({"/reset", "/reset-today"})
     public ResponseEntity<?> resetToday() {
         try {
             attendanceService.resetTodayAttendance();
@@ -49,7 +49,7 @@ public class AttendanceController {
         }
     }
 
-    @GetMapping("/org-today")
+    @GetMapping({"/org-today", "/all"})
     public ResponseEntity<?> getOrgTodayAttendance() {
         try {
             return ResponseEntity.ok(attendanceService.getOrgTodayAttendance());

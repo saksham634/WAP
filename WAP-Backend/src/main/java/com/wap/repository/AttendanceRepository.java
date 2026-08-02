@@ -25,4 +25,8 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
     long countPresentByOrganization_IdAndDate(@Param("orgId") Long orgId, @Param("date") LocalDate date);
 
     java.util.List<Attendance> findByUser_Organization_IdAndRecordDate(Long orgId, LocalDate recordDate);
+
+    java.util.List<Attendance> findByUser_Id(Long userId);
+
+    void deleteByUser_Id(Long userId);
 }

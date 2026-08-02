@@ -19,4 +19,8 @@ public class AttendanceStatusResponse {
 
     public String getCheckOutTime() { return checkOutTime; }
     public void setCheckOutTime(String checkOutTime) { this.checkOutTime = checkOutTime; }
+
+    public String getPunchInTime() { return checkInTime; }
+    public String getPunchOutTime() { return checkOutTime; }
+    public boolean isPunchedIn() { return "CHECKED_IN".equals(status); }
 }

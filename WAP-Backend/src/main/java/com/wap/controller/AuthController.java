@@ -1,43 +1,64 @@
 package com.wap.controller;
 
 import com.wap.dto.AuthResponse;
-
 import com.wap.dto.LoginRequest;
 import com.wap.dto.RegisterOrgRequest;
 import com.wap.service.AuthService;
+import com.wap.service.OtpService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import java.util.Map;
-import java.util.HashMap;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.Map;
-import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*") // Allows your HTML/JS frontend to talk to this API
+@CrossOrigin(origins = "*")
 public class AuthController {
 
     private final AuthService authService;
+    private final OtpService otpService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, OtpService otpService) {
         this.authService = authService;
+        this.otpService = otpService;
     }
     
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || auth.getName().equals("anonymousUser")) {
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
             return ResponseEntity.status(401).body(Map.of("message", "Not authenticated"));
         }
         
         try {
             return ResponseEntity.ok(authService.getUserProfile(auth.getName()));
-        } catch(Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
+
+    @PostMapping("/send-otp")
+    public ResponseEntity<?> sendOtp(@RequestBody Map<String, String> request) {
+        try {
+            String email = request.get("email");
+            String response = otpService.generateAndSendOtp(email);
+            return ResponseEntity.ok(Map.of("message", response));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<?> verifyOtp(@RequestBody Map<String, String> request) {
+        boolean isValid = otpService.verifyOtp(request.get("email"), request.get("otp"));
+        if (isValid) {
+            return ResponseEntity.ok(Map.of("message", "OTP verified successfully."));
+        }
+        return ResponseEntity.badRequest().body(Map.of("error", "Invalid or expired OTP."));
+    }
+
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
         try {

@@ -15,4 +15,6 @@ public interface PayrollRepository extends JpaRepository<Payroll, Long> {
 
     // Fetch all payslips for an organization
     List<Payroll> findByUser_Organization_IdOrderByPayYearDescPayMonthDesc(Long orgId);
+
+    void deleteByUser_Id(Long userId);
 }

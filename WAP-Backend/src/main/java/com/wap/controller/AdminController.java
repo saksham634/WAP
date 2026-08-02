@@ -90,6 +90,25 @@ public class AdminController {
         }
     }
 
+    @GetMapping("/roles/permissions")
+    public ResponseEntity<?> getRolePermissions() {
+        try {
+            return ResponseEntity.ok(adminService.getRolePermissions());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/roles/permissions")
+    public ResponseEntity<?> updateRolePermissions(@RequestBody Map<String, List<String>> payload) {
+        try {
+            adminService.updateRolePermissions(payload);
+            return ResponseEntity.ok(Map.of("message", "Role permissions updated successfully."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @GetMapping("/settings")
     public ResponseEntity<?> getSettings() {
         try {
@@ -99,7 +118,7 @@ public class AdminController {
         }
     }
 
-    @PostMapping("/settings")
+    @RequestMapping(value = "/settings", method = {RequestMethod.POST, RequestMethod.PUT})
     public ResponseEntity<?> updateSettings(@RequestBody SettingsRequestDTO request) {
         try {
             adminService.updateSettings(request);

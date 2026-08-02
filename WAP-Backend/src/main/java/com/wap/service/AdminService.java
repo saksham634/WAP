@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.time.LocalDate;
@@ -65,10 +66,25 @@ public class AdminService {
         if ("ROLE_ADMIN".equals(roleName)) {
             return "ALL";
         } else if ("ROLE_HR".equals(roleName)) {
-            return "EMPLOYEE_MGMT,LEAVE_APPROVALS,ATTENDANCE_OVERVIEW,PAYROLL_ADMIN,DASHBOARD";
+            return "DASHBOARD,EMPLOYEE_MGMT,ATTENDANCE_OVERVIEW,LEAVE_APPROVALS,PAYROLL_ADMIN,PROJECTS";
         } else {
-            return "ATTENDANCE,LEAVES,PAYROLL,PERSONAL_INFO,DASHBOARD";
+            return "DASHBOARD,ATTENDANCE,LEAVES,PAYROLL,PROJECTS,PERSONAL_INFO";
         }
+    }
+
+    public String resolveUserPermissions(User user) {
+        if (user == null) return "DASHBOARD";
+        if (user.getRole() != null && "ROLE_ADMIN".equals(user.getRole().getRoleName())) {
+            return "ALL";
+        }
+        String perms = user.getPermissions();
+        if (perms != null && !perms.trim().isEmpty()) {
+            return perms;
+        }
+        if (user.getRole() != null && user.getRole().getPermissions() != null && !user.getRole().getPermissions().trim().isEmpty()) {
+            return user.getRole().getPermissions();
+        }
+        return getDefaultPermissionsForRole(user.getRole() != null ? user.getRole().getRoleName() : "");
     }
 
     // Organization-Scoped: Get all users within the current user's organization
@@ -78,10 +94,7 @@ public class AdminService {
         List<User> users = userRepository.findByOrganization_Id(orgId);
         
         return users.stream().map(user -> {
-            String perms = user.getPermissions();
-            if (perms == null || perms.trim().isEmpty()) {
-                perms = getDefaultPermissionsForRole(user.getRole().getRoleName());
-            }
+            String perms = resolveUserPermissions(user);
             return new UserDTO(
                 user.getId(),
                 user.getEmployeeId(),
@@ -252,23 +265,55 @@ public class AdminService {
         userData.put("emergencyName", user.getEmergencyName());
         userData.put("emergencyRelation", user.getEmergencyRelation());
         userData.put("emergencyPhone", user.getEmergencyPhone());
-        String perms = user.getPermissions();
-        if (perms == null || perms.trim().isEmpty()) {
-            perms = getDefaultPermissionsForRole(user.getRole().getRoleName());
-        }
-        userData.put("permissions", perms);
+        userData.put("permissions", resolveUserPermissions(user));
         return userData;
+    }
+
+    public Map<String, List<String>> getRolePermissions() {
+        Map<String, List<String>> map = new HashMap<>();
+        
+        Role hrRole = roleRepository.findByRoleName("ROLE_HR").orElse(null);
+        String hrPerms = (hrRole != null && hrRole.getPermissions() != null && !hrRole.getPermissions().trim().isEmpty())
+                ? hrRole.getPermissions()
+                : "DASHBOARD,EMPLOYEE_MGMT,ATTENDANCE_OVERVIEW,LEAVE_APPROVALS,PAYROLL_ADMIN,PROJECTS";
+        map.put("ROLE_HR", Arrays.stream(hrPerms.split(",")).map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList()));
+        
+        Role empRole = roleRepository.findByRoleName("ROLE_EMPLOYEE").orElse(null);
+        String empPerms = (empRole != null && empRole.getPermissions() != null && !empRole.getPermissions().trim().isEmpty())
+                ? empRole.getPermissions()
+                : "DASHBOARD,ATTENDANCE,LEAVES,PAYROLL,PROJECTS,PERSONAL_INFO";
+        map.put("ROLE_EMPLOYEE", Arrays.stream(empPerms.split(",")).map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList()));
+        
+        return map;
+    }
+
+    public void updateRolePermissions(Map<String, List<String>> payload) {
+        User admin = getAuthenticatedUser();
+        
+        for (Map.Entry<String, List<String>> entry : payload.entrySet()) {
+            String roleName = entry.getKey();
+            List<String> perms = entry.getValue();
+            if (perms != null) {
+                String permsStr = String.join(",", perms);
+                Role role = roleRepository.findByRoleName(roleName)
+                        .orElseGet(() -> {
+                            Role r = new Role();
+                            r.setRoleName(roleName);
+                            return r;
+                        });
+                role.setPermissions(permsStr);
+                roleRepository.save(role);
+            }
+        }
+        
+        auditLogRepository.save(new AuditLog("Updated Security Roles & Permissions Matrix", admin.getFullName(), admin.getEmail()));
     }
 
     public String getUserPermissions(String employeeId) {
         User currentUser = getAuthenticatedUser();
         User user = userRepository.findByEmployeeIdAndOrganization_Id(employeeId, currentUser.getOrganization().getId())
                 .orElseThrow(() -> new RuntimeException("User not found with Employee ID: " + employeeId + " in your organization."));
-        String perms = user.getPermissions();
-        if (perms == null || perms.trim().isEmpty()) {
-            perms = getDefaultPermissionsForRole(user.getRole().getRoleName());
-        }
-        return perms;
+        return resolveUserPermissions(user);
     }
 
     public void updateUserPermissions(String employeeId, List<String> permissionsList) {
@@ -283,19 +328,36 @@ public class AdminService {
         auditLogRepository.save(new AuditLog("Updated permissions for user " + employeeId + " (" + user.getFullName() + ")", "Admin", currentUser.getEmail()));
     }
 
+    public Map<String, Object> getSettings() {
+        User adminUser = getAuthenticatedUser();
+        Organization org = adminUser.getOrganization();
+        Map<String, Object> settings = new HashMap<>();
+        if (org != null) {
+            settings.put("companyName", org.getCompanyName() != null ? org.getCompanyName() : "Acme Innovations Inc");
+            settings.put("timezone", org.getTimezone() != null ? org.getTimezone() : "Asia/Kolkata (IST)");
+            settings.put("supportEmail", org.getSupportEmail() != null ? org.getSupportEmail() : "support@workforce.com");
+            settings.put("workHours", "9:00 AM - 6:00 PM");
+            settings.put("autoPunchOut", true);
+        }
+        return settings;
+    }
+
     public void updateSettings(SettingsRequestDTO request) {
-        // Find the admin user to get their organization
         String adminEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         User adminUser = userRepository.findByEmail(adminEmail)
                 .orElseThrow(() -> new RuntimeException("Admin context not found."));
 
         Organization org = adminUser.getOrganization();
         if (org != null) {
-            if (request.getCompanyName() != null) org.setCompanyName(request.getCompanyName());
-            if (request.getTimezone() != null) org.setTimezone(request.getTimezone());
+            if (request.getCompanyName() != null && !request.getCompanyName().trim().isEmpty()) {
+                org.setCompanyName(request.getCompanyName().trim());
+            }
+            if (request.getTimezone() != null && !request.getTimezone().trim().isEmpty()) {
+                org.setTimezone(request.getTimezone().trim());
+            }
             organizationRepository.save(org);
             
-            auditLogRepository.save(new AuditLog("Updated System Settings", adminUser.getFullName(), adminUser.getEmail()));
+            auditLogRepository.save(new AuditLog("Updated System Settings (" + org.getCompanyName() + ")", adminUser.getFullName(), adminUser.getEmail()));
         }
     }
 

@@ -56,9 +56,21 @@ public class DirectMessageService {
 
         List<DirectMessage> allOrgMessages = messageRepository.findByOrganization_IdOrderByCreatedAtDesc(orgId);
 
-        if (allOrgMessages.isEmpty()) {
-            createDefaultWelcomeMessages(user);
-            allOrgMessages = messageRepository.findByOrganization_IdOrderByCreatedAtDesc(orgId);
+        // Automatically purge any legacy premade/mock messages from DB
+        List<DirectMessage> legacyMocks = allOrgMessages.stream()
+                .filter(m -> (m.getSubject() != null && (
+                        m.getSubject().contains("Policy Clarification") ||
+                        m.getSubject().contains("System Access & Permissions") ||
+                        m.getSubject().contains("Welcome to Workforce")
+                )) || (m.getContent() != null && (
+                        m.getContent().contains("leave balance rollover") ||
+                        m.getContent().contains("Project Analytics dashboard")
+                )))
+                .collect(Collectors.toList());
+
+        if (!legacyMocks.isEmpty()) {
+            messageRepository.deleteAll(legacyMocks);
+            allOrgMessages.removeAll(legacyMocks);
         }
 
         return allOrgMessages.stream()
@@ -89,13 +101,13 @@ public class DirectMessageService {
         }
     }
 
-    private void createDefaultWelcomeMessages(User user) {
-        Organization org = user.getOrganization();
-        DirectMessage msg1 = new DirectMessage(user, "ROLE_HR", "Policy Clarification Request", "Hello HR Team, I would like to request an update regarding my annual leave balance rollover policy.", "REQUEST", org);
-        DirectMessage msg2 = new DirectMessage(user, "ROLE_ADMIN", "System Access & Permissions Request", "Dear Admin, requesting access approval for the new Project Analytics dashboard module.", "REQUEST", org);
-        
-        messageRepository.save(msg1);
-        messageRepository.save(msg2);
+    public void deleteMessage(Long id) {
+        User user = getAuthenticatedUser();
+        DirectMessage msg = messageRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Message not found"));
+        if (msg.getOrganization().getId().equals(user.getOrganization().getId())) {
+            messageRepository.delete(msg);
+        }
     }
 
     private DirectMessageDTO mapToDTO(DirectMessage msg) {

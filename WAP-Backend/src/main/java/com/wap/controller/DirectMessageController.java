@@ -39,4 +39,10 @@ public class DirectMessageController {
         messageService.markAsRead(id);
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteMessage(@PathVariable Long id) {
+        messageService.deleteMessage(id);
+        return ResponseEntity.ok().build();
+    }
 }

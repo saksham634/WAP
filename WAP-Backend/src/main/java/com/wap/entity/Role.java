@@ -34,6 +34,14 @@ public class Role {
 		this.description = description;
 	}
 
+	public String getPermissions() {
+		return permissions;
+	}
+
+	public void setPermissions(String permissions) {
+		this.permissions = permissions;
+	}
+
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -42,4 +50,7 @@ public class Role {
     private String roleName; // e.g., ROLE_ADMIN, ROLE_HR, ROLE_EMPLOYEE
     
     private String description;
+
+    @Column(columnDefinition = "TEXT")
+    private String permissions;
 }

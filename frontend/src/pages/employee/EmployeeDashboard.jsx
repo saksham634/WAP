@@ -1,0 +1,415 @@
+import React, { useEffect, useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import { attendanceAPI, payrollAPI, projectAPI } from '../../api';
+import Header from '../../components/layout/Header';
+import { Line } from 'react-chartjs-2';
+
+export default function EmployeeDashboard() {
+  const { user } = useAuth();
+  const [statusData, setStatusData] = useState({
+    status: 'NOT_CHECKED_IN',
+    checkInTime: null,
+    checkOutTime: null,
+  });
+  const [payslips, setPayslips] = useState([]);
+  const [teamProjects, setTeamProjects] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const userName = user?.fullName || localStorage.getItem('fullName') || 'Team Member';
+
+  const loadData = async () => {
+    try {
+      // 1. Attendance Status
+      try {
+        const res = await attendanceAPI.getTodayStatus();
+        if (res) {
+          setStatusData({
+            status: res.status || (res.punchInTime ? (res.punchOutTime ? 'CHECKED_OUT' : 'CHECKED_IN') : 'NOT_CHECKED_IN'),
+            checkInTime: res.punchInTime || res.checkInTime || null,
+            checkOutTime: res.punchOutTime || res.checkOutTime || null,
+          });
+        }
+      } catch (e) {
+        console.warn('Attendance status error:', e);
+      }
+
+      // 2. Payslips
+      try {
+        const ps = await payrollAPI.getMyPayslips();
+        if (Array.isArray(ps)) {
+          setPayslips(ps.slice(0, 3));
+        }
+      } catch (e) {
+        console.warn('Payslips error:', e);
+      }
+
+      // 3. Team Projects
+      try {
+        const projs = await projectAPI.getAllProjects();
+        if (Array.isArray(projs)) {
+          setTeamProjects(projs.slice(0, 3));
+        }
+      } catch (e) {
+        console.warn('Projects error:', e);
+      }
+    } catch (err) {
+      console.error('Failed to load employee dashboard data:', err);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const handleCheckIn = async () => {
+    setLoading(true);
+    try {
+      await attendanceAPI.punchIn();
+      alert('Successfully checked in for the day!');
+      loadData();
+    } catch (err) {
+      alert('Check-in failed: ' + (err.message || 'Server error'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCheckOut = async () => {
+    setLoading(true);
+    try {
+      await attendanceAPI.punchOut();
+      alert('Successfully checked out. Have a great evening!');
+      loadData();
+    } catch (err) {
+      alert('Check-out failed: ' + (err.message || 'Server error'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetAttendance = async () => {
+    try {
+      await attendanceAPI.resetAttendance();
+      alert('Attendance reset! You can now check in again.');
+      loadData();
+    } catch (err) {
+      alert('Reset failed: ' + (err.message || 'Server error'));
+    }
+  };
+
+  // Build weekly chart
+  const todayDayIndex = (new Date().getDay() + 6) % 7; // Mon=0, Sun=6
+  const chartHours = [8.0, 8.5, 8.0, 8.2, 8.0, 0.0, 0.0];
+  if (statusData.status === 'CHECKED_IN' || statusData.status === 'CHECKED_OUT') {
+    chartHours[todayDayIndex] = 8.5;
+  }
+
+  const chartData = {
+    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    datasets: [
+      {
+        label: 'Daily Work Hours',
+        data: chartHours,
+        borderColor: '#007a7a',
+        borderWidth: 3,
+        backgroundColor: 'rgba(0, 122, 122, 0.15)',
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#007a7a',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+      },
+    ],
+  };
+
+  const isCheckedIn = statusData.status === 'CHECKED_IN';
+  const isCheckedOut = statusData.status === 'CHECKED_OUT';
+
+  return (
+    <div className="page-content" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <Header
+        title={`Welcome ${userName},`}
+        subtitle="Here's your workforce overview for today."
+      />
+
+      <section className="top-section">
+        {/* Left Panel */}
+        <div className="left-panel">
+          {/* Attendance Trend */}
+          <section className="card attendance-card">
+            <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <h2>Attendance Trend</h2>
+                <p>Weekly Attendance Overview</p>
+              </div>
+              <button className="filter-button">
+                This Week <i className="fa-solid fa-chevron-down" style={{ marginLeft: '4px' }}></i>
+              </button>
+            </div>
+            <div className="chart-container" style={{ position: 'relative', height: '260px', width: '100%', padding: '10px 0' }}>
+              <Line
+                data={chartData}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: { legend: { display: false } },
+                  scales: {
+                    x: { grid: { display: false } },
+                    y: {
+                      beginAtZero: true,
+                      max: 12,
+                      ticks: { stepSize: 2, callback: (val) => `${val}h` },
+                      grid: { color: '#f1f5f9' },
+                    },
+                  },
+                }}
+              />
+            </div>
+          </section>
+
+          {/* My Payslips */}
+          <section className="card payroll-card" style={{ marginTop: '1.5rem' }}>
+            <div className="card-header">
+              <h2>My Payslips</h2>
+              <p style={{ color: 'var(--text-secondary, #64748b)', fontSize: '0.875rem' }}>Recent salary records</p>
+            </div>
+            <div className="card-body" style={{ padding: '1rem', overflowX: 'auto' }}>
+              <table className="data-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border-color, #e2e8f0)' }}>
+                    <th style={{ padding: '0.75rem' }}>Period</th>
+                    <th style={{ padding: '0.75rem' }}>Base</th>
+                    <th style={{ padding: '0.75rem' }}>Days Worked</th>
+                    <th style={{ padding: '0.75rem' }}>Deductions</th>
+                    <th style={{ padding: '0.75rem' }}>Net Salary</th>
+                    <th style={{ padding: '0.75rem' }}>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {payslips.length === 0 ? (
+                    <tr>
+                      <td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: '#64748b' }}>
+                        No payslips generated yet.
+                      </td>
+                    </tr>
+                  ) : (
+                    payslips.map((ps, idx) => (
+                      <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '0.75rem', fontWeight: 600 }}>{ps.payPeriod}</td>
+                        <td style={{ padding: '0.75rem' }}>₹{(ps.baseSalary || 0).toLocaleString()}</td>
+                        <td style={{ padding: '0.75rem' }}>{ps.presentDays}</td>
+                        <td style={{ padding: '0.75rem', color: '#ef4444' }}>₹{(ps.deductions || 0).toLocaleString()}</td>
+                        <td style={{ padding: '0.75rem', fontWeight: 600, color: '#007a7a' }}>
+                          ₹{(ps.netSalary || 0).toLocaleString()}
+                        </td>
+                        <td style={{ padding: '0.75rem' }}>
+                          <span
+                            className="status-badge"
+                            style={{
+                              background: '#dcfce7',
+                              color: '#166534',
+                              padding: '3px 8px',
+                              borderRadius: '4px',
+                              fontSize: '11px',
+                              fontWeight: 600,
+                            }}
+                          >
+                            {ps.status || 'PAID'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          {/* Recent Activity */}
+          <section className="card activity-card" style={{ marginTop: '1.5rem' }}>
+            <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2>Recent Activity</h2>
+              <a href="/employee/attendance" className="view-all" style={{ color: '#007a7a', textDecoration: 'none', fontSize: '13px', fontWeight: 600 }}>
+                View All
+              </a>
+            </div>
+            <div style={{ padding: '0 1rem 1rem 1rem' }}>
+              {statusData.status !== 'NOT_CHECKED_IN' && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '12px 0', borderBottom: '1px solid #f1f5f9' }}>
+                  <div
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '50%',
+                      background: '#dcfce7',
+                      color: '#166534',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <i className="fa-solid fa-clock"></i>
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: '14px', color: '#0f172a' }}>Attendance Check-In</div>
+                    <div style={{ fontSize: '12px', color: '#64748b' }}>
+                      Clocked in at {statusData.checkInTime || 'Today'}
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '12px 0' }}>
+                <div
+                  style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    background: '#e2e8f0',
+                    color: '#475569',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  <i className="fa-solid fa-user-check"></i>
+                </div>
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: '14px', color: '#0f172a' }}>Dashboard Active</div>
+                  <div style={{ fontSize: '12px', color: '#64748b' }}>Logged in securely</div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        {/* Right Panel */}
+        <div className="right-panel">
+          {/* Daily Attendance Actions */}
+          <section className="card quick-actions-card" style={{ marginBottom: '1.5rem', flexShrink: 0 }}>
+            <div className="card-header">
+              <h2>Daily Attendance</h2>
+            </div>
+            <div className="card-body" style={{ textAlign: 'center', padding: '1.5rem 1rem' }}>
+              <p style={{ marginBottom: '1.2rem', color: 'var(--text-secondary, #64748b)', fontWeight: 500 }}>
+                {isCheckedOut
+                  ? 'Shift completed for today.'
+                  : isCheckedIn
+                  ? 'Currently clocked in.'
+                  : 'You have not checked in yet today.'}
+              </p>
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  onClick={handleCheckIn}
+                  className="btn btn-primary"
+                  disabled={isCheckedIn || isCheckedOut || loading}
+                  style={{
+                    padding: '8px 18px',
+                    backgroundColor: isCheckedIn || isCheckedOut ? '#94a3b8' : '#007a7a',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: isCheckedIn || isCheckedOut ? 'not-allowed' : 'pointer',
+                    fontWeight: 600,
+                  }}
+                >
+                  {isCheckedIn ? (statusData.checkInTime ? `Checked In (${statusData.checkInTime})` : 'Checked In') : 'Check In'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleCheckOut}
+                  className="btn btn-secondary"
+                  disabled={!isCheckedIn || isCheckedOut || loading}
+                  style={{
+                    padding: '8px 18px',
+                    backgroundColor: !isCheckedIn || isCheckedOut ? '#94a3b8' : '#0284c7',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: !isCheckedIn || isCheckedOut ? 'not-allowed' : 'pointer',
+                    fontWeight: 600,
+                  }}
+                >
+                  {isCheckedOut ? (statusData.checkOutTime ? `Checked Out (${statusData.checkOutTime})` : 'Checked Out') : 'Check Out'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleResetAttendance}
+                  className="btn"
+                  style={{
+                    background: 'var(--bg-color, #f8fafc)',
+                    color: 'var(--text-secondary, #64748b)',
+                    border: '1px solid var(--border-color, #e2e8f0)',
+                    fontSize: '0.8rem',
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <i className="fa-solid fa-rotate-left" style={{ marginRight: '4px' }}></i> Reset (Test)
+                </button>
+              </div>
+            </div>
+          </section>
+
+          {/* Team Updates */}
+          <section className="card updates-card">
+            <div className="card-header">
+              <h2>Team Updates</h2>
+            </div>
+            <div style={{ padding: '1rem 0' }}>
+              {teamProjects.length > 0 ? (
+                teamProjects.map((p, idx) => (
+                  <div
+                    key={p.id || idx}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '14px',
+                      paddingBottom: '14px',
+                      marginBottom: '14px',
+                      borderBottom: idx < teamProjects.length - 1 ? '1px solid #f1f5f9' : 'none',
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: '38px',
+                        height: '38px',
+                        borderRadius: '10px',
+                        background: 'rgba(0, 122, 122, 0.1)',
+                        color: '#007a7a',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <i className="fa-solid fa-diagram-project"></i>
+                    </div>
+                    <div>
+                      <h4 style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: 600, color: '#0f172a' }}>
+                        {p.title}
+                      </h4>
+                      <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>
+                        {p.progress || 0}% Complete • Assigned: {p.assignedTeam || 'Team'}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div style={{ textAlign: 'center', padding: '12px', color: '#64748b', fontSize: '13px' }}>
+                  No updates posted currently.
+                </div>
+              )}
+            </div>
+          </section>
+        </div>
+      </section>
+    </div>
+  );
+}

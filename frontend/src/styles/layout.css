@@ -1,0 +1,116 @@
+.dashboard-container {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    position: relative;
+    background-color: var(--background, #f8fafc);
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 30px;
+    gap: 24px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.page-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+    min-width: 0;
+}
+
+.top-section {
+    flex: 1 0 auto;
+    display: flex;
+    gap: 24px;
+    width: 100%;
+    min-width: 0;
+}
+
+.left-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-width: 0;
+}
+
+.right-panel {
+    flex: 0 0 360px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-width: 0;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    width: 100%;
+}
+
+/* =========================================================
+   RESPONSIVE LAYOUT BREAKPOINTS
+   ========================================================= */
+
+@media (max-width: 1200px) {
+    .main-content {
+        padding: 20px 24px;
+        gap: 20px;
+    }
+
+    .top-section {
+        flex-direction: column;
+    }
+
+    .right-panel {
+        flex: none;
+        width: 100%;
+    }
+}
+
+@media (max-width: 992px) {
+    .main-content {
+        padding: 16px 20px;
+        gap: 18px;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        padding: 14px 16px;
+        gap: 16px;
+    }
+
+    .top-section,
+    .bottom-section,
+    .today-section,
+    .bottom-grid {
+        flex-direction: column !important;
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-content {
+        padding: 12px;
+        gap: 14px;
+    }
+}

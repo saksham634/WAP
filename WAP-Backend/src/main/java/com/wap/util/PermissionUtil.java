@@ -11,7 +11,13 @@ public class PermissionUtil {
 
         String perms = user.getPermissions();
         if (perms == null || perms.trim().isEmpty()) {
-            perms = AdminService.getDefaultPermissionsForRole(user.getRole().getRoleName());
+            if (user.getRole() != null && user.getRole().getPermissions() != null && !user.getRole().getPermissions().trim().isEmpty()) {
+                perms = user.getRole().getPermissions();
+            } else if (user.getRole() != null) {
+                perms = AdminService.getDefaultPermissionsForRole(user.getRole().getRoleName());
+            } else {
+                perms = "DASHBOARD";
+            }
         }
 
         if (perms.contains("ALL")) return true;

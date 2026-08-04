@@ -92,6 +92,7 @@ public class LeaveService {
     }
 
     // HR/Admin: Approve or Reject a request
+    @org.springframework.transaction.annotation.Transactional
     public void updateLeaveStatus(Long leaveId, String newStatus, String reason) {
         User user = getAuthenticatedUser();
         com.wap.util.PermissionUtil.validatePermission(user, "LEAVE_APPROVALS");
@@ -99,6 +100,12 @@ public class LeaveService {
         LeaveRequest leave = leaveRepository.findById(leaveId)
                 .orElseThrow(() -> new RuntimeException("Leave request not found"));
         
+        // Multi-tenancy isolation: Ensure request belongs to current user's organization
+        if (leave.getUser() == null || leave.getUser().getOrganization() == null ||
+                !leave.getUser().getOrganization().getId().equals(user.getOrganization().getId())) {
+            throw new org.springframework.security.access.AccessDeniedException("Access denied: Leave request belongs to another organization.");
+        }
+
         leave.setStatus(newStatus.toUpperCase());
         if ("REJECTED".equalsIgnoreCase(newStatus) && reason != null && !reason.isBlank()) {
             leave.setRejectionReason(reason);

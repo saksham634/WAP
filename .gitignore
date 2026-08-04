@@ -17,6 +17,8 @@
 *.key
 *.p12
 *.pfx
+*.sql
+!**/db/migration/*.sql
 secrets.properties
 application-local.properties
 application-secret.properties

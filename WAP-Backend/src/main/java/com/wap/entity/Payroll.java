@@ -6,12 +6,17 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "payroll")
+@Table(name = "payroll", uniqueConstraints = {
+    @UniqueConstraint(name = "uk_payroll_user_month_year", columnNames = {"user_id", "payMonth", "payYear"})
+})
 public class Payroll {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Version
+    private Long version;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
@@ -48,6 +53,9 @@ public class Payroll {
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+
+    public Long getVersion() { return version; }
+    public void setVersion(Long version) { this.version = version; }
 
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }

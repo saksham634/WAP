@@ -36,6 +36,9 @@ public class LeaveRequest {
     @Column(length = 500)
     private String rejectionReason;
 
+    @Version
+    private Long version;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
@@ -43,6 +46,9 @@ public class LeaveRequest {
     // Manually adding Getters and Setters to avoid Lombok IDE issues
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+
+    public Long getVersion() { return version; }
+    public void setVersion(Long version) { this.version = version; }
 
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }

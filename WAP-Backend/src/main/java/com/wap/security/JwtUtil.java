@@ -29,12 +29,13 @@ public class JwtUtil {
 
     @PostConstruct
     public void init() {
-        if (configuredSecret != null && configuredSecret.trim().length() >= 32) {
-            this.secretKey = Keys.hmacShaKeyFor(configuredSecret.getBytes(StandardCharsets.UTF_8));
-        } else {
-            // Default secure key
-            this.secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+        if (configuredSecret == null || configuredSecret.trim().length() < 32) {
+            throw new IllegalStateException(
+                "FATAL SECURITY CONFIGURATION ERROR: 'jwt.secret' is missing, empty, or shorter than 32 characters. " +
+                "Please configure a secure 256-bit+ HMAC secret key via the JWT_SECRET environment variable."
+            );
         }
+        this.secretKey = Keys.hmacShaKeyFor(configuredSecret.trim().getBytes(StandardCharsets.UTF_8));
     }
 
     public String extractUsername(String token) {

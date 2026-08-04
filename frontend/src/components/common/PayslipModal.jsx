@@ -1,7 +1,14 @@
 import React from 'react';
+import { downloadPayslipPDF } from '../../utils/downloadUtils';
+import { useAuth } from '../../context/AuthContext';
 
 export default function PayslipModal({ isOpen, onClose, payslip }) {
+  const { user } = useAuth();
   if (!isOpen || !payslip) return null;
+
+  const handleDownloadPDF = () => {
+    downloadPayslipPDF(payslip, user?.organizationName || 'Workforce Automation Portal');
+  };
 
   const handlePrint = () => {
     const printContent = document.getElementById('payslipPrintArea');
@@ -175,12 +182,15 @@ export default function PayslipModal({ isOpen, onClose, payslip }) {
           </div>
         </div>
 
-        <div className="modal-footer">
+        <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
           <button className="btn btn-outline" onClick={onClose}>
             Close
           </button>
-          <button className="btn btn-primary" onClick={handlePrint}>
-            <i className="fa-solid fa-print"></i> Print / Download PDF
+          <button className="btn btn-outline" onClick={handlePrint} title="Open browser print dialog">
+            <i className="fa-solid fa-print"></i> Print Preview
+          </button>
+          <button className="btn btn-primary" onClick={handleDownloadPDF} title="Download official PDF file to device">
+            <i className="fa-solid fa-download"></i> Download PDF
           </button>
         </div>
       </div>

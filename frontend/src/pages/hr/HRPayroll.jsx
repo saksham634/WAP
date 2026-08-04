@@ -2,8 +2,11 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { payrollAPI, userAPI } from '../../api';
 import PayslipModal from '../../components/common/PayslipModal';
 import Header from '../../components/layout/Header';
+import { downloadPayrollReportPDF, downloadPayrollReportCSV, downloadPayslipPDF } from '../../utils/downloadUtils';
+import { useAuth } from '../../context/AuthContext';
 
 export default function HRPayroll() {
+  const { user } = useAuth();
   const [payslips, setPayslips] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
@@ -71,104 +74,13 @@ export default function HRPayroll() {
     }
   };
 
-  // Organization Payroll PDF Export
+  // Organization Payroll PDF & CSV Exports
   const handleDownloadOrgReport = () => {
-    const totalBase = payslips.reduce((acc, p) => acc + Number(p.baseSalary || 0), 0);
-    const totalAllow = payslips.reduce((acc, p) => acc + Number(p.allowances || 0), 0);
-    const totalDed = payslips.reduce((acc, p) => acc + Number(p.deductions || 0), 0);
-    const totalNet = payslips.reduce((acc, p) => acc + Number(p.netSalary || 0), 0);
+    downloadPayrollReportPDF(payslips, selectedMonth, selectedYear, user?.organizationName || 'Workforce Automation Portal');
+  };
 
-    const win = window.open('', '', 'width=1000,height=800');
-    win.document.write(`
-      <html>
-        <head>
-          <title>Organization Payroll Statement - ${selectedMonth} ${selectedYear}</title>
-          <style>
-            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; color: #0f172a; }
-            .header { text-align: center; border-bottom: 3px solid #007a7a; padding-bottom: 20px; margin-bottom: 24px; }
-            .header h1 { color: #007a7a; margin: 0 0 6px 0; font-size: 24px; }
-            .meta { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 14px; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
-            th, td { border: 1px solid #cbd5e1; padding: 10px 12px; text-align: left; font-size: 13px; }
-            th { background-color: #f1f5f9; color: #334155; }
-            .num { text-align: right; }
-            .total-row { font-weight: bold; background-color: #e6f4f4; color: #005c5c; }
-            .signatures { display: flex; justify-content: space-between; margin-top: 60px; padding-top: 20px; }
-            .sig-box { width: 200px; text-align: center; border-top: 1px solid #64748b; padding-top: 8px; font-size: 13px; color: #475569; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>Workforce Automation Portal</h1>
-            <p>Official Corporate Payroll & Compensation Disbursement Report</p>
-          </div>
-
-          <div class="meta">
-            <div>
-              <strong>Disbursement Period:</strong> ${selectedMonth} ${selectedYear}<br>
-              <strong>Organization:</strong> Acme Innovations Inc
-            </div>
-            <div style="text-align: right;">
-              <strong>Generated Date:</strong> ${new Date().toLocaleDateString()}<br>
-              <strong>Total Staff Processed:</strong> ${payslips.length}
-            </div>
-          </div>
-
-          <table>
-            <thead>
-              <tr>
-                <th>Emp ID</th>
-                <th>Employee Name</th>
-                <th>Designation</th>
-                <th class="num">Base Pay (₹)</th>
-                <th class="num">Allowances (₹)</th>
-                <th class="num">Deductions (₹)</th>
-                <th class="num">Net Payable (₹)</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${payslips
-                .map(
-                  (p) => `
-                <tr>
-                  <td>${p.employeeId || 'N/A'}</td>
-                  <td>${p.employeeName || 'Staff'}</td>
-                  <td>${p.designation || 'Staff'}</td>
-                  <td class="num">${Number(p.baseSalary || 0).toLocaleString()}</td>
-                  <td class="num">${Number(p.allowances || 0).toLocaleString()}</td>
-                  <td class="num">${Number(p.deductions || 0).toLocaleString()}</td>
-                  <td class="num"><strong>${Number(p.netSalary || 0).toLocaleString()}</strong></td>
-                  <td>${p.status || 'PAID'}</td>
-                </tr>
-              `
-                )
-                .join('')}
-              <tr class="total-row">
-                <td colspan="3">ORGANIZATION GRAND TOTALS</td>
-                <td class="num">₹${totalBase.toLocaleString()}</td>
-                <td class="num">₹${totalAllow.toLocaleString()}</td>
-                <td class="num">₹${totalDed.toLocaleString()}</td>
-                <td class="num">₹${totalNet.toLocaleString()}</td>
-                <td>--</td>
-              </tr>
-            </tbody>
-          </table>
-
-          <div class="signatures">
-            <div class="sig-box">Prepared by (HR Manager)</div>
-            <div class="sig-box">Verified by (Finance Officer)</div>
-            <div class="sig-box">Approved by (Administrator)</div>
-          </div>
-        </body>
-      </html>
-    `);
-    win.document.close();
-    win.focus();
-    setTimeout(() => {
-      win.print();
-      win.close();
-    }, 250);
+  const handleDownloadOrgCSV = () => {
+    downloadPayrollReportCSV(payslips, selectedMonth, selectedYear);
   };
 
   const totalMonthlySpend = payslips.reduce((acc, p) => acc + Number(p.netSalary || 0), 0);
@@ -251,9 +163,19 @@ export default function HRPayroll() {
           <button
             className="btn btn-outline"
             onClick={handleDownloadOrgReport}
-            style={{ padding: '10px 18px', borderRadius: '10px' }}
+            style={{ padding: '10px 16px', borderRadius: '10px' }}
+            title="Download official organization payroll PDF report"
           >
-            <i className="fa-solid fa-file-pdf" style={{ color: '#ef4444' }}></i> Download Org PDF Report
+            <i className="fa-solid fa-file-pdf" style={{ color: '#ef4444' }}></i> Download Org PDF
+          </button>
+
+          <button
+            className="btn btn-outline"
+            onClick={handleDownloadOrgCSV}
+            style={{ padding: '10px 16px', borderRadius: '10px' }}
+            title="Export payroll disbursement list to CSV"
+          >
+            <i className="fa-solid fa-file-csv" style={{ color: '#007a7a' }}></i> Export CSV
           </button>
 
           <button
@@ -389,13 +311,24 @@ export default function HRPayroll() {
                       ₹{Number(p.netSalary || 0).toLocaleString()}
                     </td>
                     <td style={{ padding: '14px 20px', textAlign: 'right' }}>
-                      <button
-                        className="btn btn-outline"
-                        onClick={() => setActivePayslipModal(p)}
-                        style={{ padding: '6px 14px', fontSize: '12px' }}
-                      >
-                        <i className="fa-solid fa-eye"></i> View Payslip
-                      </button>
+                      <div style={{ display: 'inline-flex', gap: '8px' }}>
+                        <button
+                          className="btn btn-outline"
+                          onClick={() => setActivePayslipModal(p)}
+                          style={{ padding: '6px 12px', fontSize: '12px' }}
+                          title="View detailed breakdown modal"
+                        >
+                          <i className="fa-solid fa-eye"></i> View
+                        </button>
+                        <button
+                          className="btn btn-primary"
+                          onClick={() => downloadPayslipPDF(p, user?.organizationName || 'Workforce Automation Portal')}
+                          style={{ padding: '6px 12px', fontSize: '12px' }}
+                          title="Download employee official payslip PDF"
+                        >
+                          <i className="fa-solid fa-download"></i> Download PDF
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

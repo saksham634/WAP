@@ -139,6 +139,18 @@ export default function PersonalInfoPage() {
     }
   };
 
+  const handleRemovePhoto = async () => {
+    setProfile((prev) => ({ ...prev, profilePicture: '' }));
+    try {
+      await userAPI.deleteProfilePicture();
+      updateUser({ profilePicture: null });
+      updateProfilePicture(null);
+      setFeedback({ type: 'success', text: 'Profile picture removed successfully!' });
+    } catch (err) {
+      setFeedback({ type: 'error', text: err.message || 'Failed to remove profile picture.' });
+    }
+  };
+
   const closeWebcam = () => {
     if (videoRef.current && videoRef.current.srcObject) {
       videoRef.current.srcObject.getTracks().forEach((t) => t.stop());
@@ -261,6 +273,17 @@ export default function PersonalInfoPage() {
             >
               <i className="fa-solid fa-camera"></i> Take WebCam Snapshot
             </button>
+
+            {profile.profilePicture && (
+              <button
+                type="button"
+                className="btn btn-outline"
+                onClick={handleRemovePhoto}
+                style={{ width: '100%', fontSize: '13px', color: '#dc2626', borderColor: '#fca5a5', backgroundColor: '#fef2f2' }}
+              >
+                <i className="fa-solid fa-trash-can"></i> Remove Photo
+              </button>
+            )}
           </div>
         </div>
 

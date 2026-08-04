@@ -62,6 +62,10 @@ export const userAPI = {
     body: JSON.stringify({ profilePicture }),
   }),
 
+  deleteProfilePicture: () => request('/admin/users/me/profile/picture', {
+    method: 'DELETE',
+  }),
+
   getAllUsers: () => request('/admin/users'),
 
   createUser: (userData) => request('/admin/users', {

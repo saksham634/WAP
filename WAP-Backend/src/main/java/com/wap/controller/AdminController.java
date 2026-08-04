@@ -115,6 +115,14 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.success("Profile updated successfully!", Map.of("message", "Profile updated successfully!")));
     }
 
+    @Operation(summary = "Remove personal profile picture")
+    @DeleteMapping("/users/me/profile/picture")
+    public ResponseEntity<?> deleteProfilePicture(@RequestHeader("Authorization") String token) {
+        String email = jwtUtil.extractUsername(token.substring(7));
+        adminService.deleteProfilePicture(email);
+        return ResponseEntity.ok(ApiResponse.success("Profile picture removed successfully!", Map.of("message", "Profile picture removed successfully!")));
+    }
+
     @Operation(summary = "Change password for logged-in user")
     @PutMapping("/users/me/password")
     public ResponseEntity<?> changePassword(@RequestHeader("Authorization") String token, @Valid @RequestBody ChangePasswordDTO request) {

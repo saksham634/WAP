@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { projectAPI, userAPI } from '../../api';
 import Header from '../../components/layout/Header';
+import { downloadProjectsCSV } from '../../utils/downloadUtils';
 
 export default function EmployeeProjects() {
   const [projects, setProjects] = useState([]);
@@ -68,10 +69,22 @@ export default function EmployeeProjects() {
 
   return (
     <div className="page-content" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <Header
-        title="My Projects & Deliverables"
-        subtitle="Track active sprint milestones, project teams, and deliverables assigned to you"
-      />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+        <Header
+          title="My Projects & Deliverables"
+          subtitle="Track active sprint milestones, project teams, and deliverables assigned to you"
+        />
+        {projects.length > 0 && (
+          <button
+            className="btn btn-outline"
+            onClick={() => downloadProjectsCSV(projects)}
+            style={{ padding: '10px 18px', borderRadius: '12px' }}
+            title="Download assigned projects summary as CSV"
+          >
+            <i className="fa-solid fa-file-csv" style={{ color: '#007a7a' }}></i> Export Projects CSV
+          </button>
+        )}
+      </div>
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: '60px', color: '#64748b' }}>

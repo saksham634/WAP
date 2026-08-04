@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { auditAPI } from '../../api';
 import Header from '../../components/layout/Header';
+import { downloadAuditLogsCSV } from '../../utils/downloadUtils';
 
 export default function AuditLogs() {
   const [logs, setLogs] = useState([]);
@@ -23,10 +24,22 @@ export default function AuditLogs() {
 
   return (
     <div className="page-content" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <Header
-        title="Audit Logs"
-        subtitle="Chronological immutable history of security events, administrative updates, and user activities"
-      />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+        <Header
+          title="Audit Logs"
+          subtitle="Chronological immutable history of security events, administrative updates, and user activities"
+        />
+        {logs.length > 0 && (
+          <button
+            className="btn btn-outline"
+            onClick={() => downloadAuditLogsCSV(logs)}
+            style={{ padding: '10px 18px', borderRadius: '12px' }}
+            title="Download immutable audit trail log as CSV"
+          >
+            <i className="fa-solid fa-file-csv" style={{ color: '#007a7a' }}></i> Export Audit Trail CSV
+          </button>
+        )}
+      </div>
 
       <div
         className="card"

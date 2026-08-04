@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { projectAPI, userAPI } from '../../api';
 import Header from '../../components/layout/Header';
 import ConfirmModal from '../../components/common/ConfirmModal';
+import { downloadProjectsCSV } from '../../utils/downloadUtils';
 
 export default function ProjectsManagement() {
   const [projects, setProjects] = useState([]);
@@ -184,13 +185,26 @@ export default function ProjectsManagement() {
           </p>
         </div>
 
-        <button
-          className="btn btn-primary"
-          onClick={() => setIsCreateModalOpen(true)}
-          style={{ padding: '10px 20px', borderRadius: '10px' }}
-        >
-          <i className="fa-solid fa-plus"></i> Create New Project
-        </button>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          {projects.length > 0 && (
+            <button
+              className="btn btn-outline"
+              onClick={() => downloadProjectsCSV(projects)}
+              style={{ padding: '10px 18px', borderRadius: '10px' }}
+              title="Download projects summary as CSV"
+            >
+              <i className="fa-solid fa-file-csv" style={{ color: '#007a7a' }}></i> Export CSV
+            </button>
+          )}
+
+          <button
+            className="btn btn-primary"
+            onClick={() => setIsCreateModalOpen(true)}
+            style={{ padding: '10px 20px', borderRadius: '10px' }}
+          >
+            <i className="fa-solid fa-plus"></i> Create New Project
+          </button>
+        </div>
       </div>
 
       {feedback && (

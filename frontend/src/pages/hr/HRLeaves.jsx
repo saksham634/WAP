@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { leaveAPI } from '../../api';
 import Header from '../../components/layout/Header';
+import { downloadLeavesCSV } from '../../utils/downloadUtils';
 
 export default function HRLeaves() {
   const [leaves, setLeaves] = useState([]);
@@ -122,6 +123,17 @@ export default function HRLeaves() {
           <option value="APPROVED">Approved</option>
           <option value="REJECTED">Rejected</option>
         </select>
+
+        {leaves.length > 0 && (
+          <button
+            className="btn btn-outline"
+            onClick={() => downloadLeavesCSV(filteredLeaves.length > 0 ? filteredLeaves : leaves)}
+            style={{ padding: '10px 16px', borderRadius: '10px', fontSize: '13px' }}
+            title="Download leave applications report as CSV"
+          >
+            <i className="fa-solid fa-file-csv" style={{ color: '#007a7a' }}></i> Export Leaves CSV
+          </button>
+        )}
       </div>
 
       {feedback && (

@@ -176,8 +176,11 @@ public class AdminService {
     // Create a new user in the current Admin's organization
     public void addNewUser(AddUserRequest request) {
         // 1. Check if email already exists
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email is already registered in the system.");
+        if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
+            throw new RuntimeException("Email address is required.");
+        }
+        if (userRepository.existsByEmail(request.getEmail().trim())) {
+            throw new RuntimeException("Email '" + request.getEmail().trim() + "' is already registered in the system.");
         }
 
         // 2. Identify the Admin making the request (to link the same Organization)
@@ -187,10 +190,14 @@ public class AdminService {
         Role assignedRole = roleRepository.findByRoleName(request.getRole())
                 .orElseThrow(() -> new RuntimeException("Invalid role specified: " + request.getRole()));
 
-        // 4. Generate a unique 6-digit Employee ID if not provided
+        // 4. Generate a unique 6-digit Employee ID if not provided, and ensure uniqueness
         String newEmployeeId = (request.getEmployeeId() != null && !request.getEmployeeId().trim().isEmpty())
                 ? request.getEmployeeId().trim()
                 : "EMP-" + (100000 + new Random().nextInt(900000));
+
+        if (userRepository.existsByEmployeeId(newEmployeeId)) {
+            throw new RuntimeException("Employee ID '" + newEmployeeId + "' is already assigned to another staff member.");
+        }
 
         // 5. Create and save the new user
         User newUser = new User();
@@ -525,7 +532,12 @@ public class AdminService {
             user.setFullName(request.getFullName());
         }
         if (request.getProfilePicture() != null) {
-            user.setProfilePicture(request.getProfilePicture());
+            String pic = request.getProfilePicture().trim();
+            if (pic.isEmpty() || "null".equalsIgnoreCase(pic) || "REMOVE".equalsIgnoreCase(pic)) {
+                user.setProfilePicture(null);
+            } else {
+                user.setProfilePicture(request.getProfilePicture());
+            }
         }
         if (request.getPhone() != null && !request.getPhone().isEmpty()) {
             user.setPhoneNumber(request.getPhone());
@@ -556,6 +568,14 @@ public class AdminService {
 
         userRepository.save(user);
         auditLogRepository.save(new AuditLog("Updated Personal Profile", user.getFullName(), user.getEmail()));
+    }
+
+    public void deleteProfilePicture(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found: " + email));
+        user.setProfilePicture(null);
+        userRepository.save(user);
+        auditLogRepository.save(new AuditLog("Removed Profile Picture", user.getFullName(), user.getEmail()));
     }
 
     public void changePassword(String email, ChangePasswordDTO request) {

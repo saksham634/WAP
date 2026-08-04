@@ -122,14 +122,20 @@ export function AuthProvider({ children }) {
   };
 
   const updateProfilePicture = async (dataUrl) => {
-    setProfilePicture(dataUrl);
-    if (dataUrl) {
-      localStorage.setItem('profilePicture', dataUrl);
+    const cleanUrl = dataUrl || null;
+    setProfilePicture(cleanUrl);
+    if (cleanUrl) {
+      localStorage.setItem('profilePicture', cleanUrl);
     } else {
       localStorage.removeItem('profilePicture');
     }
+    updateUser({ profilePicture: cleanUrl });
     try {
-      await userAPI.updateMeProfile({ profilePicture: dataUrl });
+      if (cleanUrl) {
+        await userAPI.uploadProfilePicture(cleanUrl);
+      } else {
+        await userAPI.deleteProfilePicture();
+      }
     } catch (err) {
       console.error('Failed to sync profile picture to backend:', err);
     }

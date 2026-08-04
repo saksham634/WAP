@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { attendanceAPI, userAPI } from '../../api';
 import Header from '../../components/layout/Header';
+import { downloadAttendanceCSV } from '../../utils/downloadUtils';
 
 export default function HRAttendance() {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
@@ -162,6 +163,15 @@ export default function HRAttendance() {
               }}
             />
           </div>
+
+          <button
+            className="btn btn-outline"
+            onClick={() => downloadAttendanceCSV(attendanceRecords, selectedDate)}
+            style={{ padding: '8px 14px', borderRadius: '8px', fontSize: '13px' }}
+            title="Download daily attendance sheet as CSV"
+          >
+            <i className="fa-solid fa-file-csv" style={{ color: '#007a7a' }}></i> Export CSV
+          </button>
 
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             {punchData.status !== 'CHECKED_IN' ? (

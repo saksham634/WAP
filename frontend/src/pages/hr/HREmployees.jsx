@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { userAPI } from '../../api';
 import Header from '../../components/layout/Header';
+import { downloadStaffDirectoryCSV } from '../../utils/downloadUtils';
 
 export default function HREmployees() {
   const [employees, setEmployees] = useState([]);
@@ -119,6 +120,17 @@ export default function HREmployees() {
           <option value="Finance">Finance</option>
           <option value="Sales">Sales</option>
         </select>
+
+        {employees.length > 0 && (
+          <button
+            className="btn btn-outline"
+            onClick={() => downloadStaffDirectoryCSV(filtered.length > 0 ? filtered : employees)}
+            style={{ padding: '12px 18px', borderRadius: '12px', whiteSpace: 'nowrap' }}
+            title="Download workforce directory as CSV"
+          >
+            <i className="fa-solid fa-file-csv" style={{ color: '#007a7a' }}></i> Export CSV
+          </button>
+        )}
       </div>
 
       {/* Employee Cards Grid */}

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { leaveAPI } from '../../api';
 import Header from '../../components/layout/Header';
+import { downloadLeavesCSV } from '../../utils/downloadUtils';
 
 export default function LeavePage() {
   const [balance, setBalance] = useState({
@@ -92,13 +93,26 @@ export default function LeavePage() {
           </p>
         </div>
 
-        <button
-          className="btn btn-primary"
-          onClick={() => setIsApplyModalOpen(true)}
-          style={{ padding: '10px 20px', borderRadius: '10px' }}
-        >
-          <i className="fa-solid fa-plane-departure"></i> Apply For Leave
-        </button>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          {leaves.length > 0 && (
+            <button
+              className="btn btn-outline"
+              onClick={() => downloadLeavesCSV(leaves)}
+              style={{ padding: '10px 18px', borderRadius: '10px' }}
+              title="Download leave requests history as CSV"
+            >
+              <i className="fa-solid fa-file-csv" style={{ color: '#007a7a' }}></i> Export Leaves CSV
+            </button>
+          )}
+
+          <button
+            className="btn btn-primary"
+            onClick={() => setIsApplyModalOpen(true)}
+            style={{ padding: '10px 20px', borderRadius: '10px' }}
+          >
+            <i className="fa-solid fa-plane-departure"></i> Apply For Leave
+          </button>
+        </div>
       </div>
 
       {feedback && (

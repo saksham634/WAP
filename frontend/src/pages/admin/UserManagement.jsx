@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { userAPI } from '../../api';
 import Header from '../../components/layout/Header';
 import ConfirmModal from '../../components/common/ConfirmModal';
+import { downloadStaffDirectoryCSV } from '../../utils/downloadUtils';
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -11,6 +12,8 @@ export default function UserManagement() {
 
   // Add User Modal State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [addModalError, setAddModalError] = useState(null);
+  const [addModalLoading, setAddModalLoading] = useState(false);
   const [newUserData, setNewUserData] = useState({
     fullName: '',
     email: '',
@@ -26,6 +29,8 @@ export default function UserManagement() {
   // Edit User Modal State
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const [editModalError, setEditModalError] = useState(null);
+  const [editModalLoading, setEditModalLoading] = useState(false);
 
   // Status feedback
   const [feedback, setFeedback] = useState(null);
@@ -52,9 +57,11 @@ export default function UserManagement() {
 
   const handleAddUser = async (e) => {
     e.preventDefault();
+    setAddModalError(null);
+    setAddModalLoading(true);
     try {
       await userAPI.createUser(newUserData);
-      setFeedback({ type: 'success', text: 'New user created successfully!' });
+      setFeedback({ type: 'success', text: `Staff member "${newUserData.fullName}" created successfully!` });
       setIsAddModalOpen(false);
       setNewUserData({
         fullName: '',
@@ -69,13 +76,17 @@ export default function UserManagement() {
       });
       fetchUsers();
     } catch (err) {
-      setFeedback({ type: 'error', text: err.message || 'Failed to create user.' });
+      setAddModalError(err.message || 'Failed to create staff member.');
+    } finally {
+      setAddModalLoading(false);
     }
   };
 
   const handleEditUser = async (e) => {
     e.preventDefault();
     if (!editingUser) return;
+    setEditModalError(null);
+    setEditModalLoading(true);
     try {
       const identifier = editingUser.id || editingUser.employeeId;
       await userAPI.updateUser(identifier, editingUser);
@@ -83,7 +94,9 @@ export default function UserManagement() {
       setIsEditModalOpen(false);
       fetchUsers();
     } catch (err) {
-      setFeedback({ type: 'error', text: err.message || 'Failed to update user.' });
+      setEditModalError(err.message || 'Failed to update user.');
+    } finally {
+      setEditModalLoading(false);
     }
   };
 
@@ -149,7 +162,10 @@ export default function UserManagement() {
 
         <button
           className="btn btn-primary"
-          onClick={() => setIsAddModalOpen(true)}
+          onClick={() => {
+            setAddModalError(null);
+            setIsAddModalOpen(true);
+          }}
           style={{ padding: '10px 20px', borderRadius: '10px' }}
         >
           <i className="fa-solid fa-user-plus"></i> Add New Staff Member
@@ -214,6 +230,17 @@ export default function UserManagement() {
           <option value="ROLE_HR">HR Managers</option>
           <option value="ROLE_EMPLOYEE">Employees</option>
         </select>
+
+        {users.length > 0 && (
+          <button
+            className="btn btn-outline"
+            onClick={() => downloadStaffDirectoryCSV(filteredUsers.length > 0 ? filteredUsers : users)}
+            style={{ padding: '12px 18px', borderRadius: '12px', whiteSpace: 'nowrap' }}
+            title="Export staff directory to CSV"
+          >
+            <i className="fa-solid fa-file-csv" style={{ color: '#007a7a' }}></i> Export Staff CSV
+          </button>
+        )}
       </div>
 
       {/* Users Table */}
@@ -269,9 +296,12 @@ export default function UserManagement() {
                             justifyContent: 'center',
                             fontWeight: 700,
                             fontSize: '13px',
+                            backgroundImage: u.profilePicture ? `url("${u.profilePicture}")` : 'none',
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
                           }}
                         >
-                          {u.fullName ? u.fullName.charAt(0).toUpperCase() : 'U'}
+                          {!u.profilePicture && (u.fullName ? u.fullName.charAt(0).toUpperCase() : 'U')}
                         </div>
                         <div>
                           <h4 style={{ margin: 0, fontSize: '14px', color: '#0f172a' }}>{u.fullName}</h4>
@@ -317,7 +347,8 @@ export default function UserManagement() {
                         <button
                           className="btn btn-outline"
                           onClick={() => {
-                            setEditingUser(u);
+                            setEditingUser({ ...u });
+                            setEditModalError(null);
                             setIsEditModalOpen(true);
                           }}
                           style={{ padding: '6px 12px', fontSize: '12px' }}
@@ -359,6 +390,27 @@ export default function UserManagement() {
                 &times;
               </button>
             </div>
+
+            {addModalError && (
+              <div
+                style={{
+                  margin: '16px 20px 0 20px',
+                  padding: '12px 16px',
+                  borderRadius: '10px',
+                  backgroundColor: '#fee2e2',
+                  color: '#991b1b',
+                  border: '1px solid #fecaca',
+                  fontSize: '13px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                }}
+              >
+                <i className="fa-solid fa-circle-exclamation" style={{ fontSize: '16px', color: '#dc2626' }}></i>
+                <span style={{ fontWeight: 500 }}>{addModalError}</span>
+              </div>
+            )}
+
             <form onSubmit={handleAddUser}>
               <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 <div>
@@ -468,8 +520,14 @@ export default function UserManagement() {
                 <button type="button" className="btn btn-outline" onClick={() => setIsAddModalOpen(false)}>
                   Cancel
                 </button>
-                <button type="submit" className="btn btn-primary">
-                  Create Account
+                <button type="submit" className="btn btn-primary" disabled={addModalLoading}>
+                  {addModalLoading ? (
+                    <>
+                      <i className="fa-solid fa-spinner fa-spin" style={{ marginRight: '6px' }}></i> Creating...
+                    </>
+                  ) : (
+                    'Create Account'
+                  )}
                 </button>
               </div>
             </form>
@@ -487,6 +545,27 @@ export default function UserManagement() {
                 &times;
               </button>
             </div>
+
+            {editModalError && (
+              <div
+                style={{
+                  margin: '16px 20px 0 20px',
+                  padding: '12px 16px',
+                  borderRadius: '10px',
+                  backgroundColor: '#fee2e2',
+                  color: '#991b1b',
+                  border: '1px solid #fecaca',
+                  fontSize: '13px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                }}
+              >
+                <i className="fa-solid fa-circle-exclamation" style={{ fontSize: '16px', color: '#dc2626' }}></i>
+                <span style={{ fontWeight: 500 }}>{editModalError}</span>
+              </div>
+            )}
+
             <form onSubmit={handleEditUser}>
               <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 <div>
@@ -568,8 +647,14 @@ export default function UserManagement() {
                 <button type="button" className="btn btn-outline" onClick={() => setIsEditModalOpen(false)}>
                   Cancel
                 </button>
-                <button type="submit" className="btn btn-primary">
-                  Save Changes
+                <button type="submit" className="btn btn-primary" disabled={editModalLoading}>
+                  {editModalLoading ? (
+                    <>
+                      <i className="fa-solid fa-spinner fa-spin" style={{ marginRight: '6px' }}></i> Saving...
+                    </>
+                  ) : (
+                    'Save Changes'
+                  )}
                 </button>
               </div>
             </form>

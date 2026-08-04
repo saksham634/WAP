@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { attendanceAPI } from '../../api';
 import Header from '../../components/layout/Header';
+import { downloadAttendanceCSV } from '../../utils/downloadUtils';
 
 export default function AttendancePage() {
   const [logs, setLogs] = useState([]);
@@ -191,6 +192,15 @@ export default function AttendancePage() {
               <option value="2027">2027</option>
             </select>
           </div>
+
+          <button
+            className="btn btn-outline"
+            onClick={() => downloadAttendanceCSV(logs, `Month_${selectedMonth}_${selectedYear}`)}
+            style={{ padding: '8px 14px', borderRadius: '8px', fontSize: '13px' }}
+            title="Download personal attendance log as CSV"
+          >
+            <i className="fa-solid fa-file-csv" style={{ color: '#007a7a' }}></i> Export CSV
+          </button>
 
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             {!todayStatus.punchedIn ? (

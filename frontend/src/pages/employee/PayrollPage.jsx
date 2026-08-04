@@ -2,8 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { payrollAPI } from '../../api';
 import PayslipModal from '../../components/common/PayslipModal';
 import Header from '../../components/layout/Header';
+import { downloadPayslipPDF, downloadPayrollReportCSV } from '../../utils/downloadUtils';
+import { useAuth } from '../../context/AuthContext';
 
 export default function PayrollPage() {
+  const { user } = useAuth();
   const [payslips, setPayslips] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activePayslipModal, setActivePayslipModal] = useState(null);
@@ -113,6 +116,31 @@ export default function PayrollPage() {
           overflow: 'hidden',
         }}
       >
+        <div
+          style={{
+            padding: '16px 20px',
+            borderBottom: '1px solid #e2e8f0',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <div>
+            <h4 style={{ margin: '0 0 2px 0', fontSize: '15px', color: '#0f172a' }}>Salary & Payslip Statements</h4>
+            <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>Download official PDF salary slips or export history</p>
+          </div>
+          {payslips.length > 0 && (
+            <button
+              className="btn btn-outline"
+              onClick={() => downloadPayrollReportCSV(payslips, 'All', 'History')}
+              style={{ padding: '6px 14px', fontSize: '12px' }}
+              title="Export all statement records to CSV"
+            >
+              <i className="fa-solid fa-file-csv" style={{ color: '#007a7a' }}></i> Export History CSV
+            </button>
+          )}
+        </div>
+
         <div className="table-responsive">
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
@@ -168,13 +196,24 @@ export default function PayrollPage() {
                       </span>
                     </td>
                     <td style={{ padding: '14px 20px', textAlign: 'right' }}>
-                      <button
-                        className="btn btn-outline"
-                        onClick={() => setActivePayslipModal(p)}
-                        style={{ padding: '6px 14px', fontSize: '12px' }}
-                      >
-                        <i className="fa-solid fa-file-invoice" style={{ color: '#007a7a' }}></i> View & Download PDF
-                      </button>
+                      <div style={{ display: 'inline-flex', gap: '8px' }}>
+                        <button
+                          className="btn btn-outline"
+                          onClick={() => setActivePayslipModal(p)}
+                          style={{ padding: '6px 12px', fontSize: '12px' }}
+                          title="View detailed breakdown"
+                        >
+                          <i className="fa-solid fa-eye" style={{ color: '#007a7a' }}></i> View
+                        </button>
+                        <button
+                          className="btn btn-primary"
+                          onClick={() => downloadPayslipPDF(p, user?.organizationName || 'Workforce Automation Portal')}
+                          style={{ padding: '6px 12px', fontSize: '12px' }}
+                          title="Direct download PDF payslip"
+                        >
+                          <i className="fa-solid fa-download"></i> Download PDF
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

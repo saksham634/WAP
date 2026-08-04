@@ -1,7 +1,10 @@
 package com.wap.service;
 
 import com.wap.util.EmailValidatorUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -13,8 +16,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class OtpService {
 
+    private static final Logger logger = LoggerFactory.getLogger(OtpService.class);
+
     @Autowired
     private JavaMailSender mailSender;
+
+    @Value("${spring.mail.username:}")
+    private String fromEmail;
 
     // Stores email -> OTP mapping (In production, use Redis with TTL)
     private final Map<String, String> otpStorage = new ConcurrentHashMap<>();
@@ -30,13 +38,16 @@ public class OtpService {
         // Send Email
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(email);
+            if (fromEmail != null && !fromEmail.trim().isEmpty()) {
+                message.setFrom(fromEmail.trim());
+            }
+            message.setTo(email.trim());
             message.setSubject("Your Workforce Analytics Platform Verification Code");
-            message.setText("Your OTP code is: " + otp + ". It is valid for 5 minutes.");
+            message.setText("Your verification code is: " + otp + "\n\nThis code is valid for 5 minutes. If you did not request this, please ignore this email.");
             mailSender.send(message);
+            logger.info("Successfully sent OTP email via SMTP to {}", email);
         } catch (Exception e) {
-            org.slf4j.LoggerFactory.getLogger(OtpService.class)
-                    .warn("SMTP mail delivery failed. Verification OTP code for {}: {} (Reason: {})", email, otp, e.getMessage());
+            logger.warn("SMTP mail delivery failed for {}. Verification OTP code: {} (Reason: {})", email, otp, e.getMessage());
         }
 
         return "OTP sent successfully to " + email;

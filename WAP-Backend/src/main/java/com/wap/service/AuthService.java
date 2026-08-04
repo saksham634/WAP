@@ -120,14 +120,26 @@ public class AuthService {
     }
 
     public AuthResponse registerOrganization(RegisterOrgRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
+            throw new IllegalArgumentException("Email address is required.");
+        }
+        if (userRepository.existsByEmail(request.getEmail().trim())) {
             throw new IllegalArgumentException("Email already in use.");
+        }
+
+        String companyName = request.getCompanyName();
+        if (companyName == null || companyName.trim().isEmpty()) {
+            companyName = "Organization " + System.currentTimeMillis();
+        }
+        String adminName = request.getAdminName();
+        if (adminName == null || adminName.trim().isEmpty()) {
+            adminName = "Administrator";
         }
 
         // 1. Create Organization
         Organization org = new Organization();
-        org.setCompanyName(request.getCompanyName());
-        org.setSupportEmail(request.getEmail());
+        org.setCompanyName(companyName.trim());
+        org.setSupportEmail(request.getEmail().trim());
         org = orgRepository.save(org);
 
         // 2. Fetch or Create ADMIN Role
@@ -144,8 +156,8 @@ public class AuthService {
         adminUser.setOrganization(org);
         adminUser.setRole(adminRole);
         adminUser.setEmployeeId("ADMIN-" + System.currentTimeMillis());
-        adminUser.setFullName(request.getAdminName());
-        adminUser.setEmail(request.getEmail());
+        adminUser.setFullName(adminName.trim());
+        adminUser.setEmail(request.getEmail().trim());
         adminUser.setPhoneNumber(request.getPhone());
         adminUser.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         adminUser.setStatus("ACTIVE");

@@ -24,9 +24,9 @@ export default function LoginPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
 
   // Register Org flow state
-  const [orgName, setOrgName] = useState('');
-  const [adminName, setAdminName] = useState('');
-  const [adminEmail, setAdminEmail] = useState('');
+  const [orgName, setOrgName] = useState(() => sessionStorage.getItem('wap_reg_org') || '');
+  const [adminName, setAdminName] = useState(() => sessionStorage.getItem('wap_reg_name') || '');
+  const [adminEmail, setAdminEmail] = useState(() => sessionStorage.getItem('wap_reg_email') || '');
   const [regOtp, setRegOtp] = useState(['', '', '', '', '', '']);
   const [adminPassword, setAdminPassword] = useState('');
 
@@ -123,6 +123,20 @@ export default function LoginPage() {
     }
   };
 
+  // Helper state setters with session cache
+  const handleOrgNameChange = (val) => {
+    setOrgName(val);
+    sessionStorage.setItem('wap_reg_org', val);
+  };
+  const handleAdminNameChange = (val) => {
+    setAdminName(val);
+    sessionStorage.setItem('wap_reg_name', val);
+  };
+  const handleAdminEmailChange = (val) => {
+    setAdminEmail(val);
+    sessionStorage.setItem('wap_reg_email', val);
+  };
+
   // Org Registration: Step 1 - Send OTP
   const handleSendRegOtp = async (e) => {
     e.preventDefault();
@@ -131,8 +145,12 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      await authAPI.sendOtp(adminEmail);
-      setMessage(`Verification OTP sent to ${adminEmail}`);
+      const emailToSend = adminEmail || sessionStorage.getItem('wap_reg_email');
+      if (!emailToSend) {
+        throw new Error('Please enter a valid administrator email.');
+      }
+      await authAPI.sendOtp(emailToSend);
+      setMessage(`Verification OTP sent to ${emailToSend}`);
       setView('register-otp');
     } catch (err) {
       setError(err.message || 'Failed to send OTP.');
@@ -150,10 +168,11 @@ export default function LoginPage() {
       return;
     }
 
+    const emailToVerify = adminEmail || sessionStorage.getItem('wap_reg_email');
     setError(null);
     setLoading(true);
     try {
-      await authAPI.verifyOtp(adminEmail, otpCode);
+      await authAPI.verifyOtp(emailToVerify, otpCode);
       setView('register-password');
     } catch (err) {
       setError(err.message || 'Invalid or expired OTP.');
@@ -169,20 +188,28 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
+      const finalOrgName = orgName || sessionStorage.getItem('wap_reg_org') || 'My Organization';
+      const finalAdminName = adminName || sessionStorage.getItem('wap_reg_name') || 'Admin User';
+      const finalAdminEmail = adminEmail || sessionStorage.getItem('wap_reg_email');
+
       await authAPI.registerOrg({
-        companyName: orgName,
-        adminName: adminName,
-        email: adminEmail,
+        companyName: finalOrgName,
+        adminName: finalAdminName,
+        email: finalAdminEmail,
         password: adminPassword,
-        organizationName: orgName,
-        adminFullName: adminName,
-        adminEmail: adminEmail,
+        organizationName: finalOrgName,
+        adminFullName: finalAdminName,
+        adminEmail: finalAdminEmail,
         adminPassword: adminPassword,
       });
 
+      sessionStorage.removeItem('wap_reg_org');
+      sessionStorage.removeItem('wap_reg_name');
+      sessionStorage.removeItem('wap_reg_email');
+
       setMessage('Organization registered successfully! Please log in.');
       setView('login');
-      setLoginEmail(adminEmail);
+      setLoginEmail(finalAdminEmail);
     } catch (err) {
       setError(err.message || 'Failed to register organization.');
     } finally {
@@ -589,7 +616,7 @@ export default function LoginPage() {
                 required
                 placeholder="e.g. Acme Innovations Inc"
                 value={orgName}
-                onChange={(e) => setOrgName(e.target.value)}
+                onChange={(e) => handleOrgNameChange(e.target.value)}
                 style={{
                   width: '100%',
                   padding: '12px 14px',
@@ -610,7 +637,7 @@ export default function LoginPage() {
                 required
                 placeholder="e.g. John Doe"
                 value={adminName}
-                onChange={(e) => setAdminName(e.target.value)}
+                onChange={(e) => handleAdminNameChange(e.target.value)}
                 style={{
                   width: '100%',
                   padding: '12px 14px',
@@ -631,7 +658,7 @@ export default function LoginPage() {
                 required
                 placeholder="admin@company.com"
                 value={adminEmail}
-                onChange={(e) => setAdminEmail(e.target.value)}
+                onChange={(e) => handleAdminEmailChange(e.target.value)}
                 style={{
                   width: '100%',
                   padding: '12px 14px',

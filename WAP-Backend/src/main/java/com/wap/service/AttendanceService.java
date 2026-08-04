@@ -16,6 +16,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -151,8 +152,70 @@ public class AttendanceService {
 
         int pct = workingDaysElapsed == 0 ? 0 : Math.min(100, Math.max(0, (int) Math.round((double) presentDays / workingDaysElapsed * 100)));
         String attendancePercentage = pct + "%";
+
+        // Dynamic Weekly Attendance Trend (Current Calendar Week: Mon to Sun - resets every week)
+        java.util.Map<String, Double> weeklyAttendanceTrend = new java.util.LinkedHashMap<>();
+        DateTimeFormatter dayFmt = DateTimeFormatter.ofPattern("EEE", Locale.ENGLISH);
+        LocalDate startOfWeek = today.with(java.time.temporal.TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY));
         
-        return new EmployeeDashboardDTO(attendancePercentage, leavesTaken, balanceLeaves, status);
+        for (int i = 0; i < 7; i++) {
+            LocalDate d = startOfWeek.plusDays(i);
+            String dayName = d.format(dayFmt);
+            if (d.isAfter(today)) {
+                weeklyAttendanceTrend.put(dayName, 0.0);
+            } else {
+                java.util.Optional<Attendance> optAtt = attendanceRepository.findByUser_IdAndRecordDate(user.getId(), d);
+                if (optAtt.isPresent()) {
+                    Attendance att = optAtt.get();
+                    if (att.getCheckInTime() != null && att.getCheckOutTime() != null) {
+                        double hrs = java.time.Duration.between(att.getCheckInTime(), att.getCheckOutTime()).toMinutes() / 60.0;
+                        weeklyAttendanceTrend.put(dayName, Math.round(hrs * 10.0) / 10.0);
+                    } else if (att.getCheckInTime() != null) {
+                        // Currently checked in today
+                        double hrs = java.time.Duration.between(att.getCheckInTime(), java.time.LocalTime.now()).toMinutes() / 60.0;
+                        double val = Math.max(4.0, Math.min(9.0, Math.round(hrs * 10.0) / 10.0));
+                        weeklyAttendanceTrend.put(dayName, val);
+                    } else {
+                        weeklyAttendanceTrend.put(dayName, 8.0);
+                    }
+                } else {
+                    weeklyAttendanceTrend.put(dayName, 0.0);
+                }
+            }
+        }
+
+        // Dynamic Monthly Attendance Trend (Current Calendar Month: Week 1 to Week 5 - resets every month)
+        java.util.Map<String, Double> monthlyAttendanceTrend = new java.util.LinkedHashMap<>();
+        int daysInMonth = today.lengthOfMonth();
+        int totalWeeks = (int) Math.ceil((double) daysInMonth / 7.0);
+
+        for (int w = 1; w <= totalWeeks; w++) {
+            int startDay = (w - 1) * 7 + 1;
+            int endDay = Math.min(w * 7, daysInMonth);
+            double weekHoursSum = 0.0;
+            int daysWithAttendance = 0;
+
+            for (int d = startDay; d <= endDay; d++) {
+                LocalDate date = today.withDayOfMonth(d);
+                if (!date.isAfter(today)) {
+                    java.util.Optional<Attendance> optAtt = attendanceRepository.findByUser_IdAndRecordDate(user.getId(), date);
+                    if (optAtt.isPresent()) {
+                        Attendance att = optAtt.get();
+                        if (att.getCheckInTime() != null && att.getCheckOutTime() != null) {
+                            double hrs = java.time.Duration.between(att.getCheckInTime(), att.getCheckOutTime()).toMinutes() / 60.0;
+                            weekHoursSum += hrs;
+                        } else {
+                            weekHoursSum += 8.0;
+                        }
+                        daysWithAttendance++;
+                    }
+                }
+            }
+            double avgDailyHours = daysWithAttendance > 0 ? Math.round((weekHoursSum / daysWithAttendance) * 10.0) / 10.0 : 0.0;
+            monthlyAttendanceTrend.put("Week " + w, avgDailyHours);
+        }
+        
+        return new EmployeeDashboardDTO(attendancePercentage, leavesTaken, balanceLeaves, status, weeklyAttendanceTrend, monthlyAttendanceTrend);
     }
 
     // HR: Get today's real-time attendance feed for the organization

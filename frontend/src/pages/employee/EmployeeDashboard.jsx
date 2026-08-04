@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { attendanceAPI, payrollAPI, projectAPI } from '../../api';
+import { attendanceAPI, payrollAPI, projectAPI, employeeAPI } from '../../api';
 import Header from '../../components/layout/Header';
 import { Line } from 'react-chartjs-2';
 
@@ -11,6 +11,14 @@ export default function EmployeeDashboard() {
     checkInTime: null,
     checkOutTime: null,
   });
+  const [metrics, setMetrics] = useState({
+    attendancePercentage: '0%',
+    leavesTaken: 0,
+    balanceLeaves: 24,
+    todayStatus: 'Not Checked In',
+    weeklyAttendanceTrend: { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0 },
+    monthlyAttendanceTrend: { 'Week 1': 0, 'Week 2': 0, 'Week 3': 0, 'Week 4': 0 },
+  });
   const [payslips, setPayslips] = useState([]);
   const [teamProjects, setTeamProjects] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -20,7 +28,17 @@ export default function EmployeeDashboard() {
 
   const loadData = async () => {
     try {
-      // 1. Attendance Status
+      // 1. Dashboard Metrics (Dynamic Weekly & Monthly Attendance Trends)
+      try {
+        const m = await employeeAPI.getDashboardMetrics();
+        if (m) {
+          setMetrics(m);
+        }
+      } catch (e) {
+        console.warn('Dashboard metrics error:', e);
+      }
+
+      // 2. Attendance Status
       try {
         const res = await attendanceAPI.getTodayStatus();
         if (res) {
@@ -34,7 +52,7 @@ export default function EmployeeDashboard() {
         console.warn('Attendance status error:', e);
       }
 
-      // 2. Payslips
+      // 3. Payslips
       try {
         const ps = await payrollAPI.getMyPayslips();
         if (Array.isArray(ps)) {
@@ -44,7 +62,7 @@ export default function EmployeeDashboard() {
         console.warn('Payslips error:', e);
       }
 
-      // 3. Team Projects
+      // 4. Team Projects
       try {
         const projs = await projectAPI.getAllProjects();
         if (Array.isArray(projs)) {
@@ -104,17 +122,14 @@ export default function EmployeeDashboard() {
   const [chartFilter, setChartFilter] = useState('This Week');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // Build weekly / monthly chart data
+  // Dynamic Weekly vs Monthly Trend (Resets every week/month based on database checkins)
   const isMonthly = chartFilter === 'This Month';
-  const todayDayIndex = (new Date().getDay() + 6) % 7; // Mon=0, Sun=6
-  const weeklyHours = [8.0, 8.5, 8.0, 8.2, 8.0, 0.0, 0.0];
-  if (statusData.status === 'CHECKED_IN' || statusData.status === 'CHECKED_OUT') {
-    weeklyHours[todayDayIndex] = 8.5;
-  }
-  const monthlyHours = [8.2, 8.1, 8.4, 8.3];
+  const activeTrend = isMonthly
+    ? (metrics.monthlyAttendanceTrend || { 'Week 1': 0, 'Week 2': 0, 'Week 3': 0, 'Week 4': 0 })
+    : (metrics.weeklyAttendanceTrend || { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0 });
 
-  const chartLabels = isMonthly ? ['Week 1', 'Week 2', 'Week 3', 'Week 4'] : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  const chartValues = isMonthly ? monthlyHours : weeklyHours;
+  const chartLabels = Object.keys(activeTrend);
+  const chartValues = Object.values(activeTrend);
 
   const chartData = {
     labels: chartLabels,

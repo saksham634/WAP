@@ -26,6 +26,8 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
 
     java.util.List<Attendance> findByUser_Organization_IdAndRecordDate(Long orgId, LocalDate recordDate);
 
+    java.util.List<Attendance> findByUser_IdAndRecordDateBetween(Long userId, LocalDate startDate, LocalDate endDate);
+
     java.util.List<Attendance> findByUser_Id(Long userId);
 
     void deleteByUser_Id(Long userId);

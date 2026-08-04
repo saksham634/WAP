@@ -1,69 +1,32 @@
 package com.wap.dto;
 
-import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonAlias;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
+import java.time.LocalDate;
+import java.util.List;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class CreateProjectRequest {
+
+    @NotBlank(message = "Project title is required")
     private String title;
+
     private String description;
     private String priority;
     private LocalDate startDate;
     private LocalDate deadline;
     private int progress;
-    private java.util.List<Long> assignedUserIds;
+    private List<Long> assignedUserIds;
 
-    public String getTitle() {
-        return title;
-    }
+    @JsonAlias({"assignedMemberEmails", "members"})
+    private List<String> assignedMemberEmails;
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getPriority() {
-        return priority;
-    }
-
-    public void setPriority(String priority) {
-        this.priority = priority;
-    }
-
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate;
-    }
-
-    public LocalDate getDeadline() {
-        return deadline;
-    }
-
-    public void setDeadline(LocalDate deadline) {
-        this.deadline = deadline;
-    }
-
-    public int getProgress() {
-        return progress;
-    }
-
-    public void setProgress(int progress) {
-        this.progress = progress;
-    }
-
-    public java.util.List<Long> getAssignedUserIds() {
-        return assignedUserIds;
-    }
-
-    public void setAssignedUserIds(java.util.List<Long> assignedUserIds) {
-        this.assignedUserIds = assignedUserIds;
-    }
+    private String assignedMembers;
 }
+

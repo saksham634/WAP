@@ -81,6 +81,10 @@ export function AuthProvider({ children }) {
     localStorage.setItem('role', userRole);
     localStorage.setItem('user', JSON.stringify(userData));
 
+    if (authData.refreshToken) {
+      localStorage.setItem('refreshToken', authData.refreshToken);
+    }
+
     if (userData.fullName) localStorage.setItem('fullName', userData.fullName);
     if (userData.email) localStorage.setItem('userEmail', userData.email);
     if (userData.employeeId) localStorage.setItem('employeeId', userData.employeeId);
@@ -99,6 +103,16 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (refreshToken) {
+      // Best-effort asynchronous token revocation
+      fetch('http://localhost:8080/api/auth/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken }),
+      }).catch(() => {});
+    }
+
     setToken(null);
     setRole(null);
     setUser(null);

@@ -58,13 +58,17 @@ public class DataInitializer implements CommandLineRunner {
             return roleRepository.save(r);
         });
 
-        roleRepository.findByRoleName("ROLE_HR").orElseGet(() -> {
+        Role hrRole = roleRepository.findByRoleName("ROLE_HR").orElseGet(() -> {
             Role r = new Role();
             r.setRoleName("ROLE_HR");
             r.setDescription("HR Manager");
-            r.setPermissions("DASHBOARD,EMPLOYEE_MGMT,ATTENDANCE_OVERVIEW,LEAVE_APPROVALS,PAYROLL_ADMIN,PROJECTS");
+            r.setPermissions("DASHBOARD,ATTENDANCE,LEAVES,PAYROLL,PERSONAL_INFO,EMPLOYEE_MGMT,ATTENDANCE_OVERVIEW,LEAVE_APPROVALS,PAYROLL_ADMIN,PROJECTS");
             return roleRepository.save(r);
         });
+        if (hrRole.getPermissions() == null || !hrRole.getPermissions().contains("ATTENDANCE")) {
+            hrRole.setPermissions("DASHBOARD,ATTENDANCE,LEAVES,PAYROLL,PERSONAL_INFO,EMPLOYEE_MGMT,ATTENDANCE_OVERVIEW,LEAVE_APPROVALS,PAYROLL_ADMIN,PROJECTS");
+            roleRepository.save(hrRole);
+        }
 
         roleRepository.findByRoleName("ROLE_EMPLOYEE").orElseGet(() -> {
             Role r = new Role();

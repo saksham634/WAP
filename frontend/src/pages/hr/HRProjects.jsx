@@ -12,22 +12,45 @@ export default function HRProjects() {
     async function loadProjectsData() {
       setLoading(true);
       try {
-        const [projs, users] = await Promise.all([
-          projectAPI.getAllProjects(),
-          userAPI.getAllUsers(),
-        ]);
+        const projs = await projectAPI.getAllProjects();
         if (Array.isArray(projs)) setProjects(projs);
-        if (Array.isArray(users)) setUsersList(users);
       } catch (err) {
         console.error('Failed to load HR projects:', err);
       } finally {
         setLoading(false);
+      }
+
+      try {
+        const users = await userAPI.getAllUsers();
+        if (Array.isArray(users)) setUsersList(users);
+      } catch (e) {
+        // Safe to ignore if user permissions vary
       }
     }
     loadProjectsData();
   }, []);
 
   const handleViewTeam = (proj) => {
+    // 1. Direct assignedUsers list from backend
+    if (Array.isArray(proj.assignedUsers) && proj.assignedUsers.length > 0) {
+      const enrichedMembers = proj.assignedUsers.map((u) => {
+        const match = usersList.find((ul) => ul.id === u.id || (ul.email && u.email && ul.email.toLowerCase() === u.email.toLowerCase()));
+        return {
+          id: u.id,
+          fullName: u.fullName || match?.fullName || u.email,
+          email: u.email || match?.email,
+          role: u.role || match?.role || 'ROLE_EMPLOYEE',
+          designation: u.designation || match?.designation || 'Team Member',
+        };
+      });
+      setSelectedProjectTeam({
+        projectTitle: proj.title,
+        members: enrichedMembers,
+      });
+      return;
+    }
+
+    // 2. Fallback matching against assignedMembers string / array
     let memberEmails = [];
     if (typeof proj.assignedMembers === 'string') {
       memberEmails = proj.assignedMembers.split(',').map((s) => s.trim()).filter(Boolean);
@@ -38,7 +61,7 @@ export default function HRProjects() {
     const matchedTeam = usersList.filter((u) => memberEmails.includes(u.email) || memberEmails.includes(u.fullName));
     setSelectedProjectTeam({
       projectTitle: proj.title,
-      members: matchedTeam.length > 0 ? matchedTeam : memberEmails.map((em) => ({ fullName: em, email: em, role: 'ROLE_EMPLOYEE' })),
+      members: matchedTeam.length > 0 ? matchedTeam : memberEmails.map((em) => ({ fullName: em, email: em, role: 'ROLE_EMPLOYEE', designation: 'Team Member' })),
     });
   };
 
@@ -144,12 +167,68 @@ export default function HRProjects() {
                     </div>
                   </div>
 
+                  {/* Assigned Team Members Preview */}
+                  <div style={{ marginBottom: '14px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                      <span style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>
+                        Assigned Team ({proj.assignedUsers ? proj.assignedUsers.length : 0})
+                      </span>
+                    </div>
+                    {proj.assignedUsers && proj.assignedUsers.length > 0 ? (
+                      <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '6px' }}>
+                        {proj.assignedUsers.slice(0, 4).map((u, i) => (
+                          <div
+                            key={i}
+                            title={`${u.fullName} (${u.email})`}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '5px',
+                              padding: '3px 8px',
+                              borderRadius: '12px',
+                              backgroundColor: '#e6f4f4',
+                              color: '#007a7a',
+                              fontSize: '11px',
+                              fontWeight: 600,
+                            }}
+                          >
+                            <span
+                              style={{
+                                width: '18px',
+                                height: '18px',
+                                borderRadius: '50%',
+                                backgroundColor: '#007a7a',
+                                color: '#ffffff',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '10px',
+                              }}
+                            >
+                              {(u.fullName || u.email || 'U').charAt(0).toUpperCase()}
+                            </span>
+                            <span>{(u.fullName || u.email || '').split(' ')[0]}</span>
+                          </div>
+                        ))}
+                        {proj.assignedUsers.length > 4 && (
+                          <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>
+                            +{proj.assignedUsers.length - 4} more
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <span style={{ fontSize: '12px', color: '#94a3b8', fontStyle: 'italic' }}>
+                        No members assigned yet
+                      </span>
+                    )}
+                  </div>
+
                   <button
                     className="btn btn-outline"
                     onClick={() => handleViewTeam(proj)}
                     style={{ width: '100%', fontSize: '13px' }}
                   >
-                    <i className="fa-solid fa-users-viewfinder"></i> View Assigned Team
+                    <i className="fa-solid fa-users-viewfinder"></i> View Assigned Team ({proj.assignedUsers ? proj.assignedUsers.length : 0})
                   </button>
                 </div>
               </div>

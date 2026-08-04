@@ -170,6 +170,10 @@ export default function LoginPage() {
 
     try {
       await authAPI.registerOrg({
+        companyName: orgName,
+        adminName: adminName,
+        email: adminEmail,
+        password: adminPassword,
         organizationName: orgName,
         adminFullName: adminName,
         adminEmail: adminEmail,

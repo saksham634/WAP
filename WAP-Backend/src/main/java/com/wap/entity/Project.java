@@ -29,7 +29,7 @@ public class Project {
 
     private int progress; // 0 - 100
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "project_users",
         joinColumns = @JoinColumn(name = "project_id"),

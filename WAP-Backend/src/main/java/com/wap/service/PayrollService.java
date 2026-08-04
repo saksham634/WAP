@@ -71,6 +71,7 @@ public class PayrollService {
                 .orElseThrow(() -> new RuntimeException("User context not found"));
         com.wap.util.PermissionUtil.validatePermission(admin, "PAYROLL_ADMIN");
 
+        boolean isHRCaller = admin.getRole() != null && "ROLE_HR".equalsIgnoreCase(admin.getRole().getRoleName());
         int month = parseMonth(payload != null ? payload.get("month") : null);
         int year = parseYear(payload != null ? payload.get("year") : null);
 
@@ -79,14 +80,20 @@ public class PayrollService {
             Long userId = Long.parseLong(userIdObj.toString());
             User emp = userRepository.findById(userId)
                     .orElseThrow(() -> new RuntimeException("Employee not found with ID: " + userId));
+            if (isHRCaller && emp.getRole() != null && "ROLE_ADMIN".equalsIgnoreCase(emp.getRole().getRoleName())) {
+                throw new RuntimeException("HR managers are not permitted to process payroll for Administrator accounts.");
+            }
             return generateOrUpdateEmployeePayroll(emp, month, year);
         }
 
-        // Process batch for all users in the organization
+        // Process batch for all users in the organization (skipping Admin for HR callers)
         List<User> orgUsers = userRepository.findByOrganization_Id(admin.getOrganization().getId());
         List<PayrollResponseDTO> results = new ArrayList<>();
         for (User emp : orgUsers) {
             if ("INACTIVE".equalsIgnoreCase(emp.getStatus())) continue;
+            if (isHRCaller && emp.getRole() != null && "ROLE_ADMIN".equalsIgnoreCase(emp.getRole().getRoleName())) {
+                continue;
+            }
             results.add(generateOrUpdateEmployeePayroll(emp, month, year));
         }
 
@@ -142,8 +149,13 @@ public class PayrollService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         com.wap.util.PermissionUtil.validatePermission(admin, "PAYROLL_ADMIN");
 
+        boolean isHRCaller = admin.getRole() != null && "ROLE_HR".equalsIgnoreCase(admin.getRole().getRoleName());
         User employee = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
+
+        if (isHRCaller && employee.getRole() != null && "ROLE_ADMIN".equalsIgnoreCase(employee.getRole().getRoleName())) {
+            throw new RuntimeException("HR managers are not permitted to generate payslips for Administrator accounts.");
+        }
 
         int month = request.getMonth() != null ? request.getMonth() : LocalDate.now().getMonthValue();
         int year = request.getYear() != null ? request.getYear() : LocalDate.now().getYear();
@@ -183,6 +195,7 @@ public class PayrollService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         com.wap.util.PermissionUtil.validatePermission(admin, "PAYROLL_ADMIN");
 
+        boolean isHRCaller = admin.getRole() != null && "ROLE_HR".equalsIgnoreCase(admin.getRole().getRoleName());
         List<Payroll> payrolls = payrollRepository.findByUser_Organization_IdOrderByPayYearDescPayMonthDesc(admin.getOrganization().getId());
         
         if (payrolls.isEmpty()) {
@@ -190,12 +203,18 @@ public class PayrollService {
             int currentYear = LocalDate.now().getYear();
             List<User> orgUsers = userRepository.findByOrganization_Id(admin.getOrganization().getId());
             for (User u : orgUsers) {
+                if (isHRCaller && u.getRole() != null && "ROLE_ADMIN".equalsIgnoreCase(u.getRole().getRoleName())) {
+                    continue;
+                }
                 generateOrUpdateEmployeePayroll(u, currentMonth, currentYear);
             }
             payrolls = payrollRepository.findByUser_Organization_IdOrderByPayYearDescPayMonthDesc(admin.getOrganization().getId());
         }
 
-        return payrolls.stream().map(this::mapToDTO).collect(Collectors.toList());
+        return payrolls.stream()
+                .filter(p -> !(isHRCaller && p.getUser() != null && p.getUser().getRole() != null && "ROLE_ADMIN".equalsIgnoreCase(p.getUser().getRole().getRoleName())))
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
 
     // Helper Method: Map Payroll entity to full DTO

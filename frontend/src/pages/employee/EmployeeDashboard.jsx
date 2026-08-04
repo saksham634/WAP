@@ -101,19 +101,27 @@ export default function EmployeeDashboard() {
     }
   };
 
-  // Build weekly chart
+  const [chartFilter, setChartFilter] = useState('This Week');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // Build weekly / monthly chart data
+  const isMonthly = chartFilter === 'This Month';
   const todayDayIndex = (new Date().getDay() + 6) % 7; // Mon=0, Sun=6
-  const chartHours = [8.0, 8.5, 8.0, 8.2, 8.0, 0.0, 0.0];
+  const weeklyHours = [8.0, 8.5, 8.0, 8.2, 8.0, 0.0, 0.0];
   if (statusData.status === 'CHECKED_IN' || statusData.status === 'CHECKED_OUT') {
-    chartHours[todayDayIndex] = 8.5;
+    weeklyHours[todayDayIndex] = 8.5;
   }
+  const monthlyHours = [8.2, 8.1, 8.4, 8.3];
+
+  const chartLabels = isMonthly ? ['Week 1', 'Week 2', 'Week 3', 'Week 4'] : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const chartValues = isMonthly ? monthlyHours : weeklyHours;
 
   const chartData = {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    labels: chartLabels,
     datasets: [
       {
-        label: 'Daily Work Hours',
-        data: chartHours,
+        label: isMonthly ? 'Weekly Avg Hours' : 'Daily Work Hours',
+        data: chartValues,
         borderColor: '#007a7a',
         borderWidth: 3,
         backgroundColor: 'rgba(0, 122, 122, 0.15)',
@@ -142,14 +150,84 @@ export default function EmployeeDashboard() {
         <div className="left-panel">
           {/* Attendance Trend */}
           <section className="card attendance-card">
-            <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="card-header" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <h2>Attendance Trend</h2>
-                <p>Weekly Attendance Overview</p>
+                <p>{isMonthly ? 'Monthly Hours Trend (Resets Monthly)' : 'Weekly Attendance Overview (Resets Weekly)'}</p>
               </div>
-              <button className="filter-button">
-                This Week <i className="fa-solid fa-chevron-down" style={{ marginLeft: '4px' }}></i>
-              </button>
+              <div className="dropdown" style={{ position: 'relative' }}>
+                <button
+                  type="button"
+                  className="filter-button"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  style={{
+                    backgroundColor: '#f1f5f9',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '8px',
+                    padding: '6px 14px',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    color: '#334155',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  {chartFilter} <i className="fa-solid fa-chevron-down" style={{ fontSize: '11px' }}></i>
+                </button>
+                {isDropdownOpen && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      right: 0,
+                      top: '100%',
+                      marginTop: '6px',
+                      background: 'white',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '8px',
+                      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                      zIndex: 20,
+                      minWidth: '140px',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <div
+                      onClick={() => {
+                        setChartFilter('This Week');
+                        setIsDropdownOpen(false);
+                      }}
+                      style={{
+                        padding: '10px 14px',
+                        cursor: 'pointer',
+                        borderBottom: '1px solid #f1f5f9',
+                        fontSize: '13px',
+                        backgroundColor: chartFilter === 'This Week' ? '#f0fdf4' : 'transparent',
+                        color: chartFilter === 'This Week' ? '#166534' : '#334155',
+                        fontWeight: chartFilter === 'This Week' ? 600 : 400,
+                      }}
+                    >
+                      This Week
+                    </div>
+                    <div
+                      onClick={() => {
+                        setChartFilter('This Month');
+                        setIsDropdownOpen(false);
+                      }}
+                      style={{
+                        padding: '10px 14px',
+                        cursor: 'pointer',
+                        fontSize: '13px',
+                        backgroundColor: chartFilter === 'This Month' ? '#f0fdf4' : 'transparent',
+                        color: chartFilter === 'This Month' ? '#166534' : '#334155',
+                        fontWeight: chartFilter === 'This Month' ? 600 : 400,
+                      }}
+                    >
+                      This Month
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="chart-container" style={{ position: 'relative', height: '260px', width: '100%', padding: '10px 0' }}>
               <Line
@@ -429,7 +507,7 @@ export default function EmployeeDashboard() {
                         {p.title}
                       </h4>
                       <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>
-                        {p.progress || 0}% Complete • Assigned: {p.assignedTeam || 'Team'}
+                        {p.progress || 0}% Complete • {p.assignedUsers && p.assignedUsers.length > 0 ? `${p.assignedUsers.length} Team Members` : (p.assignedMembers ? `${p.assignedMembers.split(',').length} Team Members` : 'Team Deliverable')}
                       </p>
                     </div>
                   </div>

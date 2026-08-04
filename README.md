@@ -2,11 +2,50 @@
 
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.1-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
 [![React](https://img.shields.io/badge/React-19.2-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
+[![Swagger OpenAPI](https://img.shields.io/badge/Swagger-OpenAPI%203.0-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)](http://localhost:8080/swagger-ui.html)
 [![Vite](https://img.shields.io/badge/Vite-6.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0+-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-**Workforce Automation Portal (WAP)** is an enterprise-ready, multi-tenant workforce and human resource management platform. Designed for modern organizations, WAP unifies employee administration, time & attendance tracking, leave approvals, payroll computation, project management, and inter-departmental direct messaging into a cohesive, secure, and responsive web application.
+**Workforce Automation Portal (WAP)** is an enterprise-grade workforce and human resource management platform. Designed for modern organizations, WAP unifies employee administration, time & attendance tracking, leave approvals, payroll computation, project allocation, and inter-departmental direct messaging into a cohesive, secure, and responsive application.
+
+---
+
+## 🏛️ System Architecture
+
+```mermaid
+flowchart TB
+    subgraph Client ["Client Layer"]
+        Browser["Modern Browser"] --> SPA["React 19 SPA (Vite + TailwindCSS)"]
+    end
+
+    subgraph Gateway ["Reverse Proxy & SSL"]
+        Nginx["Nginx Reverse Proxy (HTTPS / HTTP/2)"]
+    end
+
+    subgraph Security ["Security & Filters"]
+        RateLimiter["Rate Limiter (10 req/min/IP)"]
+        Cors["Production CORS"]
+        JwtFilter["JWT Auth Filter"]
+    end
+
+    subgraph Backend ["Spring Boot 3 REST API"]
+        Controllers["REST Controllers & Swagger UI"]
+        ExAdvice["@RestControllerAdvice Global Handler"]
+        Services["Service Layer & Refresh Token Rotation"]
+        JPA["Spring Data JPA"]
+    end
+
+    subgraph Persistence ["Persistence Layer"]
+        DB[("MySQL 8.0+ Database")]
+    end
+
+    SPA -->|HTTPS / REST| Nginx
+    Nginx --> RateLimiter
+    RateLimiter --> Cors --> JwtFilter --> Controllers --> Services --> JPA --> DB
+```
+
+For complete architecture specifications, authentication flows, and data models, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ---
 
@@ -15,7 +54,7 @@
 ### 👑 1. System Administration (`ROLE_ADMIN`)
 - **Real-Time Analytics Dashboard**: Organization-wide metrics including workforce headcount, live attendance distribution, leave requests, and department breakdowns.
 - **Dynamic Roles & Feature Permissions Matrix**: Fine-grained access control to toggle and enforce module privileges across HR and Employee tiers in real-time.
-- **Staff & User Directory**: Create, update, activate, or suspend employee records with automated email credential dispatch.
+- **Staff & User Directory**: Create, update, activate, or suspend employee records with cascade-safe relational deletion.
 - **Company & System Preferences**: Configurable organization name, timezone (IST/EST/GMT), standard shift hours, and security configurations with persistent storage.
 - **Audit Logging**: Comprehensive traceability of security-sensitive administrative actions.
 
@@ -35,136 +74,90 @@
 
 ### 📬 4. Cross-Organization Direct Messaging
 - Role-based internal messaging system allowing real-time communication between Admin, HR, and Employees.
-- Send specific direct requests, HR inquiries, feedback, or broadcast organization announcements.
 
 ---
 
-## 🏗️ Architecture & Project Structure
+## 🔒 Enterprise Security Features
 
-```
-WAP/
-├── .github/
-│   └── workflows/
-│       └── ci.yml                 # Automated GitHub Actions CI pipeline
-├── WAP-Backend/                   # Spring Boot 3 Backend Application
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/com/wap/
-│   │   │   │   ├── controller/    # REST API endpoints
-│   │   │   │   ├── dto/           # Data Transfer Objects
-│   │   │   │   ├── entity/        # JPA Database Entities
-│   │   │   │   ├── repository/    # Spring Data JPA Repositories
-│   │   │   │   ├── security/      # JWT filter & Spring Security config
-│   │   │   │   ├── service/       # Business logic layer
-│   │   │   │   └── util/          # Permission & helper utilities
-│   │   │   └── resources/
-│   │   │       ├── application.properties
-│   │   │       └── application.properties.example
-│   │   └── test/                  # Backend Unit and Integration tests
-│   ├── pom.xml                    # Maven dependencies & build definitions
-│   └── mvnw / mvnw.cmd            # Maven Wrapper scripts
-├── frontend/                      # React 19 + Vite Frontend SPA
-│   ├── public/                    # Static assets & icons
-│   ├── src/
-│   │   ├── api/                   # Centralized Axios/fetch API layer
-│   │   ├── assets/                # Images & styles
-│   │   ├── components/            # Reusable UI components (Sidebar, Header, Layout)
-│   │   ├── context/               # React Context (Auth, Sidebar)
-│   │   ├── pages/                 # Role-based pages (Admin, HR, Employee, Auth)
-│   │   ├── routes/                # Protected routes & permission guards
-│   │   ├── styles/                # Global CSS design tokens & utilities
-│   │   ├── App.jsx                # Main Application component
-│   │   └── main.jsx               # Application entry point
-│   ├── package.json               # Frontend dependencies & scripts
-│   └── vite.config.js             # Vite configuration & proxy settings
-├── wap_db.sql                     # Database schema & initial roles seed
-├── .env.example                   # Environment configuration template
-├── .gitignore                     # Repository git ignore rules
-├── CONTRIBUTING.md                # Contribution guidelines
-├── LICENSE                        # MIT License
-├── README.md                      # Project documentation
-└── SECURITY.md                    # Security policy & reporting guidelines
-```
+- **BCrypt Password Hashing**: Passwords stored using Spring Security's `BCryptPasswordEncoder` with 10 salt rounds.
+- **Short-Lived Access Tokens + Refresh Token Rotation**: 15-minute JWT access tokens paired with 7-day database-backed rotating refresh tokens (`/api/auth/refresh`).
+- **Rate Limiting on Auth Endpoints**: Built-in in-memory Token Bucket rate limiter (10 requests/minute/IP) on `/api/auth/**` returning HTTP 429 to mitigate brute-force attacks.
+- **Global Exception Handling**: `@RestControllerAdvice` guarantees unified JSON responses without leaking internal stack traces.
+- **Input Validation**: Jakarta Bean Validation (`@Valid`, `@NotBlank`, `@Email`, `@Size`, `@Min`) returning HTTP 400 with structured field-level error messages.
+- **Production CORS**: Configurable allowed origins, explicit HTTP methods, headers, and credential support.
+- **OpenAPI 3.0 Documentation**: Interactive Swagger UI with Bearer JWT support accessible at `/swagger-ui.html`.
 
 ---
 
 ## 🚀 Quick Start Guide
 
-### Prerequisites
-Make sure you have the following installed on your development machine:
+### Option A: One-Command Startup with Docker Compose (Recommended)
+
+Spin up the complete production-like stack (**MySQL 8.0 + Spring Boot Backend + Nginx/React Frontend**) with a single command:
+
+```bash
+docker compose up --build
+```
+
+- **Frontend Web App**: [`http://localhost`](http://localhost) (Port 80)
+- **Backend API**: [`http://localhost:8080/api`](http://localhost:8080/api)
+- **Interactive Swagger UI**: [`http://localhost:8080/swagger-ui.html`](http://localhost:8080/swagger-ui.html)
+- **MySQL Database**: `localhost:3306`
+
+To shut down:
+```bash
+docker compose down
+```
+
+---
+
+### Option B: Local Development (Without Docker)
+
+#### Prerequisites
 - **Java JDK 17+**
 - **Node.js 18+** and **npm**
 - **MySQL Server 8.0+**
-- **Git**
+
+#### Step 1: Database Setup
+Open MySQL and execute:
+```sql
+CREATE DATABASE IF NOT EXISTS wap_db;
+```
+
+#### Step 2: Configure Environment Variables
+Copy the example configuration:
+```bash
+cp .env.example .env
+```
+Ensure your MySQL credentials match in `.env` or `WAP-Backend/src/main/resources/application.properties`.
+
+#### Step 3: Run the Spring Boot Backend
+```bash
+cd WAP-Backend
+# Windows
+.\mvnw.cmd spring-boot:run
+# macOS / Linux
+./mvnw spring-boot:run
+```
+- API Base URL: `http://localhost:8080/api`
+- Interactive Swagger UI: `http://localhost:8080/swagger-ui.html`
+
+#### Step 4: Run the React Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
+Open **`http://localhost:5173`** in your browser.
 
 ---
 
-### Step 1: Database Setup
-1. Open your MySQL client (MySQL Workbench, phpMyAdmin, or CLI).
-2. Execute the initial schema and seed script:
-   ```sql
-   source /path/to/WAP/wap_db.sql;
-   ```
-   *(Or copy-paste the queries inside `wap_db.sql` into your MySQL client)*.
+## 🚢 Production Deployment
 
----
-
-### Step 2: Configure Environment Variables
-1. Create a copy of the example environment file:
-   ```bash
-   cp .env.example .env
-   ```
-2. Set your MySQL database credentials and optional SMTP mail settings in `.env` or in `WAP-Backend/src/main/resources/application.properties`:
-   ```properties
-   spring.datasource.url=jdbc:mysql://localhost:3306/wap_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
-   spring.datasource.username=root
-   spring.datasource.password=your_mysql_password
-   ```
-
----
-
-### Step 3: Run the Spring Boot Backend
-1. Open a terminal and navigate to the backend directory:
-   ```bash
-   cd WAP-Backend
-   ```
-2. Build and start the backend service:
-   - **Windows**:
-     ```cmd
-     .\mvnw.cmd spring-boot:run
-     ```
-   - **macOS / Linux**:
-     ```bash
-     ./mvnw spring-boot:run
-     ```
-3. The backend API will be live at `http://localhost:8080`.
-
----
-
-### Step 4: Run the React Frontend
-1. Open a second terminal window and navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-4. Open your browser and navigate to **`http://localhost:5173`**.
-
----
-
-## 🔒 Security & Confidentiality
-
-- **Secrets Management**: No private API keys, SMTP credentials, or database passwords are hardcoded in the codebase. All sensitive values use environment variable placeholders (`${DB_PASSWORD}`, `${MAIL_PASSWORD}`).
-- **JWT Authentication**: Secure stateless token-based authorization with role and permission evaluation on both client and server.
-- **Route Guards**: Client routes are protected with `<ProtectedRoute>` requiring valid authenticated sessions and verified role permissions.
+For complete production deployment, Nginx SSL reverse proxy configuration, Let's Encrypt Certbot setup, Systemd, and Docker architecture guides, refer to [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ---
 
 ## 📄 License
 This project is licensed under the [MIT License](LICENSE).
+

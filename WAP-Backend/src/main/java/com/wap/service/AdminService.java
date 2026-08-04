@@ -51,12 +51,14 @@ public class AdminService {
     private final PayrollRepository payrollRepository;
     private final DirectMessageRepository directMessageRepository;
     private final ProjectRepository projectRepository;
+    private final com.wap.repository.RefreshTokenRepository refreshTokenRepository;
 
     public AdminService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder,
                         AttendanceRepository attendanceRepository, LeaveRequestRepository leaveRequestRepository,
                         AuditLogRepository auditLogRepository, OrganizationRepository organizationRepository,
                         PayrollRepository payrollRepository, DirectMessageRepository directMessageRepository,
-                        ProjectRepository projectRepository) {
+                        ProjectRepository projectRepository,
+                        com.wap.repository.RefreshTokenRepository refreshTokenRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
@@ -67,6 +69,7 @@ public class AdminService {
         this.payrollRepository = payrollRepository;
         this.directMessageRepository = directMessageRepository;
         this.projectRepository = projectRepository;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     private User getAuthenticatedUser() {
@@ -78,8 +81,9 @@ public class AdminService {
     public static String getDefaultPermissionsForRole(String roleName) {
         if ("ROLE_ADMIN".equals(roleName)) {
             return "ALL";
-        } else if ("ROLE_HR".equals(roleName)) {
-            return "DASHBOARD,EMPLOYEE_MGMT,ATTENDANCE_OVERVIEW,LEAVE_APPROVALS,PAYROLL_ADMIN,PROJECTS";
+        }
+        if ("ROLE_HR".equalsIgnoreCase(roleName) || "HR".equalsIgnoreCase(roleName)) {
+            return "DASHBOARD,ATTENDANCE,LEAVES,PAYROLL,PERSONAL_INFO,EMPLOYEE_MGMT,ATTENDANCE_OVERVIEW,LEAVE_APPROVALS,PAYROLL_ADMIN,PROJECTS";
         } else {
             return "DASHBOARD,ATTENDANCE,LEAVES,PAYROLL,PROJECTS,PERSONAL_INFO";
         }
@@ -104,10 +108,16 @@ public class AdminService {
     public List<UserDTO> getAllSystemUsers() {
         User currentUser = getAuthenticatedUser();
         Long orgId = currentUser.getOrganization().getId();
+        boolean isHRCaller = currentUser.getRole() != null && "ROLE_HR".equalsIgnoreCase(currentUser.getRole().getRoleName());
         List<User> users = userRepository.findByOrganization_Id(orgId);
         
         return users.stream().map(user -> {
             String perms = resolveUserPermissions(user);
+            boolean isTargetAdmin = user.getRole() != null && "ROLE_ADMIN".equalsIgnoreCase(user.getRole().getRoleName());
+            Double baseSalary = (isHRCaller && isTargetAdmin) ? 0.0 : (user.getBaseSalary() != null ? user.getBaseSalary() : 0.0);
+            Double allowances = (isHRCaller && isTargetAdmin) ? 0.0 : (user.getAllowances() != null ? user.getAllowances() : 0.0);
+            Double deductions = (isHRCaller && isTargetAdmin) ? 0.0 : (user.getDeductions() != null ? user.getDeductions() : 0.0);
+
             return new UserDTO(
                 user.getId(),
                 user.getEmployeeId(),
@@ -119,9 +129,9 @@ public class AdminService {
                 user.getDesignation(),
                 user.getPhoneNumber(),
                 user.getProfilePicture(),
-                user.getBaseSalary() != null ? user.getBaseSalary() : 0.0,
-                user.getAllowances() != null ? user.getAllowances() : 0.0,
-                user.getDeductions() != null ? user.getDeductions() : 0.0
+                baseSalary,
+                allowances,
+                deductions
             );
         }).collect(Collectors.toList());
     }
@@ -216,18 +226,39 @@ public class AdminService {
         Map<String, Long> roleDistribution = new HashMap<>();
         List<User> users = userRepository.findByOrganization_Id(orgId);
         for (User u : users) {
-            String r = u.getRole().getRoleName();
+            String r = (u.getRole() != null && u.getRole().getRoleName() != null) ? u.getRole().getRoleName() : "ROLE_EMPLOYEE";
             roleDistribution.put(r, roleDistribution.getOrDefault(r, 0L) + 1L);
         }
 
-        // 2. Weekly Attendance Trend (Last 7 Days)
+        // 2. Weekly Attendance Trend (Current Calendar Week: Mon - Sun)
         Map<String, Long> weeklyAttendanceTrend = new LinkedHashMap<>();
         DateTimeFormatter dayFormatter = DateTimeFormatter.ofPattern("EEE", Locale.ENGLISH);
-        for (int i = 6; i >= 0; i--) {
-            LocalDate d = today.minusDays(i);
+        LocalDate startOfWeek = today.with(java.time.temporal.TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY));
+        for (int i = 0; i < 7; i++) {
+            LocalDate d = startOfWeek.plusDays(i);
             String dayName = d.format(dayFormatter);
-            long count = attendanceRepository.countPresentByOrganization_IdAndDate(orgId, d);
+            long count = d.isAfter(today) ? 0L : attendanceRepository.countPresentByOrganization_IdAndDate(orgId, d);
             weeklyAttendanceTrend.put(dayName, count);
+        }
+
+        // Monthly Attendance Trend (Current Calendar Month: Week 1 to Week 5)
+        Map<String, Long> monthlyAttendanceTrend = new LinkedHashMap<>();
+        int daysInMonth = today.lengthOfMonth();
+        int totalWeeks = (int) Math.ceil((double) daysInMonth / 7.0);
+        for (int w = 1; w <= totalWeeks; w++) {
+            int startDay = (w - 1) * 7 + 1;
+            int endDay = Math.min(w * 7, daysInMonth);
+            long weekPresentSum = 0L;
+            int daysCounted = 0;
+            for (int d = startDay; d <= endDay; d++) {
+                LocalDate date = today.withDayOfMonth(d);
+                if (!date.isAfter(today)) {
+                    weekPresentSum += attendanceRepository.countPresentByOrganization_IdAndDate(orgId, date);
+                    daysCounted++;
+                }
+            }
+            long avgDailyPresent = daysCounted > 0 ? Math.round((double) weekPresentSum / daysCounted) : 0L;
+            monthlyAttendanceTrend.put("Week " + w, avgDailyPresent);
         }
 
         // 3. Dynamic Real-Time Operational & System Alerts
@@ -271,7 +302,7 @@ public class AdminService {
             if (systemAlerts.size() >= 5) break;
         }
 
-        return new AdminDashboardDTO(totalEmployees, presentToday, pendingLeaves, onLeave, roleDistribution, weeklyAttendanceTrend, systemAlerts);
+        return new AdminDashboardDTO(totalEmployees, presentToday, pendingLeaves, onLeave, roleDistribution, weeklyAttendanceTrend, monthlyAttendanceTrend, systemAlerts);
     }
 
     @Transactional
@@ -296,6 +327,7 @@ public class AdminService {
         }
 
         // 2. Cascade delete dependent child records
+        refreshTokenRepository.deleteByUser_Id(userId);
         payrollRepository.deleteByUser_Id(userId);
         attendanceRepository.deleteByUser_Id(userId);
         leaveRequestRepository.deleteByUser_Id(userId);
@@ -316,12 +348,16 @@ public class AdminService {
         if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
             user.setEmail(request.getEmail().trim());
         }
+
+        boolean isHRCaller = currentUser.getRole() != null && "ROLE_HR".equalsIgnoreCase(currentUser.getRole().getRoleName());
+        boolean isTargetAdmin = user.getRole() != null && "ROLE_ADMIN".equalsIgnoreCase(user.getRole().getRoleName());
+
         if (request.getRole() != null && !request.getRole().trim().isEmpty()) {
-            String roleName = request.getRole().trim();
-            if (!roleName.startsWith("ROLE_")) {
-                roleName = "ROLE_" + roleName;
+            if (isHRCaller && isTargetAdmin && !request.getRole().equalsIgnoreCase("ROLE_ADMIN")) {
+                throw new RuntimeException("HR managers cannot change Administrator roles.");
             }
-            Role role = roleRepository.findByRoleName(roleName).orElse(null);
+            Role role = roleRepository.findByRoleName(request.getRole().trim().toUpperCase())
+                    .orElse(null);
             if (role != null) {
                 user.setRole(role);
             }
@@ -339,14 +375,18 @@ public class AdminService {
         } else if (request.getPhone() != null && !request.getPhone().trim().isEmpty()) {
             user.setPhoneNumber(request.getPhone().trim());
         }
-        if (request.getBaseSalary() != null) {
-            user.setBaseSalary(request.getBaseSalary());
-        }
-        if (request.getAllowances() != null) {
-            user.setAllowances(request.getAllowances());
-        }
-        if (request.getDeductions() != null) {
-            user.setDeductions(request.getDeductions());
+        
+        // HR cannot update Admin salary
+        if (!(isHRCaller && isTargetAdmin)) {
+            if (request.getBaseSalary() != null) {
+                user.setBaseSalary(request.getBaseSalary());
+            }
+            if (request.getAllowances() != null) {
+                user.setAllowances(request.getAllowances());
+            }
+            if (request.getDeductions() != null) {
+                user.setDeductions(request.getDeductions());
+            }
         }
         
         userRepository.save(user);
@@ -550,7 +590,13 @@ public class AdminService {
 
     public void updateSalaryStructure(String idOrEmployeeId, Double baseSalary, Double allowances, Double deductions) {
         User admin = getAuthenticatedUser();
+        boolean isHRCaller = admin.getRole() != null && "ROLE_HR".equalsIgnoreCase(admin.getRole().getRoleName());
         User user = findUserByIdOrEmployeeId(idOrEmployeeId, admin.getOrganization().getId());
+
+        if (isHRCaller && user.getRole() != null && "ROLE_ADMIN".equalsIgnoreCase(user.getRole().getRoleName())) {
+            throw new RuntimeException("HR managers are not permitted to modify Administrator salary structure.");
+        }
+
         if (baseSalary != null) user.setBaseSalary(baseSalary);
         if (allowances != null) user.setAllowances(allowances);
         if (deductions != null) user.setDeductions(deductions);

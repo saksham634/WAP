@@ -21,10 +21,11 @@ export default function AttendancePage() {
       try {
         const today = await attendanceAPI.getTodayStatus();
         if (today) {
+          const status = today.status || '';
           setTodayStatus({
-            punchedIn: today.punchedIn || !!today.punchInTime,
-            punchInTime: today.punchInTime || null,
-            punchOutTime: today.punchOutTime || null,
+            punchedIn: status === 'CHECKED_IN' || status === 'CHECKED_OUT' || !!today.checkInTime || !!today.punchInTime,
+            punchInTime: today.checkInTime || today.punchInTime || null,
+            punchOutTime: today.checkOutTime || today.punchOutTime || null,
           });
         }
       } catch {}
@@ -83,11 +84,6 @@ export default function AttendancePage() {
     try {
       await attendanceAPI.punchIn();
       setFeedback({ type: 'success', text: 'Checked in successfully!' });
-      setTodayStatus({
-        ...todayStatus,
-        punchedIn: true,
-        punchInTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      });
       fetchAttendance();
     } catch (err) {
       setFeedback({ type: 'error', text: err.message || 'Failed to punch in.' });
@@ -99,13 +95,20 @@ export default function AttendancePage() {
     try {
       await attendanceAPI.punchOut();
       setFeedback({ type: 'success', text: 'Checked out successfully!' });
-      setTodayStatus({
-        ...todayStatus,
-        punchOutTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      });
       fetchAttendance();
     } catch (err) {
       setFeedback({ type: 'error', text: err.message || 'Failed to punch out.' });
+    }
+  };
+
+  const handleResetAttendance = async () => {
+    setFeedback(null);
+    try {
+      await attendanceAPI.resetAttendance();
+      setFeedback({ type: 'success', text: 'Attendance reset! You can now check in again.' });
+      fetchAttendance();
+    } catch (err) {
+      setFeedback({ type: 'error', text: err.message || 'Reset failed.' });
     }
   };
 
@@ -189,20 +192,38 @@ export default function AttendancePage() {
             </select>
           </div>
 
-          {!todayStatus.punchedIn ? (
-            <button className="btn btn-primary" onClick={handlePunchIn}>
-              <i className="fa-solid fa-right-to-bracket"></i> Check In (Punch In)
-            </button>
-          ) : (
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            {!todayStatus.punchedIn ? (
+              <button className="btn btn-primary" onClick={handlePunchIn}>
+                <i className="fa-solid fa-right-to-bracket"></i> Check In (Punch In)
+              </button>
+            ) : (
+              <button
+                className="btn btn-danger"
+                onClick={handlePunchOut}
+                disabled={!!todayStatus.punchOutTime}
+              >
+                <i className="fa-solid fa-right-from-bracket"></i>
+                {todayStatus.punchOutTime ? 'Shift Completed' : 'Check Out (Punch Out)'}
+              </button>
+            )}
+
             <button
-              className="btn btn-danger"
-              onClick={handlePunchOut}
-              disabled={!!todayStatus.punchOutTime}
+              onClick={handleResetAttendance}
+              title="Reset Attendance (Test)"
+              style={{
+                padding: '8px 12px',
+                borderRadius: '8px',
+                backgroundColor: '#f1f5f9',
+                color: '#64748b',
+                border: '1px solid #cbd5e1',
+                fontSize: '13px',
+                cursor: 'pointer',
+              }}
             >
-              <i className="fa-solid fa-right-from-bracket"></i>
-              {todayStatus.punchOutTime ? 'Shift Completed' : 'Check Out (Punch Out)'}
+              <i className="fa-solid fa-rotate-left"></i>
             </button>
-          )}
+          </div>
         </div>
       </div>
 

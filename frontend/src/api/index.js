@@ -28,6 +28,16 @@ export const authAPI = {
     method: 'POST',
     body: JSON.stringify({ email, otp, newPassword }),
   }),
+
+  refreshToken: (refreshToken) => request('/auth/refresh', {
+    method: 'POST',
+    body: JSON.stringify({ refreshToken }),
+  }),
+
+  logout: (refreshToken) => request('/auth/logout', {
+    method: 'POST',
+    body: JSON.stringify({ refreshToken }),
+  }),
 };
 
 // =========================================================

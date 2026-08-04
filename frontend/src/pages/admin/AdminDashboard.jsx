@@ -35,8 +35,12 @@ export default function AdminDashboard() {
     onLeave: 0,
     roleDistribution: null,
     weeklyAttendanceTrend: null,
+    monthlyAttendanceTrend: null,
     systemAlerts: [],
   });
+  const [chartFilter, setChartFilter] = useState('This Week');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
   useEffect(() => {
     async function fetchMetrics() {
       try {
@@ -68,15 +72,20 @@ export default function AdminDashboard() {
     ],
   };
 
-  // Weekly Attendance Trend Line Chart Data
-  const trendLabels = metrics.weeklyAttendanceTrend ? Object.keys(metrics.weeklyAttendanceTrend) : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  const trendValues = metrics.weeklyAttendanceTrend ? Object.values(metrics.weeklyAttendanceTrend) : [0, 0, 0, 0, 0, 0, 0];
+  // Attendance Trend Line Chart Data (Weekly vs Monthly Calendar Reset)
+  const isMonthly = chartFilter === 'This Month';
+  const activeTrend = isMonthly
+    ? (metrics.monthlyAttendanceTrend || { 'Week 1': 0, 'Week 2': 0, 'Week 3': 0, 'Week 4': 0 })
+    : (metrics.weeklyAttendanceTrend || { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0 });
+
+  const trendLabels = Object.keys(activeTrend);
+  const trendValues = Object.values(activeTrend);
 
   const lineChartData = {
     labels: trendLabels,
     datasets: [
       {
-        label: 'Present Employees',
+        label: isMonthly ? 'Avg Daily Present' : 'Present Employees',
         data: trendValues,
         borderColor: '#3B82F6',
         backgroundColor: 'rgba(59, 130, 246, 0.25)',
@@ -209,28 +218,88 @@ export default function AdminDashboard() {
             </div>
           </section>
 
-          {/* Weekly Attendance Trend */}
+          {/* Attendance Trend */}
           <section className="card attendance-card">
-            <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="card-header" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <h2>Weekly Attendance Trend</h2>
+                <h2>Workforce Attendance Trend</h2>
                 <p style={{ color: 'var(--text-secondary, #64748b)', fontSize: '0.875rem' }}>
-                  Daily check-in activity for past 7 days
+                  {isMonthly ? 'Calendar monthly attendance overview (resets monthly)' : 'Current calendar week overview (Mon - Sun, resets weekly)'}
                 </p>
               </div>
-              <span
-                className="badge badge-success"
-                style={{
-                  background: 'rgba(16, 185, 129, 0.1)',
-                  color: '#10B981',
-                  padding: '4px 12px',
-                  borderRadius: '20px',
-                  fontWeight: 600,
-                  fontSize: '0.75rem',
-                }}
-              >
-                <i className="fa-solid fa-bolt" style={{ marginRight: '4px' }}></i> Real-time
-              </span>
+              <div className="dropdown" style={{ position: 'relative' }}>
+                <button
+                  type="button"
+                  className="filter-button"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  style={{
+                    backgroundColor: '#f1f5f9',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '8px',
+                    padding: '6px 14px',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    color: '#334155',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  {chartFilter} <i className="fa-solid fa-chevron-down" style={{ fontSize: '11px' }}></i>
+                </button>
+                {isDropdownOpen && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      right: 0,
+                      top: '100%',
+                      marginTop: '6px',
+                      background: 'white',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '8px',
+                      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                      zIndex: 20,
+                      minWidth: '140px',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <div
+                      onClick={() => {
+                        setChartFilter('This Week');
+                        setIsDropdownOpen(false);
+                      }}
+                      style={{
+                        padding: '10px 14px',
+                        cursor: 'pointer',
+                        borderBottom: '1px solid #f1f5f9',
+                        fontSize: '13px',
+                        backgroundColor: chartFilter === 'This Week' ? '#f0fdf4' : 'transparent',
+                        color: chartFilter === 'This Week' ? '#166534' : '#334155',
+                        fontWeight: chartFilter === 'This Week' ? 600 : 400,
+                      }}
+                    >
+                      This Week
+                    </div>
+                    <div
+                      onClick={() => {
+                        setChartFilter('This Month');
+                        setIsDropdownOpen(false);
+                      }}
+                      style={{
+                        padding: '10px 14px',
+                        cursor: 'pointer',
+                        fontSize: '13px',
+                        backgroundColor: chartFilter === 'This Month' ? '#f0fdf4' : 'transparent',
+                        color: chartFilter === 'This Month' ? '#166534' : '#334155',
+                        fontWeight: chartFilter === 'This Month' ? 600 : 400,
+                      }}
+                    >
+                      This Month
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="chart-container" style={{ position: 'relative', height: '300px', padding: '10px' }}>
               <Line

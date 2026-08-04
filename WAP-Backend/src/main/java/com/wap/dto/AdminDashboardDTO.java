@@ -10,6 +10,7 @@ public class AdminDashboardDTO {
     private long onLeave;
     private Map<String, Long> roleDistribution;
     private Map<String, Long> weeklyAttendanceTrend;
+    private Map<String, Long> monthlyAttendanceTrend;
     private List<Map<String, String>> systemAlerts;
 
     public AdminDashboardDTO(long totalEmployees, long presentToday, long pendingLeaves, long onLeave, 
@@ -21,6 +22,19 @@ public class AdminDashboardDTO {
         this.onLeave = onLeave;
         this.roleDistribution = roleDistribution;
         this.weeklyAttendanceTrend = weeklyAttendanceTrend;
+        this.systemAlerts = systemAlerts;
+    }
+
+    public AdminDashboardDTO(long totalEmployees, long presentToday, long pendingLeaves, long onLeave, 
+                             Map<String, Long> roleDistribution, Map<String, Long> weeklyAttendanceTrend, 
+                             Map<String, Long> monthlyAttendanceTrend, List<Map<String, String>> systemAlerts) {
+        this.totalEmployees = totalEmployees;
+        this.presentToday = presentToday;
+        this.pendingLeaves = pendingLeaves;
+        this.onLeave = onLeave;
+        this.roleDistribution = roleDistribution;
+        this.weeklyAttendanceTrend = weeklyAttendanceTrend;
+        this.monthlyAttendanceTrend = monthlyAttendanceTrend;
         this.systemAlerts = systemAlerts;
     }
 
@@ -42,6 +56,10 @@ public class AdminDashboardDTO {
     public Map<String, Long> getWeeklyAttendanceTrend() { return weeklyAttendanceTrend; }
     public void setWeeklyAttendanceTrend(Map<String, Long> weeklyAttendanceTrend) { this.weeklyAttendanceTrend = weeklyAttendanceTrend; }
 
+    public Map<String, Long> getMonthlyAttendanceTrend() { return monthlyAttendanceTrend; }
+    public void setMonthlyAttendanceTrend(Map<String, Long> monthlyAttendanceTrend) { this.monthlyAttendanceTrend = monthlyAttendanceTrend; }
+
     public List<Map<String, String>> getSystemAlerts() { return systemAlerts; }
     public void setSystemAlerts(List<Map<String, String>> systemAlerts) { this.systemAlerts = systemAlerts; }
 }
+

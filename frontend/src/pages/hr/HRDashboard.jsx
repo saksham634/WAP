@@ -13,7 +13,7 @@ import {
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import Header from '../../components/layout/Header';
-import { adminAPI, userAPI, payrollAPI } from '../../api';
+import { adminAPI, userAPI, payrollAPI, attendanceAPI } from '../../api';
 
 ChartJS.register(
   CategoryScale,
@@ -34,6 +34,7 @@ export default function HRDashboard() {
     pendingLeaves: 0,
     onLeave: 0,
     weeklyAttendanceTrend: {},
+    monthlyAttendanceTrend: {},
     systemAlerts: [],
   });
   const [employees, setEmployees] = useState([]);
@@ -45,6 +46,15 @@ export default function HRDashboard() {
   const [payrollLoading, setPayrollLoading] = useState(false);
   const [payrollMessage, setPayrollMessage] = useState(null);
 
+  // HR Personal Punch Status
+  const [punchData, setPunchData] = useState({
+    status: 'NOT_CHECKED_IN',
+    checkInTime: null,
+    checkOutTime: null,
+  });
+  const [punchLoading, setPunchLoading] = useState(false);
+  const [punchFeedback, setPunchFeedback] = useState(null);
+
   const loadData = async () => {
     try {
       const data = await adminAPI.getDashboardMetrics();
@@ -54,6 +64,20 @@ export default function HRDashboard() {
       if (Array.isArray(users)) {
         setEmployees(users.filter((u) => u.role !== 'ROLE_ADMIN'));
       }
+
+      // Load HR personal attendance status
+      try {
+        const todayAtt = await attendanceAPI.getTodayStatus();
+        if (todayAtt) {
+          setPunchData({
+            status: todayAtt.status || (todayAtt.checkInTime ? (todayAtt.checkOutTime ? 'CHECKED_OUT' : 'CHECKED_IN') : 'NOT_CHECKED_IN'),
+            checkInTime: todayAtt.checkInTime || todayAtt.punchInTime || null,
+            checkOutTime: todayAtt.checkOutTime || todayAtt.punchOutTime || null,
+          });
+        }
+      } catch (e) {
+        console.warn('Failed to load HR punch status:', e);
+      }
     } catch (err) {
       console.warn('Error loading HR dashboard:', err);
     }
@@ -62,6 +86,45 @@ export default function HRDashboard() {
   useEffect(() => {
     loadData();
   }, []);
+
+  const handlePunchIn = async () => {
+    setPunchLoading(true);
+    setPunchFeedback(null);
+    try {
+      await attendanceAPI.punchIn();
+      setPunchFeedback({ type: 'success', text: 'Checked in successfully!' });
+      loadData();
+    } catch (err) {
+      setPunchFeedback({ type: 'error', text: err.message || 'Check-in failed.' });
+    } finally {
+      setPunchLoading(false);
+    }
+  };
+
+  const handlePunchOut = async () => {
+    setPunchLoading(true);
+    setPunchFeedback(null);
+    try {
+      await attendanceAPI.punchOut();
+      setPunchFeedback({ type: 'success', text: 'Checked out successfully!' });
+      loadData();
+    } catch (err) {
+      setPunchFeedback({ type: 'error', text: err.message || 'Check-out failed.' });
+    } finally {
+      setPunchLoading(false);
+    }
+  };
+
+  const handleResetAttendance = async () => {
+    setPunchFeedback(null);
+    try {
+      await attendanceAPI.resetAttendance();
+      setPunchFeedback({ type: 'success', text: 'Attendance reset! You can now punch in again.' });
+      loadData();
+    } catch (err) {
+      setPunchFeedback({ type: 'error', text: err.message || 'Reset failed.' });
+    }
+  };
 
   const handleGeneratePayroll = async (e) => {
     e.preventDefault();
@@ -85,10 +148,14 @@ export default function HRDashboard() {
     }
   };
 
-  // Build Chart Data
-  const trend = metrics.weeklyAttendanceTrend || { Mon: 4, Tue: 5, Wed: 5, Thu: 4, Fri: 5, Sat: 0, Sun: 0 };
-  const labels = Object.keys(trend);
-  const presentValues = Object.values(trend);
+  // Build Dynamic Chart Data (Weekly vs Monthly Calendar Resets)
+  const isMonthly = chartFilter === 'This Month';
+  const activeTrend = isMonthly
+    ? (metrics.monthlyAttendanceTrend || { 'Week 1': 0, 'Week 2': 0, 'Week 3': 0, 'Week 4': 0 })
+    : (metrics.weeklyAttendanceTrend || { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0 });
+
+  const labels = Object.keys(activeTrend);
+  const presentValues = Object.values(activeTrend);
   const total = metrics.totalEmployees || 5;
   const absentValues = presentValues.map((v) => Math.max(0, total - v));
 
@@ -96,13 +163,13 @@ export default function HRDashboard() {
     labels: labels,
     datasets: [
       {
-        label: 'Present',
+        label: isMonthly ? 'Avg Present' : 'Present',
         data: presentValues,
         backgroundColor: '#007a7a',
         borderRadius: 4,
       },
       {
-        label: 'Absent/Leave',
+        label: isMonthly ? 'Avg Absent' : 'Absent/Leave',
         data: absentValues,
         backgroundColor: '#e2e8f0',
         borderRadius: 4,
@@ -214,6 +281,104 @@ export default function HRDashboard() {
 
         {/* Right Panel */}
         <div className="right-panel">
+          {/* HR Daily Attendance & Punch Card */}
+          <div className="card quick-actions-card" style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
+            <div className="card-header" style={{ textAlign: 'left' }}>
+              <h2>My Daily Attendance</h2>
+              <p style={{ color: '#64748b', fontSize: '0.875rem' }}>HR Punch Status & Biometric Times</p>
+            </div>
+            <div className="card-body" style={{ padding: '1.25rem 1rem' }}>
+              {punchFeedback && (
+                <div
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    marginBottom: '1rem',
+                    fontSize: '13px',
+                    backgroundColor: punchFeedback.type === 'success' ? '#f0fdf4' : '#fef2f2',
+                    color: punchFeedback.type === 'success' ? '#166534' : '#991b1b',
+                    border: `1px solid ${punchFeedback.type === 'success' ? '#bbf7d0' : '#fecaca'}`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <span>{punchFeedback.text}</span>
+                  <button
+                    onClick={() => setPunchFeedback(null)}
+                    style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0 }}
+                  >
+                    &times;
+                  </button>
+                </div>
+              )}
+              <p style={{ marginBottom: '1rem', color: '#475569', fontWeight: 500, fontSize: '13px' }}>
+                {punchData.status === 'CHECKED_OUT'
+                  ? 'Shift completed for today.'
+                  : punchData.status === 'CHECKED_IN'
+                  ? 'Currently clocked in.'
+                  : 'You have not checked in yet today.'}
+              </p>
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  onClick={handlePunchIn}
+                  className="btn btn-primary"
+                  disabled={punchData.status === 'CHECKED_IN' || punchData.status === 'CHECKED_OUT' || punchLoading}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: punchData.status === 'CHECKED_IN' || punchData.status === 'CHECKED_OUT' ? '#94a3b8' : '#007a7a',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: punchData.status === 'CHECKED_IN' || punchData.status === 'CHECKED_OUT' ? 'not-allowed' : 'pointer',
+                    fontWeight: 600,
+                    fontSize: '13px',
+                  }}
+                >
+                  {punchData.status === 'CHECKED_IN' ? (punchData.checkInTime ? `In (${punchData.checkInTime})` : 'Checked In') : 'Check In'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handlePunchOut}
+                  className="btn btn-secondary"
+                  disabled={punchData.status !== 'CHECKED_IN' || punchLoading}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: punchData.status !== 'CHECKED_IN' ? '#94a3b8' : '#0284c7',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: punchData.status !== 'CHECKED_IN' ? 'not-allowed' : 'pointer',
+                    fontWeight: 600,
+                    fontSize: '13px',
+                  }}
+                >
+                  {punchData.status === 'CHECKED_OUT' ? (punchData.checkOutTime ? `Out (${punchData.checkOutTime})` : 'Checked Out') : 'Check Out'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleResetAttendance}
+                  className="btn"
+                  style={{
+                    background: '#f8fafc',
+                    color: '#64748b',
+                    border: '1px solid #e2e8f0',
+                    fontSize: '0.8rem',
+                    padding: '6px 10px',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                  }}
+                  title="Reset Attendance (Test)"
+                >
+                  <i className="fa-solid fa-rotate-left"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
           {/* Generate Employee Payroll Card */}
           <div className="card payroll-generation-card" style={{ marginBottom: '1.5rem' }}>
             <div className="card-header">

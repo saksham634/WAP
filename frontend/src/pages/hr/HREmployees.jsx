@@ -198,13 +198,19 @@ export default function HREmployees() {
                 </div>
                 <div>
                   <span style={{ color: '#64748b', display: 'block' }}>Gross Pay</span>
-                  <strong style={{ color: '#16a34a' }}>
-                    ₹{(Number(emp.baseSalary || 60000) + Number(emp.allowances || 15000)).toLocaleString()}
-                  </strong>
+                  {(emp.role || '').toUpperCase().includes('ADMIN') ? (
+                    <strong style={{ color: '#64748b', fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <i className="fa-solid fa-lock" style={{ fontSize: '10px' }}></i> Confidential
+                    </strong>
+                  ) : (
+                    <strong style={{ color: '#16a34a' }}>
+                      ₹{(Number(emp.baseSalary || 60000) + Number(emp.allowances || 15000)).toLocaleString()}
+                    </strong>
+                  )}
                 </div>
                 <div>
                   <span style={{ color: '#64748b', display: 'block' }}>Phone</span>
-                  <strong style={{ color: '#334155' }}>{emp.phone || '+91 98765 43210'}</strong>
+                  <strong style={{ color: '#334155' }}>{emp.phone || emp.phoneNumber || '+91 98765 43210'}</strong>
                 </div>
               </div>
 
@@ -216,7 +222,7 @@ export default function HREmployees() {
                 }}
                 style={{ width: '100%', fontSize: '13px' }}
               >
-                <i className="fa-solid fa-pen-to-square"></i> Edit Details & Salary
+                <i className="fa-solid fa-pen-to-square"></i> {(emp.role || '').toUpperCase().includes('ADMIN') ? 'Edit Details' : 'Edit Details & Salary'}
               </button>
             </div>
           ))}
@@ -255,7 +261,7 @@ export default function HREmployees() {
                     </label>
                     <input
                       type="text"
-                      value={selectedEmp.department || ''}
+                      value={selectedEmp.department || selectedEmp.designation || ''}
                       onChange={(e) => setSelectedEmp({ ...selectedEmp, department: e.target.value })}
                       style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
                     />
@@ -266,52 +272,73 @@ export default function HREmployees() {
                     </label>
                     <input
                       type="text"
-                      value={selectedEmp.phone || ''}
+                      value={selectedEmp.phone || selectedEmp.phoneNumber || ''}
                       onChange={(e) => setSelectedEmp({ ...selectedEmp, phone: e.target.value })}
                       style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
                     />
                   </div>
                 </div>
 
-                <h4 style={{ margin: '10px 0 4px 0', fontSize: '14px', color: '#007a7a' }}>
-                  Compensation & Salary Structure
-                </h4>
+                {(selectedEmp.role || '').toUpperCase().includes('ADMIN') ? (
+                  <div
+                    style={{
+                      padding: '12px 14px',
+                      borderRadius: '8px',
+                      backgroundColor: '#fef3c7',
+                      border: '1px solid #fde68a',
+                      color: '#92400e',
+                      fontSize: '13px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
+                  >
+                    <i className="fa-solid fa-shield-halved" style={{ fontSize: '16px', color: '#d97706' }}></i>
+                    <span>Administrator compensation is confidential and restricted from HR modifications.</span>
+                  </div>
+                ) : (
+                  <>
+                    <h4 style={{ margin: '10px 0 4px 0', fontSize: '14px', color: '#007a7a' }}>
+                      Compensation & Salary Structure
+                    </h4>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
-                      Base Salary (₹)
-                    </label>
-                    <input
-                      type="number"
-                      value={selectedEmp.baseSalary || 0}
-                      onChange={(e) => setSelectedEmp({ ...selectedEmp, baseSalary: Number(e.target.value) })}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
-                      Allowances (₹)
-                    </label>
-                    <input
-                      type="number"
-                      value={selectedEmp.allowances || 0}
-                      onChange={(e) => setSelectedEmp({ ...selectedEmp, allowances: Number(e.target.value) })}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
-                      Deductions (₹)
-                    </label>
-                    <input
-                      type="number"
-                      value={selectedEmp.deductions || 0}
-                      onChange={(e) => setSelectedEmp({ ...selectedEmp, deductions: Number(e.target.value) })}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
-                    />
-                  </div>
-                </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                          Base Salary (₹)
+                        </label>
+                        <input
+                          type="number"
+                          value={selectedEmp.baseSalary || 0}
+                          onChange={(e) => setSelectedEmp({ ...selectedEmp, baseSalary: Number(e.target.value) })}
+                          style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                          Allowances (₹)
+                        </label>
+                        <input
+                          type="number"
+                          value={selectedEmp.allowances || 0}
+                          onChange={(e) => setSelectedEmp({ ...selectedEmp, allowances: Number(e.target.value) })}
+                          style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                          Deductions (₹)
+                        </label>
+                        <input
+                          type="number"
+                          value={selectedEmp.deductions || 0}
+                          onChange={(e) => setSelectedEmp({ ...selectedEmp, deductions: Number(e.target.value) })}
+                          style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="modal-footer">

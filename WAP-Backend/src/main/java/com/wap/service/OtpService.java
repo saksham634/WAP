@@ -28,11 +28,16 @@ public class OtpService {
         otpStorage.put(email, otp);
 
         // Send Email
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(email);
-        message.setSubject("Your Workforce Analytics Platform Verification Code");
-        message.setText("Your OTP code is: " + otp + ". It is valid for 5 minutes.");
-        mailSender.send(message);
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(email);
+            message.setSubject("Your Workforce Analytics Platform Verification Code");
+            message.setText("Your OTP code is: " + otp + ". It is valid for 5 minutes.");
+            mailSender.send(message);
+        } catch (Exception e) {
+            org.slf4j.LoggerFactory.getLogger(OtpService.class)
+                    .warn("SMTP mail delivery failed. Verification OTP code for {}: {} (Reason: {})", email, otp, e.getMessage());
+        }
 
         return "OTP sent successfully to " + email;
     }

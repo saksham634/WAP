@@ -1,6 +1,8 @@
 package com.wap.dto;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ProjectDTO {
     private Long id;
@@ -11,9 +13,10 @@ public class ProjectDTO {
     private LocalDate startDate;
     private LocalDate deadline;
     private int progress;
-    private java.util.List<UserSummaryDTO> assignedUsers;
+    private List<UserSummaryDTO> assignedUsers;
+    private String assignedMembers;
 
-    public ProjectDTO(Long id, String title, String description, String status, String priority, LocalDate startDate, LocalDate deadline, int progress, java.util.List<UserSummaryDTO> assignedUsers) {
+    public ProjectDTO(Long id, String title, String description, String status, String priority, LocalDate startDate, LocalDate deadline, int progress, List<UserSummaryDTO> assignedUsers) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -23,6 +26,11 @@ public class ProjectDTO {
         this.deadline = deadline;
         this.progress = progress;
         this.assignedUsers = assignedUsers;
+        if (assignedUsers != null && !assignedUsers.isEmpty()) {
+            this.assignedMembers = assignedUsers.stream().map(UserSummaryDTO::getEmail).collect(Collectors.joining(", "));
+        } else {
+            this.assignedMembers = "";
+        }
     }
 
     public Long getId() {
@@ -57,7 +65,12 @@ public class ProjectDTO {
         return progress;
     }
 
-    public java.util.List<UserSummaryDTO> getAssignedUsers() {
+    public List<UserSummaryDTO> getAssignedUsers() {
         return assignedUsers;
     }
+
+    public String getAssignedMembers() {
+        return assignedMembers;
+    }
 }
+

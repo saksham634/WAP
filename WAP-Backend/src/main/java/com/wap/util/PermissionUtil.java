@@ -24,7 +24,18 @@ public class PermissionUtil {
 
         String[] parts = perms.split(",");
         for (String p : parts) {
-            if (p.trim().equalsIgnoreCase(permissionKey)) {
+            String clean = p.trim();
+            if (clean.equalsIgnoreCase(permissionKey)) {
+                return true;
+            }
+            // Allow HR matching aliases
+            if ("ATTENDANCE".equalsIgnoreCase(permissionKey) && ("ATTENDANCE_OVERVIEW".equalsIgnoreCase(clean) || "ROLE_HR".equals(user.getRole().getRoleName()))) {
+                return true;
+            }
+            if ("LEAVES".equalsIgnoreCase(permissionKey) && ("LEAVE_APPROVALS".equalsIgnoreCase(clean) || "ROLE_HR".equals(user.getRole().getRoleName()))) {
+                return true;
+            }
+            if ("PAYROLL".equalsIgnoreCase(permissionKey) && ("PAYROLL_ADMIN".equalsIgnoreCase(clean) || "ROLE_HR".equals(user.getRole().getRoleName()))) {
                 return true;
             }
         }

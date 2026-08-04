@@ -1,44 +1,20 @@
 package com.wap.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class SettingsRequestDTO {
+
+    @NotBlank(message = "Company name is required")
     private String companyName;
+
+    @NotBlank(message = "Timezone is required")
     private String timezone;
+
     private String workHours;
-
-    public SettingsRequestDTO() {}
-
-    public SettingsRequestDTO(String companyName, String timezone) {
-        this.companyName = companyName;
-        this.timezone = timezone;
-    }
-
-    public SettingsRequestDTO(String companyName, String timezone, String workHours) {
-        this.companyName = companyName;
-        this.timezone = timezone;
-        this.workHours = workHours;
-    }
-
-    public String getCompanyName() {
-        return companyName;
-    }
-
-    public void setCompanyName(String companyName) {
-        this.companyName = companyName;
-    }
-
-    public String getTimezone() {
-        return timezone;
-    }
-
-    public void setTimezone(String timezone) {
-        this.timezone = timezone;
-    }
-
-    public String getWorkHours() {
-        return workHours;
-    }
-
-    public void setWorkHours(String workHours) {
-        this.workHours = workHours;
-    }
 }

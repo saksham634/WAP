@@ -1,4 +1,5 @@
-create database wap_db;
+CREATE DATABASE IF NOT EXISTS wap_db;
+USE wap_db;
 
 
 
@@ -68,13 +69,10 @@ CREATE TABLE leaves (
 
 CREATE TABLE audit_logs (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id BIGINT,
-    action VARCHAR(100) NOT NULL, -- e.g., 'PASSWORD_RESET', 'ROLE_MODIFIED'
-    description TEXT,
-    ip_address VARCHAR(45),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+    action VARCHAR(255) NOT NULL,
+    performed_by VARCHAR(255) NOT NULL,
+    user_email VARCHAR(255) NOT NULL,
+    timestamp DATETIME(6) NOT NULL
 );
 
 

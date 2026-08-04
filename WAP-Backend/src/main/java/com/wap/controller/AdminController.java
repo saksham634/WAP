@@ -1,13 +1,11 @@
 package com.wap.controller;
 
-import com.wap.dto.AddUserRequest;
-import com.wap.dto.UserDTO;
-import com.wap.dto.EditUserRequest;
-import com.wap.dto.SettingsRequestDTO;
-import com.wap.dto.ChangePasswordDTO;
-import com.wap.dto.UserProfileDTO;
+import com.wap.dto.*;
 import com.wap.service.AdminService;
 import com.wap.security.JwtUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +14,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
-@CrossOrigin(origins = "*") 
+@Tag(name = "Admin Operations & User Management", description = "Endpoints for managing organization users, roles, permissions, settings, and audit logs")
 public class AdminController {
 
     private final AdminService adminService;
@@ -27,170 +25,130 @@ public class AdminController {
         this.jwtUtil = jwtUtil;
     }
 
+    @Operation(summary = "Get all users within the organization")
     @GetMapping("/users")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         List<UserDTO> users = adminService.getAllSystemUsers();
         return ResponseEntity.ok(users);
     }
 
-    // NEW ENDPOINT: Add a user
+    @Operation(summary = "Add a new user to the organization")
     @PostMapping("/users")
-    public ResponseEntity<?> addUser(@RequestBody AddUserRequest request) {
-        try {
-            adminService.addNewUser(request);
-            return ResponseEntity.ok(Map.of("message", "User created successfully!"));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+    public ResponseEntity<?> addUser(@Valid @RequestBody AddUserRequest request) {
+        adminService.addNewUser(request);
+        return ResponseEntity.ok(ApiResponse.success("User created successfully!", Map.of("message", "User created successfully!")));
     }
 
+    @Operation(summary = "Get real-time admin dashboard metrics")
     @GetMapping("/dashboard")
-    public ResponseEntity<com.wap.dto.AdminDashboardDTO> getDashboardMetrics() {
+    public ResponseEntity<AdminDashboardDTO> getDashboardMetrics() {
         return ResponseEntity.ok(adminService.getAdminDashboardMetrics());
     }
 
+    @Operation(summary = "Delete a user account and cascade clean related records")
     @DeleteMapping("/users/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable String id) {
-        try {
-            adminService.deleteUser(id);
-            return ResponseEntity.ok(Map.of("message", "User deleted successfully!"));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+        adminService.deleteUser(id);
+        return ResponseEntity.ok(ApiResponse.success("User deleted successfully!", Map.of("message", "User deleted successfully!")));
     }
 
+    @Operation(summary = "Update user details")
     @PutMapping("/users/{id}")
     public ResponseEntity<?> updateUser(@PathVariable String id, @RequestBody EditUserRequest request) {
-        try {
-            adminService.updateUser(id, request);
-            return ResponseEntity.ok(Map.of("message", "User updated successfully!"));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+        adminService.updateUser(id, request);
+        return ResponseEntity.ok(ApiResponse.success("User updated successfully!", Map.of("message", "User updated successfully!")));
     }
 
+    @Operation(summary = "Get specific user's custom permissions")
     @GetMapping("/users/{id}/permissions")
     public ResponseEntity<?> getUserPermissions(@PathVariable String id) {
-        try {
-            String perms = adminService.getUserPermissions(id);
-            return ResponseEntity.ok(Map.of("employeeId", id, "permissions", perms));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+        String perms = adminService.getUserPermissions(id);
+        return ResponseEntity.ok(Map.of("employeeId", id, "permissions", perms));
     }
 
+    @Operation(summary = "Update specific user's custom permissions")
     @PutMapping("/users/{id}/permissions")
     public ResponseEntity<?> updateUserPermissions(@PathVariable String id, @RequestBody Map<String, List<String>> payload) {
-        try {
-            List<String> permissions = payload.get("permissions");
-            adminService.updateUserPermissions(id, permissions != null ? permissions : List.of());
-            return ResponseEntity.ok(Map.of("message", "Permissions updated successfully for user " + id));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+        List<String> permissions = payload.get("permissions");
+        adminService.updateUserPermissions(id, permissions != null ? permissions : List.of());
+        return ResponseEntity.ok(ApiResponse.success("Permissions updated successfully for user " + id, Map.of("message", "Permissions updated successfully for user " + id)));
     }
 
+    @Operation(summary = "Get role-level permission mappings")
     @GetMapping("/roles/permissions")
     public ResponseEntity<?> getRolePermissions() {
-        try {
-            return ResponseEntity.ok(adminService.getRolePermissions());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+        return ResponseEntity.ok(adminService.getRolePermissions());
     }
 
+    @Operation(summary = "Update role-level permission mappings")
     @PutMapping("/roles/permissions")
     public ResponseEntity<?> updateRolePermissions(@RequestBody Map<String, List<String>> payload) {
-        try {
-            adminService.updateRolePermissions(payload);
-            return ResponseEntity.ok(Map.of("message", "Role permissions updated successfully."));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+        adminService.updateRolePermissions(payload);
+        return ResponseEntity.ok(ApiResponse.success("Role permissions updated successfully.", Map.of("message", "Role permissions updated successfully.")));
     }
 
+    @Operation(summary = "Get organization settings")
     @GetMapping("/settings")
     public ResponseEntity<?> getSettings() {
-        try {
-            return ResponseEntity.ok(adminService.getSettings());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+        return ResponseEntity.ok(adminService.getSettings());
     }
 
+    @Operation(summary = "Update organization settings")
     @RequestMapping(value = "/settings", method = {RequestMethod.POST, RequestMethod.PUT})
-    public ResponseEntity<?> updateSettings(@RequestBody SettingsRequestDTO request) {
-        try {
-            adminService.updateSettings(request);
-            return ResponseEntity.ok(Map.of("message", "Settings updated successfully!"));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+    public ResponseEntity<?> updateSettings(@Valid @RequestBody SettingsRequestDTO request) {
+        adminService.updateSettings(request);
+        return ResponseEntity.ok(ApiResponse.success("Settings updated successfully!", Map.of("message", "Settings updated successfully!")));
     }
 
+    @Operation(summary = "Get authenticated user profile")
     @GetMapping("/users/me")
     public ResponseEntity<?> getCurrentUser(@RequestHeader("Authorization") String token) {
-        try {
-            String email = jwtUtil.extractUsername(token.substring(7));
-            return ResponseEntity.ok(adminService.getCurrentUser(email));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+        String email = jwtUtil.extractUsername(token.substring(7));
+        return ResponseEntity.ok(adminService.getCurrentUser(email));
     }
 
+    @Operation(summary = "Update personal profile of logged-in user")
     @PutMapping("/users/me/profile")
     public ResponseEntity<?> updateProfile(@RequestHeader("Authorization") String token, @RequestBody UserProfileDTO request) {
-        try {
-            String email = jwtUtil.extractUsername(token.substring(7));
-            adminService.updateProfile(email, request);
-            return ResponseEntity.ok(Map.of("message", "Profile updated successfully!"));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+        String email = jwtUtil.extractUsername(token.substring(7));
+        adminService.updateProfile(email, request);
+        return ResponseEntity.ok(ApiResponse.success("Profile updated successfully!", Map.of("message", "Profile updated successfully!")));
     }
 
+    @Operation(summary = "Change password for logged-in user")
     @PutMapping("/users/me/password")
-    public ResponseEntity<?> changePassword(@RequestHeader("Authorization") String token, @RequestBody ChangePasswordDTO request) {
-        try {
-            String email = jwtUtil.extractUsername(token.substring(7));
-            adminService.changePassword(email, request);
-            return ResponseEntity.ok(Map.of("message", "Password changed successfully!"));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+    public ResponseEntity<?> changePassword(@RequestHeader("Authorization") String token, @Valid @RequestBody ChangePasswordDTO request) {
+        String email = jwtUtil.extractUsername(token.substring(7));
+        adminService.changePassword(email, request);
+        return ResponseEntity.ok(ApiResponse.success("Password changed successfully!", Map.of("message", "Password changed successfully!")));
     }
 
+    @Operation(summary = "Get top 50 recent system audit logs")
     @GetMapping("/audit")
     public ResponseEntity<?> getAuditLogs() {
         return ResponseEntity.ok(adminService.getAuditLogs());
     }
 
+    @Operation(summary = "Update user designation")
     @PutMapping("/users/{id}/designation")
     public ResponseEntity<?> updateDesignation(@PathVariable String id, @RequestBody Map<String, String> payload) {
-        try {
-            String designation = payload.get("designation");
-            adminService.updateDesignation(id, designation);
-            return ResponseEntity.ok(Map.of("message", "Designation updated successfully for " + id));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+        String designation = payload.get("designation");
+        adminService.updateDesignation(id, designation);
+        return ResponseEntity.ok(ApiResponse.success("Designation updated successfully for " + id, Map.of("message", "Designation updated successfully for " + id)));
     }
 
+    @Operation(summary = "Update user salary structure")
     @PutMapping("/users/{id}/salary")
     public ResponseEntity<?> updateSalaryStructure(@PathVariable String id, @RequestBody Map<String, Double> payload) {
-        try {
-            Double baseSalary = payload.get("baseSalary");
-            Double allowances = payload.get("allowances");
-            Double deductions = payload.get("deductions");
-            
-            if (baseSalary == null || allowances == null || deductions == null) {
-                return ResponseEntity.badRequest().body(Map.of("error", "baseSalary, allowances, and deductions are required"));
-            }
-            
-            adminService.updateSalaryStructure(id, baseSalary, allowances, deductions);
-            return ResponseEntity.ok(Map.of("message", "Salary structure updated successfully for " + id));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        Double baseSalary = payload.get("baseSalary");
+        Double allowances = payload.get("allowances");
+        Double deductions = payload.get("deductions");
+        
+        if (baseSalary == null || allowances == null || deductions == null) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "baseSalary, allowances, and deductions are required"));
         }
+        
+        adminService.updateSalaryStructure(id, baseSalary, allowances, deductions);
+        return ResponseEntity.ok(ApiResponse.success("Salary structure updated successfully for " + id, Map.of("message", "Salary structure updated successfully for " + id)));
     }
 }

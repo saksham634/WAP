@@ -1,10 +1,14 @@
 package com.wap.controller;
 
+import com.wap.dto.ApiResponse;
 import com.wap.dto.AuthResponse;
 import com.wap.dto.LoginRequest;
 import com.wap.dto.RegisterOrgRequest;
 import com.wap.service.AuthService;
 import com.wap.service.OtpService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,7 +18,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*")
+@Tag(name = "Authentication & User Access", description = "Endpoints for user login, token refresh, OTP verification, password reset, and organization onboarding")
 public class AuthController {
 
     private final AuthService authService;
@@ -25,70 +29,86 @@ public class AuthController {
         this.otpService = otpService;
     }
     
+    @Operation(summary = "Get current logged-in user profile")
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
-            return ResponseEntity.status(401).body(Map.of("message", "Not authenticated"));
+            return ResponseEntity.status(401).body(ApiResponse.error(401, "Not authenticated"));
         }
         
-        try {
-            return ResponseEntity.ok(authService.getUserProfile(auth.getName()));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
-        }
+        return ResponseEntity.ok(ApiResponse.success(authService.getUserProfile(auth.getName())));
     }
 
+    @Operation(summary = "Send OTP to email for password recovery")
     @PostMapping("/send-otp")
     public ResponseEntity<?> sendOtp(@RequestBody Map<String, String> request) {
-        try {
-            String email = request.get("email");
-            String response = otpService.generateAndSendOtp(email);
-            return ResponseEntity.ok(Map.of("message", response));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        String email = request.get("email");
+        if (email == null || email.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "Email address is required."));
         }
+        String response = otpService.generateAndSendOtp(email);
+        return ResponseEntity.ok(ApiResponse.success(response, Map.of("message", response)));
     }
 
+    @Operation(summary = "Verify OTP code for password reset")
     @PostMapping("/verify-otp")
     public ResponseEntity<?> verifyOtp(@RequestBody Map<String, String> request) {
-        boolean isValid = otpService.verifyOtp(request.get("email"), request.get("otp"));
-        if (isValid) {
-            return ResponseEntity.ok(Map.of("message", "OTP verified successfully."));
+        String email = request.get("email");
+        String otp = request.get("otp");
+        if (email == null || otp == null) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "Email and OTP are required."));
         }
-        return ResponseEntity.badRequest().body(Map.of("error", "Invalid or expired OTP."));
+        boolean isValid = otpService.verifyOtp(email, otp);
+        if (isValid) {
+            return ResponseEntity.ok(ApiResponse.success("OTP verified successfully.", Map.of("message", "OTP verified successfully.")));
+        }
+        return ResponseEntity.badRequest().body(ApiResponse.error(400, "Invalid or expired OTP."));
     }
 
+    @Operation(summary = "Reset password using OTP verification")
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
-        try {
-            String email = request.get("email");
-            String newPassword = request.get("newPassword");
-            
-            authService.resetPassword(email, newPassword);
-            return ResponseEntity.ok(Map.of("message", "Password updated successfully."));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        String email = request.get("email");
+        String newPassword = request.get("newPassword");
+        if (email == null || newPassword == null || newPassword.length() < 6) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(400, "Valid email and new password (min 6 chars) are required."));
         }
+        authService.resetPassword(email, newPassword);
+        return ResponseEntity.ok(ApiResponse.success("Password updated successfully.", Map.of("message", "Password updated successfully.")));
     }
 
+    @Operation(summary = "Authenticate user with email and password")
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
-        try {
-            AuthResponse response = authService.login(request);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(401).body(new AuthResponse(null, null, null, null, null, "Invalid email or password"));
-        }
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        AuthResponse response = authService.login(request);
+        return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/register-org")
-    public ResponseEntity<AuthResponse> registerOrg(@RequestBody RegisterOrgRequest request) {
-        try {
-            AuthResponse response = authService.registerOrganization(request);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new AuthResponse(null, null, null, null, null, e.getMessage()));
+    @Operation(summary = "Refresh JWT access token using a valid rotating refresh token")
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> refreshToken(@RequestBody Map<String, String> request) {
+        String refreshToken = request.get("refreshToken");
+        if (refreshToken == null || refreshToken.trim().isEmpty()) {
+            throw new IllegalArgumentException("Refresh token is required.");
         }
+        AuthResponse response = authService.refreshToken(refreshToken);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "Revoke refresh token and log out")
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestBody(required = false) Map<String, String> request) {
+        if (request != null && request.containsKey("refreshToken")) {
+            authService.logout(request.get("refreshToken"));
+        }
+        return ResponseEntity.ok(ApiResponse.success("Logged out successfully", Map.of("message", "Logged out successfully")));
+    }
+
+    @Operation(summary = "Register a new organization with an initial admin user")
+    @PostMapping("/register-org")
+    public ResponseEntity<AuthResponse> registerOrg(@Valid @RequestBody RegisterOrgRequest request) {
+        AuthResponse response = authService.registerOrganization(request);
+        return ResponseEntity.ok(response);
     }
 }

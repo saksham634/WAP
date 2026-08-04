@@ -16,12 +16,16 @@ export default function HRPayroll() {
     setLoading(true);
     try {
       const data = await payrollAPI.getAllPayslips();
-      if (Array.isArray(data) && data.length > 0) {
-        setPayslips(data);
+      const nonAdminData = (Array.isArray(data) ? data : []).filter(
+        (p) => !((p.role || '').toUpperCase().includes('ADMIN') || (p.employeeName || '').toLowerCase().includes('admin'))
+      );
+      if (nonAdminData.length > 0) {
+        setPayslips(nonAdminData);
       } else {
-        // Fallback: construct demo records from current users if not yet processed
+        // Fallback: construct demo records from current users excluding admin
         const users = await userAPI.getAllUsers();
-        const demo = (users || []).map((u, i) => {
+        const nonAdminUsers = (users || []).filter((u) => !(u.role || '').toUpperCase().includes('ADMIN'));
+        const demo = nonAdminUsers.map((u, i) => {
           const base = Number(u.baseSalary || 0);
           const allow = Number(u.allowances || 0);
           const ded = Number(u.deductions || 0);

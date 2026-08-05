@@ -13,31 +13,16 @@
 ## System Architecture
 
 ```mermaid
-flowchart TB
-    subgraph Client ["Client Layer"]
-        Browser["Modern Browser"] --> SPA["React 19 SPA (Vite)"]
-    end
-
-    subgraph Security ["Security and Filters"]
-        RateLimiter["Rate Limiter (100 req/min)"]
-        Cors["CORS Configuration"]
-        JwtFilter["JWT Auth Filter"]
-    end
-
-    subgraph Backend ["Spring Boot 3 REST API"]
-        Controllers["REST Controllers and Swagger UI"]
-        ExAdvice["Global Exception Handler"]
-        Services["Service Layer and Business Logic"]
-        JPA["Spring Data JPA"]
-    end
-
-    subgraph Persistence ["Persistence Layer"]
-        DB[("MySQL 8.0+ Database")]
-    end
-
-    SPA -->|HTTP / REST| RateLimiter
-    RateLimiter --> Cors --> JwtFilter --> Controllers --> Services --> JPA --> DB
+flowchart LR
+    A[User / Browser] -->|Interacts with UI| B[Frontend<br/>React 19 + Vite]
+    B -->|REST API Calls<br/>with JWT Token| C[Backend API<br/>Spring Boot 3]
+    C -->|Reads / Writes Data<br/>via Spring Data JPA| D[(Database<br/>MySQL 8.0)]
 ```
+
+### High-Level Flow
+1. **Frontend (React 19 + Vite)**: Provides responsive UI dashboards for Admin, HR, and Employees.
+2. **Backend API (Spring Boot 3)**: Handles REST endpoints, role-based authorization, JWT security, and business logic.
+3. **Database (MySQL)**: Stores users, attendance records, leave applications, payroll, and projects.
 
 ---
 

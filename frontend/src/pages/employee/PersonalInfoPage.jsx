@@ -346,6 +346,7 @@ export default function PersonalInfoPage() {
                   </label>
                   <input
                     type="date"
+                    max={new Date().toISOString().split('T')[0]}
                     value={profile.dob || ''}
                     onChange={(e) => setProfile({ ...profile, dob: e.target.value })}
                     style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}

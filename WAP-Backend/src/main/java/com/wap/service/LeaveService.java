@@ -39,6 +39,16 @@ public class LeaveService {
         User user = getAuthenticatedUser();
         com.wap.util.PermissionUtil.validatePermission(user, "LEAVES");
 
+        if (request.getStartDate() == null || request.getEndDate() == null) {
+            throw new IllegalArgumentException("Start date and End date are required.");
+        }
+        if (request.getStartDate().isBefore(java.time.LocalDate.now())) {
+            throw new IllegalArgumentException("Leave start date cannot be in the past.");
+        }
+        if (request.getEndDate().isBefore(request.getStartDate())) {
+            throw new IllegalArgumentException("Leave end date cannot be earlier than start date.");
+        }
+
         LeaveRequest leave = new LeaveRequest();
         leave.setUser(user);
         leave.setLeaveType(request.getLeaveType() != null ? request.getLeaveType().toUpperCase() : "CASUAL");

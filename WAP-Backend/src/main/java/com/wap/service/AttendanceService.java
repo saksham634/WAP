@@ -120,6 +120,9 @@ public class AttendanceService {
         com.wap.util.PermissionUtil.validatePermission(user, "ATTENDANCE_OVERVIEW");
         Long orgId = user.getOrganization().getId();
         LocalDate targetDate = date != null ? date : LocalDate.now();
+        if (targetDate.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("Cannot reset attendance records for future dates.");
+        }
 
         List<Attendance> records = attendanceRepository.findByUser_Organization_IdAndRecordDate(orgId, targetDate);
         if (!records.isEmpty()) {
@@ -360,6 +363,9 @@ public class AttendanceService {
         User user = getAuthenticatedUser();
         Long orgId = user.getOrganization().getId();
         LocalDate targetDate = date != null ? date : LocalDate.now();
+        if (targetDate.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("Cannot view attendance records for future dates.");
+        }
 
         List<User> orgUsers = userRepository.findByOrganization_Id(orgId);
         List<Attendance> records = attendanceRepository.findByUser_Organization_IdAndRecordDate(orgId, targetDate);

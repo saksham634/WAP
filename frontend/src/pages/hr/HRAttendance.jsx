@@ -155,6 +155,7 @@ export default function HRAttendance() {
             <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155' }}>Date:</label>
             <input
               type="date"
+              max={new Date().toISOString().split('T')[0]}
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
               style={{

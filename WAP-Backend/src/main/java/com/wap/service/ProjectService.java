@@ -59,13 +59,20 @@ public class ProjectService {
     public ProjectDTO createProject(CreateProjectRequest request) {
         User user = getAuthenticatedUser();
 
+        LocalDate startDate = request.getStartDate() != null ? request.getStartDate() : LocalDate.now();
+        LocalDate deadline = request.getDeadline() != null ? request.getDeadline() : startDate.plusMonths(1);
+
+        if (deadline.isBefore(startDate)) {
+            throw new IllegalArgumentException("Project deadline cannot be earlier than start date.");
+        }
+
         Project project = new Project();
         project.setTitle(request.getTitle());
         project.setDescription(request.getDescription());
         project.setPriority(request.getPriority() != null ? request.getPriority() : "MEDIUM");
         project.setStatus("IN_PROGRESS");
-        project.setStartDate(request.getStartDate() != null ? request.getStartDate() : LocalDate.now());
-        project.setDeadline(request.getDeadline() != null ? request.getDeadline() : LocalDate.now().plusMonths(1));
+        project.setStartDate(startDate);
+        project.setDeadline(deadline);
         project.setProgress(request.getProgress() >= 0 ? request.getProgress() : 10);
         project.setOrganization(user.getOrganization());
 
@@ -89,6 +96,13 @@ public class ProjectService {
         if (request.getTitle() != null) project.setTitle(request.getTitle());
         if (request.getDescription() != null) project.setDescription(request.getDescription());
         if (request.getPriority() != null) project.setPriority(request.getPriority());
+        if (request.getStartDate() != null) project.setStartDate(request.getStartDate());
+        if (request.getDeadline() != null) project.setDeadline(request.getDeadline());
+
+        if (project.getDeadline() != null && project.getStartDate() != null && project.getDeadline().isBefore(project.getStartDate())) {
+            throw new IllegalArgumentException("Project deadline cannot be earlier than start date.");
+        }
+
         if (request.getProgress() >= 0) {
             project.setProgress(request.getProgress());
             if (request.getProgress() >= 100) {

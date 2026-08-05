@@ -46,14 +46,24 @@ export default function LeavePage() {
 
   const handleApply = async (e) => {
     e.preventDefault();
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (newLeave.startDate < todayStr) {
+      setFeedback({ type: 'error', text: 'Leave start date cannot be in the past.' });
+      return;
+    }
+    if (newLeave.endDate < newLeave.startDate) {
+      setFeedback({ type: 'error', text: 'Leave end date cannot be earlier than start date.' });
+      return;
+    }
+
     try {
       await leaveAPI.applyLeave(newLeave);
       setFeedback({ type: 'success', text: 'Leave application submitted successfully!' });
       setIsApplyModalOpen(false);
       setNewLeave({
         leaveType: 'CASUAL',
-        startDate: new Date().toISOString().split('T')[0],
-        endDate: new Date().toISOString().split('T')[0],
+        startDate: todayStr,
+        endDate: todayStr,
         reason: '',
       });
       fetchLeaveData();
@@ -289,8 +299,16 @@ export default function LeavePage() {
                     <input
                       type="date"
                       required
+                      min={new Date().toISOString().split('T')[0]}
                       value={newLeave.startDate}
-                      onChange={(e) => setNewLeave({ ...newLeave, startDate: e.target.value })}
+                      onChange={(e) => {
+                        const newStart = e.target.value;
+                        setNewLeave((prev) => ({
+                          ...prev,
+                          startDate: newStart,
+                          endDate: prev.endDate < newStart ? newStart : prev.endDate,
+                        }));
+                      }}
                       style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
                     />
                   </div>
@@ -301,6 +319,7 @@ export default function LeavePage() {
                     <input
                       type="date"
                       required
+                      min={newLeave.startDate || new Date().toISOString().split('T')[0]}
                       value={newLeave.endDate}
                       onChange={(e) => setNewLeave({ ...newLeave, endDate: e.target.value })}
                       style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}

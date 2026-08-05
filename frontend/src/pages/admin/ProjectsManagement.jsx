@@ -62,6 +62,11 @@ export default function ProjectsManagement() {
 
   const handleCreateProject = async (e) => {
     e.preventDefault();
+    if (newProject.deadline && newProject.startDate && newProject.deadline < newProject.startDate) {
+      setFeedback({ type: 'error', text: 'Project deadline cannot be earlier than start date.' });
+      return;
+    }
+
     try {
       const assignedUserIds = usersList
         .filter((u) => newProject.assignedMemberEmails.includes(u.email))
@@ -481,8 +486,16 @@ export default function ProjectsManagement() {
                     <input
                       type="date"
                       required
+                      min={new Date().toISOString().split('T')[0]}
                       value={newProject.startDate}
-                      onChange={(e) => setNewProject({ ...newProject, startDate: e.target.value })}
+                      onChange={(e) => {
+                        const newStart = e.target.value;
+                        setNewProject((prev) => ({
+                          ...prev,
+                          startDate: newStart,
+                          deadline: prev.deadline < newStart ? newStart : prev.deadline,
+                        }));
+                      }}
                       style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
                     />
                   </div>
@@ -493,6 +506,7 @@ export default function ProjectsManagement() {
                     <input
                       type="date"
                       required
+                      min={newProject.startDate || new Date().toISOString().split('T')[0]}
                       value={newProject.deadline}
                       onChange={(e) => setNewProject({ ...newProject, deadline: e.target.value })}
                       style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}

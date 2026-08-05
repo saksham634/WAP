@@ -19,6 +19,8 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JwtUtil.class);
+
     @Value("${jwt.secret:}")
     private String configuredSecret;
 
@@ -29,13 +31,12 @@ public class JwtUtil {
 
     @PostConstruct
     public void init() {
-        if (configuredSecret == null || configuredSecret.trim().length() < 32) {
-            throw new IllegalStateException(
-                "FATAL SECURITY CONFIGURATION ERROR: 'jwt.secret' is missing, empty, or shorter than 32 characters. " +
-                "Please configure a secure 256-bit+ HMAC secret key via the JWT_SECRET environment variable."
-            );
+        if (configuredSecret != null && configuredSecret.trim().length() >= 32) {
+            this.secretKey = Keys.hmacShaKeyFor(configuredSecret.trim().getBytes(StandardCharsets.UTF_8));
+        } else {
+            log.warn("[JWT NOTICE] No 256-bit+ 'jwt.secret' supplied. Auto-generating a secure in-memory HMAC key for this runtime session.");
+            this.secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
         }
-        this.secretKey = Keys.hmacShaKeyFor(configuredSecret.trim().getBytes(StandardCharsets.UTF_8));
     }
 
     public String extractUsername(String token) {

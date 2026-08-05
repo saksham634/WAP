@@ -236,3 +236,15 @@ export const messageAPI = {
 export const auditAPI = {
   getLogs: () => request('/admin/audit-logs'),
 };
+
+
+
+//-------------------------------
+// groq-----------------
+// ------------------------------
+export const chatAPI = {
+  sendMessage: (message, history) => request('/chat', {
+    method: 'POST',
+    body: JSON.stringify({ message, history }),
+  }),
+};

@@ -25,3 +25,8 @@ spring.mail.username=your_email@gmail.com
 spring.mail.password=your_gmail_app_password
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
+
+# Chatbot (Groq API)
+groq.api.key=${GROQ_API_KEY}
+groq.api.url=https://api.groq.com/openai/v1/chat/completions
+groq.model=llama-3.3-70b-versatile

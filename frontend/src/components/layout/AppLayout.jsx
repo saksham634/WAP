@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
+import ChatbotWidget from './ChatbotWidget';
 import { useSidebar } from '../../context/SidebarContext';
 
 export default function AppLayout() {
@@ -8,20 +9,12 @@ export default function AppLayout() {
 
   return (
     <div className="dashboard-container">
-      {/* Mobile Backdrop Overlay */}
-      <div
-        className={`sidebar-overlay ${isOpen ? 'active' : ''}`}
-        onClick={close}
-        aria-label="Close sidebar overlay"
-      />
-
-      {/* Responsive Sidebar */}
+      <div className={`sidebar-overlay ${isOpen ? 'active' : ''}`} onClick={close} aria-label="Close sidebar overlay" />
       <Sidebar isOpen={isOpen} onClose={close} />
-
-      {/* Main Content Area */}
       <main className="main-content">
         <Outlet context={{ onToggleSidebar: toggle }} />
       </main>
+      <ChatbotWidget />
     </div>
   );
 }

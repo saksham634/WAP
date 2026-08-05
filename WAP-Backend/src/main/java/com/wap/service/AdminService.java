@@ -215,7 +215,7 @@ public class AdminService {
         newUser.setStatus("ACTIVE");
 
         userRepository.saveAndFlush(newUser);
-        auditLogRepository.saveAndFlush(new AuditLog("Created User Account: " + newUser.getFullName() + " (" + newEmployeeId + ")", adminUser.getFullName(), adminUser.getEmail()));
+        auditLogRepository.saveAndFlush(new AuditLog(adminUser.getOrganization(), "Created User Account: " + newUser.getFullName() + " (" + newEmployeeId + ")", adminUser.getFullName(), adminUser.getEmail()));
     }
 
     // Organization-Scoped Dashboard Metrics
@@ -297,8 +297,8 @@ public class AdminService {
             systemAlerts.add(alert);
         }
 
-        // Add Recent System Activity Audit Logs
-        List<AuditLog> recentLogs = auditLogRepository.findTop5ByOrderByTimestampDesc();
+        // Add Recent System Activity Audit Logs for this Organization
+        List<AuditLog> recentLogs = auditLogRepository.findTop5ByOrganization_IdOrderByTimestampDesc(orgId);
         for (AuditLog log : recentLogs) {
             Map<String, String> alert = new HashMap<>();
             alert.put("icon", "fa-solid fa-shield-halved");
@@ -343,7 +343,7 @@ public class AdminService {
         // 3. Delete user account
         userRepository.delete(user);
         userRepository.flush();
-        auditLogRepository.saveAndFlush(new AuditLog("Deleted User Account: " + name + " (" + empId + ")", currentUser.getFullName(), currentUser.getEmail()));
+        auditLogRepository.saveAndFlush(new AuditLog(currentUser.getOrganization(), "Deleted User Account: " + name + " (" + empId + ")", currentUser.getFullName(), currentUser.getEmail()));
     }
 
     public void updateUser(String idOrEmployeeId, EditUserRequest request) {
@@ -402,7 +402,7 @@ public class AdminService {
         }
         
         userRepository.saveAndFlush(user);
-        auditLogRepository.saveAndFlush(new AuditLog("Updated User Profile: " + user.getFullName() + " (" + user.getEmployeeId() + ")", currentUser.getFullName(), currentUser.getEmail()));
+        auditLogRepository.saveAndFlush(new AuditLog(currentUser.getOrganization(), "Updated User Profile: " + user.getFullName() + " (" + user.getEmployeeId() + ")", currentUser.getFullName(), currentUser.getEmail()));
     }
 
 
@@ -473,7 +473,7 @@ public class AdminService {
             }
         }
         
-        auditLogRepository.save(new AuditLog("Updated Security Roles & Permissions Matrix", admin.getFullName(), admin.getEmail()));
+        auditLogRepository.save(new AuditLog(admin.getOrganization(), "Updated Security Roles & Permissions Matrix", admin.getFullName(), admin.getEmail()));
     }
 
     public String getUserPermissions(String idOrEmployeeId) {
@@ -490,7 +490,7 @@ public class AdminService {
         user.setPermissions(permissionsStr);
         userRepository.save(user);
 
-        auditLogRepository.save(new AuditLog("Updated permissions for user " + user.getEmployeeId() + " (" + user.getFullName() + ")", "Admin", currentUser.getEmail()));
+        auditLogRepository.save(new AuditLog(currentUser.getOrganization(), "Updated permissions for user " + user.getEmployeeId() + " (" + user.getFullName() + ")", "Admin", currentUser.getEmail()));
     }
 
     public Map<String, Object> getSettings() {
@@ -524,7 +524,7 @@ public class AdminService {
                 org.setWorkHours(request.getWorkHours().trim());
             }
             organizationRepository.saveAndFlush(org);
-            auditLogRepository.saveAndFlush(new AuditLog("Updated System Settings (" + org.getCompanyName() + ")", adminUser.getFullName(), adminUser.getEmail()));
+            auditLogRepository.saveAndFlush(new AuditLog(org, "Updated System Settings (" + org.getCompanyName() + ")", adminUser.getFullName(), adminUser.getEmail()));
         }
     }
 
@@ -571,7 +571,7 @@ public class AdminService {
         }
 
         userRepository.saveAndFlush(user);
-        auditLogRepository.saveAndFlush(new AuditLog("Updated Personal Profile", user.getFullName(), user.getEmail()));
+        auditLogRepository.saveAndFlush(new AuditLog(user.getOrganization(), "Updated Personal Profile", user.getFullName(), user.getEmail()));
     }
 
     public void deleteProfilePicture(String email) {
@@ -579,7 +579,7 @@ public class AdminService {
                 .orElseThrow(() -> new RuntimeException("User not found: " + email));
         user.setProfilePicture(null);
         userRepository.saveAndFlush(user);
-        auditLogRepository.saveAndFlush(new AuditLog("Removed Profile Picture", user.getFullName(), user.getEmail()));
+        auditLogRepository.saveAndFlush(new AuditLog(user.getOrganization(), "Removed Profile Picture", user.getFullName(), user.getEmail()));
     }
 
     public void changePassword(String email, ChangePasswordDTO request) {
@@ -596,11 +596,13 @@ public class AdminService {
 
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
         userRepository.saveAndFlush(user);
-        auditLogRepository.saveAndFlush(new AuditLog("Changed Password", user.getFullName(), user.getEmail()));
+        auditLogRepository.saveAndFlush(new AuditLog(user.getOrganization(), "Changed Password", user.getFullName(), user.getEmail()));
     }
 
     public List<AuditLog> getAuditLogs() {
-        return auditLogRepository.findTop50ByOrderByTimestampDesc();
+        User currentUser = getAuthenticatedUser();
+        Long orgId = currentUser.getOrganization().getId();
+        return auditLogRepository.findTop50ByOrganization_IdOrderByTimestampDesc(orgId);
     }
 
     public void updateDesignation(String idOrEmployeeId, String designation) {
@@ -609,7 +611,7 @@ public class AdminService {
         user.setDesignation(designation);
         userRepository.saveAndFlush(user);
         
-        auditLogRepository.saveAndFlush(new AuditLog("Updated Designation for " + user.getFullName() + " to " + designation, admin.getFullName(), admin.getEmail()));
+        auditLogRepository.saveAndFlush(new AuditLog(admin.getOrganization(), "Updated Designation for " + user.getFullName() + " to " + designation, admin.getFullName(), admin.getEmail()));
     }
 
     public void updateSalaryStructure(String idOrEmployeeId, Double baseSalary, Double allowances, Double deductions) {
@@ -626,6 +628,6 @@ public class AdminService {
         if (deductions != null) user.setDeductions(deductions);
         userRepository.saveAndFlush(user);
         
-        auditLogRepository.saveAndFlush(new AuditLog("Updated Salary Structure for " + user.getFullName(), admin.getFullName(), admin.getEmail()));
+        auditLogRepository.saveAndFlush(new AuditLog(admin.getOrganization(), "Updated Salary Structure for " + user.getFullName(), admin.getFullName(), admin.getEmail()));
     }
 }

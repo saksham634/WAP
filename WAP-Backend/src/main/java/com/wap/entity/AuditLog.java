@@ -1,5 +1,6 @@
 package com.wap.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -10,6 +11,11 @@ public class AuditLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "organization_id")
+    @JsonIgnore
+    private Organization organization;
 
     @Column(nullable = false, length = 500)
     private String action;
@@ -28,6 +34,11 @@ public class AuditLog {
     }
 
     public AuditLog(String action, String performedBy, String userEmail) {
+        this(null, action, performedBy, userEmail);
+    }
+
+    public AuditLog(Organization organization, String action, String performedBy, String userEmail) {
+        this.organization = organization;
         this.action = action;
         this.performedBy = performedBy;
         this.userEmail = userEmail;
@@ -36,6 +47,9 @@ public class AuditLog {
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+
+    public Organization getOrganization() { return organization; }
+    public void setOrganization(Organization organization) { this.organization = organization; }
 
     public String getAction() { return action; }
     public void setAction(String action) { this.action = action; }
@@ -49,3 +63,4 @@ public class AuditLog {
     public LocalDateTime getTimestamp() { return timestamp; }
     public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
 }
+

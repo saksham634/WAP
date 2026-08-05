@@ -1,235 +1,217 @@
-# ☁️ Complete AWS Production Deployment Guide for WAP
+# ☁️ 100% Zero-Cost ($0.00) AWS EC2 Deployment Guide for WAP
 
-This guide provides a comprehensive, step-by-step procedure to deploy the **Workforce Automation Portal (WAP)** to **Amazon Web Services (AWS)** using **AWS EC2 + Docker Compose + SSL/HTTPS**.
+This guide provides an exact, step-by-step procedure to deploy the **Workforce Automation Portal (WAP)** on **AWS EC2 Free Tier** without incurring ANY surprise charges ($0.00 / completely free).
 
 ---
 
-## 🎯 Architecture Overview (AWS EC2 + Docker Compose)
+## 🛑 How We Keep This 100% Free ($0.00)
+
+| Potential AWS Charge | How We Avoid It ($0.00 Cost) |
+| :--- | :--- |
+| **EC2 Instance Charges** | Use `t2.micro` (or `t3.micro` where available) — **750 hours/month free**. |
+| **Elastic IP / Public IPv4 Charges** | **DO NOT allocate an Elastic IP.** Use the free auto-assigned Public IPv4 address included with the instance. |
+| **Database (RDS) Charges** | **DO NOT create an AWS RDS instance.** Run MySQL 8.0 inside Docker on the EC2 instance for free. |
+| **Load Balancer (ALB) Charges** | **DO NOT create an AWS Load Balancer.** Nginx runs inside Docker on port 80 as a built-in reverse proxy. |
+| **EBS Storage Charges** | Allocate **20 GiB gp3** root volume (AWS gives **30 GiB free**). Keep default IOPS (3000) and throughput (125 MB/s). |
+| **Out-Of-Memory (OOM) on 1GB RAM** | Enable **3 GB Linux Swap Memory** (using the free SSD storage) so Docker, Spring Boot, and MySQL run smoothly without crashing. |
+
+---
+
+## 🎯 Architecture Overview (All-in-One Free Container Stack)
 
 ```
- [ User Browser ]
-       │
-       ▼  (HTTPS Port 443 / HTTP Port 80)
- [ AWS Elastic IP (Static Public IP) ]
-       │
-       ▼
- [ AWS EC2 Ubuntu Instance ]
-  ┌────────────────────────────────────────────────────────┐
-  │  Docker Compose Network (wap-net)                      │
+  [ User Web Browser ]
+         │
+         ▼ (HTTP Port 80)
+  [ AWS EC2 Public IPv4 Address ]
+         │
+  ┌──────▼─────────────────────────────────────────────────┐
+  │ AWS EC2 (t2.micro / Ubuntu 24.04 LTS + 3GB Swap)       │
   │                                                        │
   │   [ Frontend Container :80 ] (Nginx + React SPA)       │
-  │           │ (Reverse proxy /api requests)              │
-  │           ▼                                            │
+  │           │                                            │
+  │           ▼ (Reverse Proxy /api)                       │
   │   [ Backend Container :8080 ] (Spring Boot 3 REST API) │
   │           │                                            │
-  │           ▼                                            │
-  │   [ Database Container :3306 ] (MySQL 8.0 Persistent)  │
+  │           ▼ (Internal Network)                         │
+  │   [ Database Container :3306 ] (MySQL 8.0)             │
   └────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 📋 Prerequisites
-1. An active **AWS Account** ([aws.amazon.com](https://aws.amazon.com)).
-2. An SSH Key Pair (created during EC2 setup).
-3. *(Optional but recommended)*: A registered custom domain name (e.g. from Namecheap, GoDaddy, or AWS Route 53).
+## 📋 Step-by-Step Deployment
 
----
+### Step 1: Launch the Free EC2 Instance
 
-## Step 1: Launch an AWS EC2 Virtual Server
+1. Log into [AWS Management Console](https://console.aws.amazon.com/ec2/).
+2. Select your closest region (e.g. `ap-south-1` Mumbai, `us-east-1` N. Virginia, etc.).
+3. Click **Launch Instance**:
+   * **Name:** `WAP-Server`
+   * **Application and OS Images:** **Ubuntu Server 24.04 LTS (HVM)**, SSD Volume Type (64-bit x86).
+   * **Instance Type:** **`t2.micro`** *(Marked "Free tier eligible")*.
+   * **Key pair (login):** Select **Create new key pair**:
+     * Name: `wap-key`
+     * Key pair type: **RSA**
+     * Private key file format: **`.pem`**
+     * Click **Create key pair** and save the downloaded `wap-key.pem` file.
+   * **Network settings:** Click **Edit**:
+     * **Auto-assign public IP:** **Enable** *(Crucial: do NOT use Elastic IPs)*.
+     * **Firewall (Security Groups):** Create security group `wap-security-group` with these Inbound Rules:
 
-1. Log in to the [AWS Management Console](https://console.aws.amazon.com/ec2/).
-2. Navigate to **EC2 Dashboard** → Click **Launch Instance**.
-3. Configure the instance:
-   * **Name:** `WAP-Production-Server`
-   * **OS Image (AMI):** **Ubuntu Server 24.04 LTS (HVM)**, SSD Volume Type.
-   * **Instance Type:**
-     * **`t3.small`** (2 vCPU, 2 GB RAM) or **`t3.medium`** (Recommended for smooth Docker builds & JVM).
-     * *(For AWS Free Tier: `t2.micro` or `t3.micro` with 2GB swap space enabled).*
-   * **Key Pair:** Click **Create new key pair** → Name it `wap-ec2-key` → Select **RSA** + **.pem** format → Download and save the `.pem` file safely.
-
----
-
-## Step 2: Configure AWS Security Group (Firewall)
-
-In the **Network Settings** section of the launch wizard, configure these Inbound Rules:
-
-| Type | Protocol | Port Range | Source | Purpose |
+| Rule Type | Protocol | Port | Source | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| **SSH** | TCP | `22` | My IP *(or `0.0.0.0/0`)* | Secure terminal access |
-| **HTTP** | TCP | `80` | `0.0.0.0/0` (Anywhere) | Web traffic & SSL challenge |
-| **HTTPS** | TCP | `443` | `0.0.0.0/0` (Anywhere) | Encrypted production web traffic |
-| **Custom TCP** | TCP | `8080` | `0.0.0.0/0` *(Optional)* | Direct Swagger/Backend testing |
+| **SSH** | TCP | `22` | `0.0.0.0/0` (or My IP) | Terminal access |
+| **HTTP** | TCP | `80` | `0.0.0.0/0` (Anywhere) | Frontend web access & API proxy |
+| **Custom TCP** | TCP | `8080` | `0.0.0.0/0` (Anywhere) | *(Optional)* Direct Swagger UI |
 
-4. **Storage:** Set **20 GiB** (gp3 SSD) for Docker images and database volumes.
-5. Click **Launch Instance**.
-
----
-
-## Step 3: Allocate a Static Elastic IP (Recommended)
-
-An Elastic IP ensures your server IP doesn't change when restarting the instance:
-
-1. In EC2 Console, go to **Network & Security** → **Elastic IPs**.
-2. Click **Allocate Elastic IP address** → **Allocate**.
-3. Select the allocated IP → Click **Actions** → **Associate Elastic IP address**.
-4. Choose your `WAP-Production-Server` instance and click **Associate**.
+   * **Configure storage:** Change **8 GiB** to **20 GiB** `gp3` *(Leave IOPS and Throughput at default)*.
+4. Click **Launch Instance**.
+5. Go to EC2 Instances list, wait for Status = **Running**, and copy your **Public IPv4 address** (e.g. `13.233.54.120`).
 
 ---
 
-## Step 4: Connect to Your EC2 Instance via SSH
+### Step 2: Connect to Your EC2 Instance
 
-Open PowerShell (Windows) or Terminal (macOS/Linux) in the folder where your `.pem` key is saved:
+Open PowerShell or Terminal in the folder where your `wap-key.pem` is saved:
 
 ```bash
-# Set secure file permissions (Linux/macOS)
-chmod 400 wap-ec2-key.pem
+# On macOS / Linux (set key permission):
+chmod 400 wap-key.pem
 
-# Connect to EC2 (replace with your Elastic IP)
-ssh -i "wap-ec2-key.pem" ubuntu@YOUR_ELASTIC_IP
+# Connect to EC2 (replace with your actual EC2 Public IP):
+ssh -i "wap-key.pem" ubuntu@YOUR_EC2_PUBLIC_IP
 ```
 
 ---
 
-## Step 5: Install Docker & Docker Compose on Ubuntu
+### Step 3: Configure 3GB Swap Memory (Prevents RAM Exhaustion)
+
+Because `t2.micro` has 1GB RAM, create 3GB of swap virtual memory on your free 20GB SSD so Java & Docker build without freezing:
+
+```bash
+# Create 3GB swap file
+sudo fallocate -l 3G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+
+# Make swap permanent across reboots
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+
+# Verify swap is active (should show 3GB swap)
+free -h
+```
+
+---
+
+### Step 4: Install Docker & Git
 
 Run these commands inside your EC2 terminal:
 
 ```bash
-# 1. Update system packages
+# Update Ubuntu package repository
 sudo apt update && sudo apt upgrade -y
 
-# 2. Install essential tools and prerequisites
-sudo apt install -y ca-certificates curl gnupg lsb-release git
+# Install Docker, Git, and utilities
+sudo apt install -y docker.io docker-compose-v2 git curl
 
-# 3. Add Docker official GPG key
-sudo install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-sudo chmod a+r /etc/apt/keyrings/docker.gpg
+# Enable and start Docker service
+sudo systemctl enable --now docker
 
-# 4. Set up Docker repository
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-# 5. Install Docker Engine and Docker Compose Plugin
-sudo apt update
-sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-# 6. Allow ubuntu user to run Docker without sudo
+# Add ubuntu user to docker group (avoids needing sudo for docker)
 sudo usermod -aG docker $USER
-newgrp docker
 
-# 7. Verify Docker installation
-docker --version
-docker compose version
+# Apply group changes
+newgrp docker
 ```
 
 ---
 
-## Step 6: Deploy WAP Code to EC2
+### Step 5: Transfer Code to EC2
 
-### Option A: Clone from Git Repository
+#### Option A: Clone from GitHub (Recommended)
 ```bash
-cd ~
-git clone https://github.com/your-username/WAP.git
+git clone https://github.com/YOUR_GITHUB_USERNAME/WAP.git
 cd WAP
 ```
 
-### Option B: Copy Files Directly via SCP from your PC
+#### Option B: Copy Directly from your Local Machine
+Open a new terminal on your Windows/Mac PC:
 ```powershell
-# Run from your local machine terminal:
-scp -i "wap-ec2-key.pem" -r D:\WAP ubuntu@YOUR_ELASTIC_IP:~/WAP
+scp -i "wap-key.pem" -r "D:\WAP" ubuntu@YOUR_EC2_PUBLIC_IP:~/WAP
+```
+Then in EC2 terminal:
+```bash
+cd ~/WAP
 ```
 
 ---
 
-## Step 7: Configure Production Environment Variables
+### Step 6: Create Production Environment Variables
 
-Inside the `~/WAP` directory on your EC2 instance:
+Inside `~/WAP`:
 
 ```bash
-# Create production .env file
 cp .env.example .env
 nano .env
 ```
 
-Update with strong production credentials:
+Edit your `.env` settings:
 ```ini
-# Production Database Credentials
-DB_PASSWORD=YourSuperStrongProductionDBPassword2026!
+# Database credentials
+DB_PASSWORD=SecurePassword2026!
 DB_USERNAME=root
 
-# Security & JWT (256-bit secret key)
+# JWT Secret Key
 JWT_SECRET=c2FrbW9kZXJuLXdvcmtmb3JjZS1hdXRvbWF0aW9uLXBvcnRhbC0yMDI2LXNlY3VyZS1rZXk=
 JWT_ACCESS_EXPIRATION=900000
 JWT_REFRESH_EXPIRATION=604800000
 
-# CORS Allowed Origins
-CORS_ALLOWED_ORIGINS=http://YOUR_ELASTIC_IP,https://YOUR_DOMAIN.com
-
-# Rate Limiting (10-20 requests/minute/IP)
-AUTH_RATE_LIMIT=15
-
-# SMTP Email Configuration (Optional)
-MAIL_HOST=smtp.gmail.com
-MAIL_PORT=587
-MAIL_USERNAME=notifications@yourdomain.com
-MAIL_PASSWORD=your_gmail_app_password
+# Set this to your EC2 Public IP
+CORS_ALLOWED_ORIGINS=http://YOUR_EC2_PUBLIC_IP,http://localhost,http://localhost:80
 ```
 *(Press `Ctrl + O` then `Enter` to save, and `Ctrl + X` to exit nano)*.
 
 ---
 
-## Step 8: Build & Launch with Docker Compose
+### Step 7: Build & Run the Application
 
-Run the single production command:
+Launch all services with a single command:
 
 ```bash
-cd ~/WAP
 docker compose up -d --build
 ```
 
-### Check Container Health Status:
+### Check Container Status:
 ```bash
 docker compose ps
-docker compose logs -f
+```
+You should see:
+- `wap-mysql` (Healthy)
+- `wap-backend` (Healthy)
+- `wap-frontend` (Running)
+
+To view live backend logs:
+```bash
+docker compose logs -f backend
 ```
 
 ---
 
-## Step 9: Verify Your Deployment
+### Step 8: Access Your Live Application
 
 Open your browser and navigate to:
-* 🌐 **Frontend Application:** `http://YOUR_ELASTIC_IP`
-* 📖 **Swagger / OpenAPI Documentation:** `http://YOUR_ELASTIC_IP:8080/swagger-ui.html`
-* 🔌 **Backend Health Check:** `http://YOUR_ELASTIC_IP:8080/v3/api-docs`
+* 🌐 **Frontend Application:** `http://YOUR_EC2_PUBLIC_IP`
+* 📖 **Swagger API Docs:** `http://YOUR_EC2_PUBLIC_IP:8080/swagger-ui/index.html`
+
+Log in with your existing admin credentials or register a new organization directly on the web page!
 
 ---
 
-## Step 10: (Optional) Set up Free SSL / HTTPS with Let's Encrypt
+## 💡 Pro Tips for Zero Cost
 
-If you have a domain pointing to your Elastic IP (e.g. `workforce.yourdomain.com`):
-
-1. Install Certbot:
-   ```bash
-   sudo apt install -y certbot
-   ```
-2. Generate SSL Certificate:
-   ```bash
-   sudo certbot certonly --standalone -d workforce.yourdomain.com
-   ```
-3. Mount the certificates into your Nginx frontend container inside `docker-compose.yml` for automatic HTTPS!
-
----
-
-## 🛠️ Useful Management & Maintenance Commands
-
-| Task | Command |
-| :--- | :--- |
-| **View Live Container Logs** | `docker compose logs -f` |
-| **Restart Backend Only** | `docker compose restart backend` |
-| **Stop All Services** | `docker compose down` |
-| **Update Code & Rebuild** | `git pull && docker compose up -d --build` |
-| **Database Backup** | `docker exec wap-mysql mysqldump -u root -p$DB_PASSWORD wap_db > backup_$(date +%F).sql` |
-| **Database Restore** | `docker exec -i wap-mysql mysql -u root -p$DB_PASSWORD wap_db < backup.sql` |
+1. **Do Not Attach Elastic IPs**: When you stop and start your EC2 instance, the public IP will change, but as long as it's running, the auto-assigned IP stays constant and costs **$0.00**.
+2. **Delete Old Snapshots/Volumes**: In AWS Console → EC2 → **Volumes** & **Snapshots**, ensure you don't have unused detached volumes or snapshots left over from previous experiments.
+3. **Set a Billing Alert ($0.01 threshold)**:
+   - In AWS Console, search **AWS Budgets** → Click **Create Budget** → Choose **Zero Spend Budget** → Enter your email. If any charge occurs, AWS will immediately email you!

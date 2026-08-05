@@ -169,6 +169,8 @@ public class AuthService {
         
         userRepository.save(adminUser);
 
+        auditLogService.log(org, "Organization Registered: " + org.getCompanyName(), adminUser.getFullName(), adminUser.getEmail());
+
         return AuthResponse.builder()
                 .token(null)
                 .role("ROLE_ADMIN")

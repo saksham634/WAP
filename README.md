@@ -82,10 +82,7 @@ CREATE DATABASE IF NOT EXISTS wap_db;
 ### Step 2: Run the Spring Boot Backend
 ```bash
 cd WAP-Backend
-# Windows
-.\mvnw.cmd spring-boot:run
-# macOS / Linux
-./mvnw spring-boot:run
+mvn spring-boot:run
 ```
 - API Base URL: `http://localhost:8080/api`
 - Interactive Swagger UI: `http://localhost:8080/swagger-ui/index.html`

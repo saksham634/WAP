@@ -42,14 +42,8 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        // 0. Seed initial system audit logs if empty
-        if (auditLogRepository.count() == 0) {
-            auditLogRepository.save(new com.wap.entity.AuditLog("System Core Services Initialized", "System Engine", "system@wap.com"));
-            auditLogRepository.save(new com.wap.entity.AuditLog("Security Policies Loaded (Role-Based Access Control)", "Security Policy Manager", "security@wap.com"));
-            auditLogRepository.save(new com.wap.entity.AuditLog("Workforce Portal Operational", "System Admin", "admin@workforce.com"));
-        }
         // 1. Initialize or get Organization
-        orgRepository.findAll().stream().findFirst().orElseGet(() -> {
+        Organization seedOrg = orgRepository.findAll().stream().findFirst().orElseGet(() -> {
             Organization newOrg = new Organization();
             newOrg.setCompanyName("Acme Innovations Inc");
             newOrg.setSupportEmail("support@workforce.com");
@@ -57,6 +51,13 @@ public class DataInitializer implements CommandLineRunner {
             newOrg.setWorkHours("9:00 AM - 6:00 PM");
             return orgRepository.save(newOrg);
         });
+
+        // 0. Seed initial system audit logs if empty
+        if (auditLogRepository.count() == 0) {
+            auditLogRepository.save(new com.wap.entity.AuditLog(seedOrg, "System Core Services Initialized", "System Engine", "system@wap.com"));
+            auditLogRepository.save(new com.wap.entity.AuditLog(seedOrg, "Security Policies Loaded (Role-Based Access Control)", "Security Policy Manager", "security@wap.com"));
+            auditLogRepository.save(new com.wap.entity.AuditLog(seedOrg, "Workforce Portal Operational", "System Admin", "admin@workforce.com"));
+        }
 
         // 2. Initialize Default System Roles if not present
         roleRepository.findByRoleName("ROLE_ADMIN").orElseGet(() -> {

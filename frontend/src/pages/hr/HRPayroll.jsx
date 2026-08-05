@@ -15,10 +15,20 @@ export default function HRPayroll() {
   const [activePayslipModal, setActivePayslipModal] = useState(null);
   const [feedback, setFeedback] = useState(null);
 
+  const getMonthNumber = (m) => {
+    const map = {
+      January: 1, February: 2, March: 3, April: 4, May: 5, June: 6,
+      July: 7, August: 8, September: 9, October: 10, November: 11, December: 12
+    };
+    return map[m] || parseInt(m) || 8;
+  };
+
   const fetchPayroll = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await payrollAPI.getAllPayslips();
+      const monthNum = getMonthNumber(selectedMonth);
+      const yearNum = parseInt(selectedYear) || 2026;
+      const data = await payrollAPI.getAllPayslips(monthNum, yearNum);
       const nonAdminData = (Array.isArray(data) ? data : []).filter(
         (p) => !((p.role || '').toUpperCase().includes('ADMIN') || (p.employeeName || '').toLowerCase().includes('admin'))
       );
@@ -44,7 +54,7 @@ export default function HRPayroll() {
             allowances: allow,
             deductions: ded,
             netSalary: Math.max(0, base + allow - ded),
-            status: 'PENDING',
+            status: 'PROCESSED',
           };
         });
         setPayslips(demo);
@@ -64,7 +74,9 @@ export default function HRPayroll() {
     setProcessing(true);
     setFeedback(null);
     try {
-      await payrollAPI.processPayrollBatch(selectedMonth, selectedYear);
+      const monthNum = getMonthNumber(selectedMonth);
+      const yearNum = parseInt(selectedYear) || 2026;
+      await payrollAPI.processPayrollBatch(monthNum, yearNum);
       setFeedback({ type: 'success', text: `Payroll batch for ${selectedMonth} ${selectedYear} processed successfully!` });
       fetchPayroll();
     } catch (err) {

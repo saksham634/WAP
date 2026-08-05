@@ -78,6 +78,8 @@ export default function EmployeeDashboard() {
 
   useEffect(() => {
     loadData();
+    const interval = setInterval(loadData, 4000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleCheckIn = async () => {

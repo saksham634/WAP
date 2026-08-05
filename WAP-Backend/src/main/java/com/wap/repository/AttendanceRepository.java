@@ -13,15 +13,20 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
     Optional<Attendance> findByUser_IdAndRecordDate(Long userId, LocalDate recordDate);
 
     // Calculate total days present in a specific month and year
-    @Query("SELECT COUNT(a) FROM Attendance a WHERE a.user.id = :userId AND MONTH(a.recordDate) = :month AND YEAR(a.recordDate) = :year")
+    @Query("SELECT COUNT(a) FROM Attendance a WHERE a.user.id = :userId AND a.recordDate >= :startDate AND a.recordDate <= :endDate AND (a.status IN ('PRESENT', 'HALF_DAY', 'CHECKED_IN', 'CHECKED_OUT') OR a.checkInTime IS NOT NULL)")
+    long countPresentDaysBetweenDates(@Param("userId") Long userId, 
+                                      @Param("startDate") LocalDate startDate, 
+                                      @Param("endDate") LocalDate endDate);
+
+    @Query("SELECT COUNT(a) FROM Attendance a WHERE a.user.id = :userId AND MONTH(a.recordDate) = :month AND YEAR(a.recordDate) = :year AND (a.status IN ('PRESENT', 'HALF_DAY', 'CHECKED_IN', 'CHECKED_OUT') OR a.checkInTime IS NOT NULL)")
     int countPresentDaysByMonthAndYear(@Param("userId") Long userId, 
                                        @Param("month") int month, 
                                        @Param("year") int year);
 
-    @Query("SELECT COUNT(a) FROM Attendance a WHERE a.recordDate = :date AND a.status IN ('PRESENT', 'HALF_DAY')")
+    @Query("SELECT COUNT(a) FROM Attendance a WHERE a.recordDate = :date AND (a.status IN ('PRESENT', 'HALF_DAY', 'CHECKED_IN', 'CHECKED_OUT') OR a.checkInTime IS NOT NULL)")
     long countPresentByDate(@Param("date") LocalDate date);
 
-    @Query("SELECT COUNT(a) FROM Attendance a WHERE a.user.organization.id = :orgId AND a.recordDate = :date AND a.status IN ('PRESENT', 'HALF_DAY')")
+    @Query("SELECT COUNT(a) FROM Attendance a WHERE a.user.organization.id = :orgId AND a.recordDate = :date AND (a.status IN ('PRESENT', 'HALF_DAY', 'CHECKED_IN', 'CHECKED_OUT') OR a.checkInTime IS NOT NULL)")
     long countPresentByOrganization_IdAndDate(@Param("orgId") Long orgId, @Param("date") LocalDate date);
 
     java.util.List<Attendance> findByUser_Organization_IdAndRecordDate(Long orgId, LocalDate recordDate);

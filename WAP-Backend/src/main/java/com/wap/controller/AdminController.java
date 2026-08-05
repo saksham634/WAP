@@ -132,7 +132,7 @@ public class AdminController {
     }
 
     @Operation(summary = "Get top 50 recent system audit logs")
-    @GetMapping("/audit")
+    @GetMapping({"/audit", "/audit-logs"})
     public ResponseEntity<?> getAuditLogs() {
         return ResponseEntity.ok(adminService.getAuditLogs());
     }

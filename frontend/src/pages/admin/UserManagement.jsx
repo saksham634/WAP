@@ -20,7 +20,6 @@ export default function UserManagement() {
     password: '',
     role: 'ROLE_EMPLOYEE',
     employeeId: '',
-    department: 'Engineering',
     baseSalary: 60000,
     allowances: 15000,
     deductions: 5000,
@@ -69,7 +68,6 @@ export default function UserManagement() {
         password: '',
         role: 'ROLE_EMPLOYEE',
         employeeId: '',
-        department: 'Engineering',
         baseSalary: 60000,
         allowances: 15000,
         deductions: 5000,
@@ -261,7 +259,6 @@ export default function UserManagement() {
                 <th style={{ padding: '14px 20px', fontSize: '13px', color: '#475569' }}>Staff Member</th>
                 <th style={{ padding: '14px 20px', fontSize: '13px', color: '#475569' }}>Employee ID</th>
                 <th style={{ padding: '14px 20px', fontSize: '13px', color: '#475569' }}>Role</th>
-                <th style={{ padding: '14px 20px', fontSize: '13px', color: '#475569' }}>Department</th>
                 <th style={{ padding: '14px 20px', fontSize: '13px', color: '#475569' }}>Base Salary</th>
                 <th style={{ padding: '14px 20px', fontSize: '13px', color: '#475569', textAlign: 'right' }}>Actions</th>
               </tr>
@@ -269,13 +266,13 @@ export default function UserManagement() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
+                  <td colSpan={5} style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
                     <i className="fa-solid fa-spinner fa-spin" style={{ marginRight: '8px' }}></i> Loading users...
                   </td>
                 </tr>
               ) : filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
+                  <td colSpan={5} style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
                     No users matching the criteria.
                   </td>
                 </tr>
@@ -335,9 +332,6 @@ export default function UserManagement() {
                       >
                         {(u.role || '').replace('ROLE_', '')}
                       </span>
-                    </td>
-                    <td style={{ padding: '14px 20px', fontSize: '13px', color: '#475569' }}>
-                      {u.department || 'General'}
                     </td>
                     <td style={{ padding: '14px 20px', fontSize: '13px', color: '#0f172a', fontWeight: 600 }}>
                       ₹{Number(u.baseSalary || 0).toLocaleString()}
@@ -580,32 +574,36 @@ export default function UserManagement() {
                     style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
                   />
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
-                      Role
-                    </label>
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                    Role {editingUser.role === 'ROLE_ADMIN' && <span style={{ fontSize: '11px', color: '#007a7a', fontWeight: 'normal' }}>(Administrator role cannot be changed)</span>}
+                  </label>
+                  {editingUser.role === 'ROLE_ADMIN' ? (
+                    <input
+                      type="text"
+                      disabled
+                      value="Administrator (ROLE_ADMIN)"
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        borderRadius: '8px',
+                        border: '1px solid #cbd5e1',
+                        backgroundColor: '#f1f5f9',
+                        color: '#64748b',
+                        cursor: 'not-allowed',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                  ) : (
                     <select
                       value={editingUser.role || 'ROLE_EMPLOYEE'}
                       onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value })}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
                     >
                       <option value="ROLE_EMPLOYEE">Employee</option>
                       <option value="ROLE_HR">HR Manager</option>
-                      <option value="ROLE_ADMIN">Administrator</option>
                     </select>
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
-                      Department
-                    </label>
-                    <input
-                      type="text"
-                      value={editingUser.department || ''}
-                      onChange={(e) => setEditingUser({ ...editingUser, department: e.target.value })}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
-                    />
-                  </div>
+                  )}
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
                   <div>

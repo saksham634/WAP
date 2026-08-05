@@ -9,6 +9,7 @@ import com.wap.repository.PayrollRepository;
 import com.wap.repository.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -16,16 +17,20 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class PayrollService {
 
     private final PayrollRepository payrollRepository;
     private final UserRepository userRepository;
     private final AttendanceRepository attendanceRepository;
+    private final AuditLogService auditLogService;
 
-    public PayrollService(PayrollRepository payrollRepository, UserRepository userRepository, AttendanceRepository attendanceRepository) {
+    public PayrollService(PayrollRepository payrollRepository, UserRepository userRepository,
+                          AttendanceRepository attendanceRepository, AuditLogService auditLogService) {
         this.payrollRepository = payrollRepository;
         this.userRepository = userRepository;
         this.attendanceRepository = attendanceRepository;
+        this.auditLogService = auditLogService;
     }
 
     // Helper: Parse Month string or number to Integer 1-12
@@ -83,35 +88,57 @@ public class PayrollService {
             if (isHRCaller && emp.getRole() != null && "ROLE_ADMIN".equalsIgnoreCase(emp.getRole().getRoleName())) {
                 throw new RuntimeException("HR managers are not permitted to process payroll for Administrator accounts.");
             }
-            return generateOrUpdateEmployeePayroll(emp, month, year);
+            PayrollResponseDTO dto = generateOrUpdateEmployeePayroll(emp, month, year);
+            auditLogService.log("Generated Payslip for " + emp.getFullName() + " (" + month + "/" + year + ")", admin);
+            return dto;
         }
 
         // Process batch for all users in the organization (skipping Admin for HR callers)
-        List<User> orgUsers = userRepository.findByOrganization_Id(admin.getOrganization().getId());
+        Long orgId = admin.getOrganization() != null ? admin.getOrganization().getId() : null;
+        List<User> orgUsers = orgId != null ? userRepository.findByOrganization_Id(orgId) : userRepository.findAll();
+        if (orgUsers.isEmpty()) {
+            orgUsers = userRepository.findAll();
+        }
+        
         List<PayrollResponseDTO> results = new ArrayList<>();
         for (User emp : orgUsers) {
-            if ("INACTIVE".equalsIgnoreCase(emp.getStatus())) continue;
+            if (emp == null || "INACTIVE".equalsIgnoreCase(emp.getStatus())) continue;
             if (isHRCaller && emp.getRole() != null && "ROLE_ADMIN".equalsIgnoreCase(emp.getRole().getRoleName())) {
                 continue;
             }
-            results.add(generateOrUpdateEmployeePayroll(emp, month, year));
+            try {
+                results.add(generateOrUpdateEmployeePayroll(emp, month, year));
+            } catch (Exception e) {
+                System.err.println("Warning: failed to process payroll for employee " + emp.getEmail() + ": " + e.getMessage());
+            }
         }
 
-        return Map.of(
-            "message", "Payroll batch processed successfully for " + results.size() + " employee(s)!",
-            "processedCount", results.size(),
-            "month", month,
-            "year", year,
-            "payrolls", results
-        );
+        auditLogService.log("Processed Monthly Payroll Batch (" + month + "/" + year + ") for " + results.size() + " employees", admin);
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("message", "Payroll batch processed successfully for " + results.size() + " employee(s)!");
+        response.put("processedCount", results.size());
+        response.put("month", month);
+        response.put("year", year);
+        response.put("payrolls", results);
+        return response;
     }
 
     // Generate or update single employee payroll record
     public PayrollResponseDTO generateOrUpdateEmployeePayroll(User employee, int month, int year) {
-        int daysInMonth = YearMonth.of(year, month).lengthOfMonth();
-        int presentDays = attendanceRepository.countPresentDaysByMonthAndYear(employee.getId(), month, year);
-        if (presentDays == 0) {
-            presentDays = Math.min(22, daysInMonth); // default realistic working days
+        LocalDate startDate = LocalDate.of(year, month, 1);
+        LocalDate endDate = startDate.plusMonths(1).minusDays(1);
+        int daysInMonth = endDate.getDayOfMonth();
+        int presentDays = 22;
+        try {
+            long calculatedDays = attendanceRepository.countPresentDaysBetweenDates(employee.getId(), startDate, endDate);
+            if (calculatedDays > 0) {
+                presentDays = (int) calculatedDays;
+            } else {
+                presentDays = Math.min(22, daysInMonth);
+            }
+        } catch (Exception e) {
+            presentDays = Math.min(22, daysInMonth);
         }
 
         Double empBase = employee.getBaseSalary() != null && employee.getBaseSalary() > 0 ? employee.getBaseSalary() : 60000.0;
@@ -125,8 +152,19 @@ public class PayrollService {
 
         double calculatedDeductions = (empBase + empAllow) - netSalary;
 
-        Optional<Payroll> existingOpt = payrollRepository.findByUser_IdAndPayMonthAndPayYear(employee.getId(), month, year);
-        Payroll payroll = existingOpt.orElseGet(Payroll::new);
+        List<Payroll> existingList = payrollRepository.findAllByUser_IdAndPayMonthAndPayYear(employee.getId(), month, year);
+        Payroll payroll;
+        if (!existingList.isEmpty()) {
+            payroll = existingList.get(0);
+            if (existingList.size() > 1) {
+                for (int i = 1; i < existingList.size(); i++) {
+                    payrollRepository.delete(existingList.get(i));
+                }
+            }
+        } else {
+            payroll = new Payroll();
+            payroll.setUser(employee);
+        }
 
         payroll.setUser(employee);
         payroll.setPayMonth(month);
@@ -138,7 +176,7 @@ public class PayrollService {
         payroll.setNetSalary(Math.round(netSalary * 100.0) / 100.0);
         payroll.setStatus("PROCESSED");
 
-        payrollRepository.save(payroll);
+        payroll = payrollRepository.saveAndFlush(payroll);
         return mapToDTO(payroll);
     }
 
@@ -160,7 +198,9 @@ public class PayrollService {
         int month = request.getMonth() != null ? request.getMonth() : LocalDate.now().getMonthValue();
         int year = request.getYear() != null ? request.getYear() : LocalDate.now().getYear();
 
-        return generateOrUpdateEmployeePayroll(employee, month, year);
+        PayrollResponseDTO dto = generateOrUpdateEmployeePayroll(employee, month, year);
+        auditLogService.log("Generated Payslip for " + employee.getFullName(), admin);
+        return dto;
     }
 
     // Employee: View own payslips
@@ -188,31 +228,50 @@ public class PayrollService {
         return payrolls.stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
-    // HR/Admin: View all organization payslips
-    public List<PayrollResponseDTO> getAllOrganizationPayslips() {
+    // HR/Admin: View all organization payslips with optional month and year filter
+    public List<PayrollResponseDTO> getAllOrganizationPayslips(Integer month, Integer year) {
         String adminEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         User admin = userRepository.findByEmail(adminEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         com.wap.util.PermissionUtil.validatePermission(admin, "PAYROLL_ADMIN");
 
         boolean isHRCaller = admin.getRole() != null && "ROLE_HR".equalsIgnoreCase(admin.getRole().getRoleName());
-        List<Payroll> payrolls = payrollRepository.findByUser_Organization_IdOrderByPayYearDescPayMonthDesc(admin.getOrganization().getId());
+        Long orgId = admin.getOrganization() != null ? admin.getOrganization().getId() : null;
+        List<Payroll> payrolls = orgId != null 
+                ? payrollRepository.findByUser_Organization_IdOrderByPayYearDescPayMonthDesc(orgId)
+                : payrollRepository.findAll();
         
-        if (payrolls.isEmpty()) {
-            int currentMonth = LocalDate.now().getMonthValue();
-            int currentYear = LocalDate.now().getYear();
-            List<User> orgUsers = userRepository.findByOrganization_Id(admin.getOrganization().getId());
+        int targetMonth = month != null ? month : LocalDate.now().getMonthValue();
+        int targetYear = year != null ? year : LocalDate.now().getYear();
+
+        boolean hasRecordsForMonthYear = payrolls.stream().anyMatch(p ->
+                (p.getPayMonth() != null && p.getPayMonth().equals(targetMonth)) &&
+                (p.getPayYear() != null && p.getPayYear().equals(targetYear))
+        );
+
+        if (!hasRecordsForMonthYear) {
+            List<User> orgUsers = orgId != null ? userRepository.findByOrganization_Id(orgId) : userRepository.findAll();
+            if (orgUsers.isEmpty()) {
+                orgUsers = userRepository.findAll();
+            }
             for (User u : orgUsers) {
+                if (u == null || "INACTIVE".equalsIgnoreCase(u.getStatus())) continue;
                 if (isHRCaller && u.getRole() != null && "ROLE_ADMIN".equalsIgnoreCase(u.getRole().getRoleName())) {
                     continue;
                 }
-                generateOrUpdateEmployeePayroll(u, currentMonth, currentYear);
+                try {
+                    generateOrUpdateEmployeePayroll(u, targetMonth, targetYear);
+                } catch (Exception ignored) {}
             }
-            payrolls = payrollRepository.findByUser_Organization_IdOrderByPayYearDescPayMonthDesc(admin.getOrganization().getId());
+            payrolls = orgId != null 
+                    ? payrollRepository.findByUser_Organization_IdOrderByPayYearDescPayMonthDesc(orgId)
+                    : payrollRepository.findAll();
         }
 
         return payrolls.stream()
                 .filter(p -> !(isHRCaller && p.getUser() != null && p.getUser().getRole() != null && "ROLE_ADMIN".equalsIgnoreCase(p.getUser().getRole().getRoleName())))
+                .filter(p -> month == null || (p.getPayMonth() != null && p.getPayMonth().equals(month)))
+                .filter(p -> year == null || (p.getPayYear() != null && p.getPayYear().equals(year)))
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
@@ -249,4 +308,4 @@ public class PayrollService {
                 generatedDate
         );
     }
-}
+}

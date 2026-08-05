@@ -214,8 +214,8 @@ public class AdminService {
         newUser.setDeductions(request.getDeductions() != null ? request.getDeductions() : 5000.0);
         newUser.setStatus("ACTIVE");
 
-        userRepository.save(newUser);
-        auditLogRepository.save(new AuditLog("Created User Account: " + newUser.getFullName() + " (" + newEmployeeId + ")", adminUser.getFullName(), adminUser.getEmail()));
+        userRepository.saveAndFlush(newUser);
+        auditLogRepository.saveAndFlush(new AuditLog("Created User Account: " + newUser.getFullName() + " (" + newEmployeeId + ")", adminUser.getFullName(), adminUser.getEmail()));
     }
 
     // Organization-Scoped Dashboard Metrics
@@ -342,7 +342,8 @@ public class AdminService {
 
         // 3. Delete user account
         userRepository.delete(user);
-        auditLogRepository.save(new AuditLog("Deleted User Account: " + name + " (" + empId + ")", currentUser.getFullName(), currentUser.getEmail()));
+        userRepository.flush();
+        auditLogRepository.saveAndFlush(new AuditLog("Deleted User Account: " + name + " (" + empId + ")", currentUser.getFullName(), currentUser.getEmail()));
     }
 
     public void updateUser(String idOrEmployeeId, EditUserRequest request) {
@@ -358,10 +359,14 @@ public class AdminService {
 
         boolean isHRCaller = currentUser.getRole() != null && "ROLE_HR".equalsIgnoreCase(currentUser.getRole().getRoleName());
         boolean isTargetAdmin = user.getRole() != null && "ROLE_ADMIN".equalsIgnoreCase(user.getRole().getRoleName());
+        boolean isSelfEdit = currentUser.getId().equals(user.getId());
 
-        if (request.getRole() != null && !request.getRole().trim().isEmpty()) {
-            if (isHRCaller && isTargetAdmin && !request.getRole().equalsIgnoreCase("ROLE_ADMIN")) {
-                throw new RuntimeException("HR managers cannot change Administrator roles.");
+        // Restrict role changes: Admins cannot change their own role, target admins cannot be demoted, and HR cannot assign admin roles
+        if (isSelfEdit || isTargetAdmin) {
+            // Role is strictly preserved
+        } else if (request.getRole() != null && !request.getRole().trim().isEmpty()) {
+            if (isHRCaller && request.getRole().equalsIgnoreCase("ROLE_ADMIN")) {
+                throw new RuntimeException("HR managers cannot assign Administrator roles.");
             }
             Role role = roleRepository.findByRoleName(request.getRole().trim().toUpperCase())
                     .orElse(null);
@@ -396,8 +401,8 @@ public class AdminService {
             }
         }
         
-        userRepository.save(user);
-        auditLogRepository.save(new AuditLog("Updated User Profile: " + user.getFullName() + " (" + user.getEmployeeId() + ")", currentUser.getFullName(), currentUser.getEmail()));
+        userRepository.saveAndFlush(user);
+        auditLogRepository.saveAndFlush(new AuditLog("Updated User Profile: " + user.getFullName() + " (" + user.getEmployeeId() + ")", currentUser.getFullName(), currentUser.getEmail()));
     }
 
 
@@ -518,9 +523,8 @@ public class AdminService {
             if (request.getWorkHours() != null && !request.getWorkHours().trim().isEmpty()) {
                 org.setWorkHours(request.getWorkHours().trim());
             }
-            organizationRepository.save(org);
-            
-            auditLogRepository.save(new AuditLog("Updated System Settings (" + org.getCompanyName() + ")", adminUser.getFullName(), adminUser.getEmail()));
+            organizationRepository.saveAndFlush(org);
+            auditLogRepository.saveAndFlush(new AuditLog("Updated System Settings (" + org.getCompanyName() + ")", adminUser.getFullName(), adminUser.getEmail()));
         }
     }
 
@@ -566,16 +570,16 @@ public class AdminService {
             user.setEmergencyPhone(request.getEmergencyContactPhone());
         }
 
-        userRepository.save(user);
-        auditLogRepository.save(new AuditLog("Updated Personal Profile", user.getFullName(), user.getEmail()));
+        userRepository.saveAndFlush(user);
+        auditLogRepository.saveAndFlush(new AuditLog("Updated Personal Profile", user.getFullName(), user.getEmail()));
     }
 
     public void deleteProfilePicture(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found: " + email));
         user.setProfilePicture(null);
-        userRepository.save(user);
-        auditLogRepository.save(new AuditLog("Removed Profile Picture", user.getFullName(), user.getEmail()));
+        userRepository.saveAndFlush(user);
+        auditLogRepository.saveAndFlush(new AuditLog("Removed Profile Picture", user.getFullName(), user.getEmail()));
     }
 
     public void changePassword(String email, ChangePasswordDTO request) {
@@ -591,8 +595,8 @@ public class AdminService {
         }
 
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
-        userRepository.save(user);
-        auditLogRepository.save(new AuditLog("Changed Password", user.getFullName(), user.getEmail()));
+        userRepository.saveAndFlush(user);
+        auditLogRepository.saveAndFlush(new AuditLog("Changed Password", user.getFullName(), user.getEmail()));
     }
 
     public List<AuditLog> getAuditLogs() {
@@ -603,9 +607,9 @@ public class AdminService {
         User admin = getAuthenticatedUser();
         User user = findUserByIdOrEmployeeId(idOrEmployeeId, admin.getOrganization().getId());
         user.setDesignation(designation);
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
         
-        auditLogRepository.save(new AuditLog("Updated Designation", user.getFullName() + " → " + designation, admin.getEmail()));
+        auditLogRepository.saveAndFlush(new AuditLog("Updated Designation for " + user.getFullName() + " to " + designation, admin.getFullName(), admin.getEmail()));
     }
 
     public void updateSalaryStructure(String idOrEmployeeId, Double baseSalary, Double allowances, Double deductions) {
@@ -620,8 +624,8 @@ public class AdminService {
         if (baseSalary != null) user.setBaseSalary(baseSalary);
         if (allowances != null) user.setAllowances(allowances);
         if (deductions != null) user.setDeductions(deductions);
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
         
-        auditLogRepository.save(new AuditLog("Updated Salary Structure", user.getFullName() + " (Base: " + user.getBaseSalary() + ", Allow: " + user.getAllowances() + ", Ded: " + user.getDeductions() + ")", admin.getEmail()));
+        auditLogRepository.saveAndFlush(new AuditLog("Updated Salary Structure for " + user.getFullName(), admin.getFullName(), admin.getEmail()));
     }
 }

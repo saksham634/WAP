@@ -16,8 +16,6 @@ export default function PersonalInfoPage() {
     address: '',
     emergencyContactName: '',
     emergencyContactPhone: '',
-    bankAccountNumber: '',
-    ifscCode: '',
     profilePicture: user?.profilePicture || '',
   });
 
@@ -375,12 +373,12 @@ export default function PersonalInfoPage() {
               </div>
             </div>
 
-            {/* Section 3: Emergency Contact & Bank Info */}
+            {/* Section 3: Emergency Contact */}
             <div>
               <h4 style={{ margin: '0 0 14px 0', fontSize: '15px', color: '#007a7a', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>
-                3. Emergency Contact & Banking
+                3. Emergency Contact
               </h4>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
                     Emergency Contact Name
@@ -403,32 +401,6 @@ export default function PersonalInfoPage() {
                     placeholder="+91 99887 76655"
                     value={profile.emergencyContactPhone || ''}
                     onChange={(e) => setProfile({ ...profile, emergencyContactPhone: e.target.value })}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
-                    Bank Account Number
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. 5010023456789"
-                    value={profile.bankAccountNumber || ''}
-                    onChange={(e) => setProfile({ ...profile, bankAccountNumber: e.target.value })}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
-                    Bank IFSC Code
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. HDFC0001234"
-                    value={profile.ifscCode || ''}
-                    onChange={(e) => setProfile({ ...profile, ifscCode: e.target.value })}
                     style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
                   />
                 </div>

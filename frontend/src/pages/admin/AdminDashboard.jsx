@@ -42,10 +42,11 @@ export default function AdminDashboard() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
     async function fetchMetrics() {
       try {
         const data = await adminAPI.getDashboardMetrics();
-        if (data) {
+        if (data && isMounted) {
           setMetrics(data);
         }
       } catch (err) {
@@ -53,6 +54,11 @@ export default function AdminDashboard() {
       }
     }
     fetchMetrics();
+    const interval = setInterval(fetchMetrics, 3500);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, []);
 
   // Role Doughnut Chart Data

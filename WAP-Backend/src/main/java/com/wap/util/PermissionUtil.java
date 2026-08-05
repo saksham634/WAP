@@ -7,7 +7,16 @@ public class PermissionUtil {
 
     public static boolean hasPermission(User user, String permissionKey) {
         if (user == null) return false;
-        if ("ROLE_ADMIN".equals(user.getRole().getRoleName())) return true;
+        if (user.getRole() != null && "ROLE_ADMIN".equalsIgnoreCase(user.getRole().getRoleName())) return true;
+        if (user.getRole() != null && "ROLE_HR".equalsIgnoreCase(user.getRole().getRoleName())) {
+            if ("PAYROLL_ADMIN".equalsIgnoreCase(permissionKey) || "PAYROLL".equalsIgnoreCase(permissionKey) ||
+                "ATTENDANCE_OVERVIEW".equalsIgnoreCase(permissionKey) || "ATTENDANCE".equalsIgnoreCase(permissionKey) ||
+                "LEAVE_APPROVALS".equalsIgnoreCase(permissionKey) || "LEAVES".equalsIgnoreCase(permissionKey) ||
+                "EMPLOYEE_MGMT".equalsIgnoreCase(permissionKey) || "DASHBOARD".equalsIgnoreCase(permissionKey) ||
+                "PROJECTS".equalsIgnoreCase(permissionKey)) {
+                return true;
+            }
+        }
 
         String perms = user.getPermissions();
         if (perms == null || perms.trim().isEmpty()) {

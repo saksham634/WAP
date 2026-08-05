@@ -58,7 +58,7 @@ public class SecurityConfig {
                     .requestMatchers("/api/admin/users/me/**").authenticated()
                     .requestMatchers("/api/admin/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_HR")
                     .requestMatchers("/api/leave/hr/**").hasAnyAuthority("ROLE_HR", "ROLE_ADMIN") 
-                    .requestMatchers("/api/payroll/hr/**").hasAnyAuthority("ROLE_HR", "ROLE_ADMIN")
+                    .requestMatchers("/api/payroll/hr/**", "/api/payroll/process/**", "/api/payroll/generate/**", "/api/payroll/batch/**", "/api/payroll/salary/**", "/api/payroll/salary-structure/**").hasAnyAuthority("ROLE_HR", "ROLE_ADMIN")
                     .anyRequest().authenticated()                
             )
             .sessionManagement(session -> session
@@ -99,7 +99,10 @@ public class SecurityConfig {
                 "Origin",
                 "X-Requested-With",
                 "Access-Control-Request-Method",
-                "Access-Control-Request-Headers"
+                "Access-Control-Request-Headers",
+                "Cache-Control",
+                "Pragma",
+                "Expires"
         ));
         configuration.setExposedHeaders(Arrays.asList("Authorization", "Retry-After"));
         configuration.setMaxAge(3600L); // 1 hour preflight cache

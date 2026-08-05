@@ -85,6 +85,8 @@ export default function HRDashboard() {
 
   useEffect(() => {
     loadData();
+    const interval = setInterval(loadData, 4000);
+    return () => clearInterval(interval);
   }, []);
 
   const handlePunchIn = async () => {
@@ -178,29 +180,119 @@ export default function HRDashboard() {
   };
 
   return (
-    <div className="page-content" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div className="page-content" style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%', boxSizing: 'border-box' }}>
       <Header
         title="Welcome HR Admin,"
-        subtitle="Here's your organization overview for today."
+        subtitle="Here's your organization workforce overview and daily operations."
       />
 
-      <div className="top-section">
-        {/* Left Panel */}
-        <div className="left-panel">
+      {/* Top Stat Overview KPI Cards */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: '16px',
+          width: '100%',
+        }}
+      >
+        <div className="card" style={{ padding: '20px', borderRadius: '14px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 600 }}>Total Workforce</span>
+            <div style={{ width: '36px', height: '36px', borderRadius: '8px', backgroundColor: '#e6f4f4', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#007a7a' }}>
+              <i className="fa-solid fa-users"></i>
+            </div>
+          </div>
+          <h3 style={{ margin: '8px 0 0 0', fontSize: '24px', color: '#0f172a', fontWeight: 800 }}>
+            {metrics.totalEmployees || 0}
+          </h3>
+          <span style={{ fontSize: '12px', color: '#64748b' }}>Registered staff members</span>
+        </div>
+
+        <div className="card" style={{ padding: '20px', borderRadius: '14px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 600 }}>Checked In Today</span>
+            <div style={{ width: '36px', height: '36px', borderRadius: '8px', backgroundColor: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#16a34a' }}>
+              <i className="fa-solid fa-user-check"></i>
+            </div>
+          </div>
+          <h3 style={{ margin: '8px 0 0 0', fontSize: '24px', color: '#16a34a', fontWeight: 800 }}>
+            {metrics.presentToday || 0}
+          </h3>
+          <span style={{ fontSize: '12px', color: '#16a34a' }}>Live biometric punches</span>
+        </div>
+
+        <div className="card" style={{ padding: '20px', borderRadius: '14px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 600 }}>Pending Approvals</span>
+            <div style={{ width: '36px', height: '36px', borderRadius: '8px', backgroundColor: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d97706' }}>
+              <i className="fa-solid fa-clock"></i>
+            </div>
+          </div>
+          <h3 style={{ margin: '8px 0 0 0', fontSize: '24px', color: '#d97706', fontWeight: 800 }}>
+            {metrics.pendingLeaves || 0}
+          </h3>
+          <a href="/hr/leaves" style={{ fontSize: '12px', color: '#007a7a', textDecoration: 'none', fontWeight: 600 }}>
+            Review Leave Requests &rarr;
+          </a>
+        </div>
+
+        <div className="card" style={{ padding: '20px', borderRadius: '14px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 600 }}>On Leave Today</span>
+            <div style={{ width: '36px', height: '36px', borderRadius: '8px', backgroundColor: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#dc2626' }}>
+              <i className="fa-solid fa-calendar-xmark"></i>
+            </div>
+          </div>
+          <h3 style={{ margin: '8px 0 0 0', fontSize: '24px', color: '#dc2626', fontWeight: 800 }}>
+            {metrics.onLeave || 0}
+          </h3>
+          <span style={{ fontSize: '12px', color: '#64748b' }}>Approved leaves</span>
+        </div>
+      </div>
+
+      {/* Main Dashboard Responsive Grid */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
+          gap: '24px',
+          width: '100%',
+          alignItems: 'start',
+        }}
+      >
+        {/* Left Column: Attendance Trend & Activity */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', minWidth: 0 }}>
           {/* Workforce Attendance Trend */}
-          <div className="card" style={{ marginBottom: '20px' }}>
-            <div className="card-header" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="card" style={{ borderRadius: '16px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0', padding: '20px' }}>
+            <div className="card-header" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div>
-                <h2>Workforce Attendance Trend</h2>
-                <p>Organization Overview</p>
+                <h2 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 4px 0', color: '#0f172a' }}>
+                  Workforce Attendance Trend
+                </h2>
+                <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>
+                  {isMonthly ? 'Monthly Attendance Rate' : 'Weekly Attendance Distribution'}
+                </p>
               </div>
               <div className="dropdown" style={{ position: 'relative' }}>
                 <button
                   type="button"
                   className="filter-button"
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  style={{
+                    backgroundColor: '#f1f5f9',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '8px',
+                    padding: '6px 14px',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    color: '#334155',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
                 >
-                  {chartFilter} <i className="fa-solid fa-chevron-down" style={{ marginLeft: '5px' }}></i>
+                  {chartFilter} <i className="fa-solid fa-chevron-down" style={{ fontSize: '11px' }}></i>
                 </button>
                 {isDropdownOpen && (
                   <div
@@ -208,13 +300,14 @@ export default function HRDashboard() {
                       position: 'absolute',
                       right: 0,
                       top: '100%',
-                      marginTop: '5px',
+                      marginTop: '6px',
                       background: 'white',
                       border: '1px solid #e2e8f0',
                       borderRadius: '8px',
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                      zIndex: 10,
+                      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                      zIndex: 20,
                       minWidth: '140px',
+                      overflow: 'hidden',
                     }}
                   >
                     <div
@@ -222,7 +315,15 @@ export default function HRDashboard() {
                         setChartFilter('This Week');
                         setIsDropdownOpen(false);
                       }}
-                      style={{ padding: '10px 15px', cursor: 'pointer', borderBottom: '1px solid #e2e8f0', fontSize: '13px' }}
+                      style={{
+                        padding: '10px 14px',
+                        cursor: 'pointer',
+                        borderBottom: '1px solid #f1f5f9',
+                        fontSize: '13px',
+                        backgroundColor: chartFilter === 'This Week' ? '#f0fdf4' : 'transparent',
+                        color: chartFilter === 'This Week' ? '#166534' : '#334155',
+                        fontWeight: chartFilter === 'This Week' ? 600 : 400,
+                      }}
                     >
                       This Week
                     </div>
@@ -231,7 +332,14 @@ export default function HRDashboard() {
                         setChartFilter('This Month');
                         setIsDropdownOpen(false);
                       }}
-                      style={{ padding: '10px 15px', cursor: 'pointer', fontSize: '13px' }}
+                      style={{
+                        padding: '10px 14px',
+                        cursor: 'pointer',
+                        fontSize: '13px',
+                        backgroundColor: chartFilter === 'This Month' ? '#f0fdf4' : 'transparent',
+                        color: chartFilter === 'This Month' ? '#166534' : '#334155',
+                        fontWeight: chartFilter === 'This Month' ? 600 : 400,
+                      }}
                     >
                       This Month
                     </div>
@@ -239,7 +347,7 @@ export default function HRDashboard() {
                 )}
               </div>
             </div>
-            <div className="chart-placeholder" style={{ position: 'relative', height: '280px', width: '100%', padding: '10px' }}>
+            <div style={{ position: 'relative', height: '280px', width: '100%' }}>
               <Bar
                 data={chartData}
                 options={{
@@ -254,291 +362,323 @@ export default function HRDashboard() {
             </div>
           </div>
 
-          {/* Recent HR Activity */}
-          <div className="card">
-            <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2>Recent HR Activity</h2>
-              <a href="/hr/leaves" className="view-all" style={{ color: '#007a7a', textDecoration: 'none', fontSize: '13px', fontWeight: 600 }}>
-                View All
+          {/* Recent HR Activity & Updates */}
+          <div className="card" style={{ borderRadius: '16px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0', padding: '20px' }}>
+            <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: 700, margin: 0, color: '#0f172a' }}>Recent Activity & Alerts</h2>
+              <a href="/hr/leaves" style={{ color: '#007a7a', textDecoration: 'none', fontSize: '13px', fontWeight: 600 }}>
+                View All &rarr;
               </a>
             </div>
-            <div className="info-row" style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid #f1f5f9' }}>
-              <span style={{ color: 'var(--text, #0f172a)', fontWeight: 500 }}>
-                <i className="fa-solid fa-check-circle" style={{ color: '#007a7a', marginRight: '10px' }}></i>
-                Pending Leaves: {metrics.pendingLeaves || 0}
-              </span>
-              <span style={{ fontSize: '13px', color: '#64748b' }}>Active</span>
-            </div>
-            <div className="info-row" style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0' }}>
-              <span style={{ color: 'var(--text, #0f172a)', fontWeight: 500 }}>
-                <i className="fa-solid fa-user-plus" style={{ color: '#007a7a', marginRight: '10px' }}></i>
-                Active Staff: {metrics.totalEmployees || 0} Registered
-              </span>
-              <span style={{ fontSize: '13px', color: '#64748b' }}>Today</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', backgroundColor: '#f8fafc', borderRadius: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <i className="fa-solid fa-clock-rotate-left" style={{ color: '#d97706' }}></i>
+                  <span style={{ fontSize: '14px', fontWeight: 600, color: '#1e293b' }}>
+                    {metrics.pendingLeaves || 0} Pending Leave Approval{metrics.pendingLeaves === 1 ? '' : 's'}
+                  </span>
+                </div>
+                <a href="/hr/leaves" className="btn btn-outline" style={{ padding: '4px 10px', fontSize: '12px' }}>
+                  Review
+                </a>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', backgroundColor: '#f8fafc', borderRadius: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <i className="fa-solid fa-user-check" style={{ color: '#16a34a' }}></i>
+                  <span style={{ fontSize: '14px', fontWeight: 600, color: '#1e293b' }}>
+                    {metrics.presentToday || 0} Employees Present on Duty
+                  </span>
+                </div>
+                <a href="/hr/attendance" className="btn btn-outline" style={{ padding: '4px 10px', fontSize: '12px' }}>
+                  Logs
+                </a>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', backgroundColor: '#f8fafc', borderRadius: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <i className="fa-solid fa-users" style={{ color: '#007a7a' }}></i>
+                  <span style={{ fontSize: '14px', fontWeight: 600, color: '#1e293b' }}>
+                    {metrics.totalEmployees || 0} Registered Workforce Members
+                  </span>
+                </div>
+                <a href="/hr/employees" className="btn btn-outline" style={{ padding: '4px 10px', fontSize: '12px' }}>
+                  Directory
+                </a>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Right Panel */}
-        <div className="right-panel">
-          {/* HR Daily Attendance & Punch Card */}
-          <div className="card quick-actions-card" style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
-            <div className="card-header" style={{ textAlign: 'left' }}>
-              <h2>My Daily Attendance</h2>
-              <p style={{ color: '#64748b', fontSize: '0.875rem' }}>HR Punch Status & Biometric Times</p>
+        {/* Right Column: Pending Approvals Box, HR Punch, & Payroll */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', minWidth: 0 }}>
+          {/* Prominent Pending Approvals Card (Always Visible) */}
+          <div
+            className="card"
+            style={{
+              borderRadius: '16px',
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              padding: '20px',
+              borderLeft: '5px solid #d97706',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <div>
+                <h2 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 4px 0', color: '#0f172a' }}>
+                  Pending Approvals
+                </h2>
+                <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>
+                  Actions requiring HR manager attention
+                </p>
+              </div>
+              <span
+                style={{
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  padding: '4px 12px',
+                  borderRadius: '12px',
+                  backgroundColor: '#fef3c7',
+                  color: '#d97706',
+                }}
+              >
+                {metrics.pendingLeaves || 0} Pending
+              </span>
             </div>
-            <div className="card-body" style={{ padding: '1.25rem 1rem' }}>
-              {punchFeedback && (
+
+            <div style={{ padding: '12px 16px', backgroundColor: '#fffbeb', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div
                   style={{
-                    padding: '8px 12px',
-                    borderRadius: '8px',
-                    marginBottom: '1rem',
-                    fontSize: '13px',
-                    backgroundColor: punchFeedback.type === 'success' ? '#f0fdf4' : '#fef2f2',
-                    color: punchFeedback.type === 'success' ? '#166534' : '#991b1b',
-                    border: `1px solid ${punchFeedback.type === 'success' ? '#bbf7d0' : '#fecaca'}`,
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '10px',
+                    background: '#fde68a',
+                    color: '#92400e',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'space-between',
+                    justifyContent: 'center',
+                    fontWeight: 700,
+                    fontSize: '15px',
                   }}
                 >
-                  <span>{punchFeedback.text}</span>
-                  <button
-                    onClick={() => setPunchFeedback(null)}
-                    style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0 }}
-                  >
-                    &times;
-                  </button>
+                  {metrics.pendingLeaves || 0}
                 </div>
-              )}
-              <p style={{ marginBottom: '1rem', color: '#475569', fontWeight: 500, fontSize: '13px' }}>
-                {punchData.status === 'CHECKED_OUT'
-                  ? 'Shift completed for today.'
-                  : punchData.status === 'CHECKED_IN'
-                  ? 'Currently clocked in.'
-                  : 'You have not checked in yet today.'}
-              </p>
-              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                <button
-                  type="button"
-                  onClick={handlePunchIn}
-                  className="btn btn-primary"
-                  disabled={punchData.status === 'CHECKED_IN' || punchData.status === 'CHECKED_OUT' || punchLoading}
-                  style={{
-                    padding: '8px 16px',
-                    backgroundColor: punchData.status === 'CHECKED_IN' || punchData.status === 'CHECKED_OUT' ? '#94a3b8' : '#007a7a',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: punchData.status === 'CHECKED_IN' || punchData.status === 'CHECKED_OUT' ? 'not-allowed' : 'pointer',
-                    fontWeight: 600,
-                    fontSize: '13px',
-                  }}
-                >
-                  {punchData.status === 'CHECKED_IN' ? (punchData.checkInTime ? `In (${punchData.checkInTime})` : 'Checked In') : 'Check In'}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handlePunchOut}
-                  className="btn btn-secondary"
-                  disabled={punchData.status !== 'CHECKED_IN' || punchLoading}
-                  style={{
-                    padding: '8px 16px',
-                    backgroundColor: punchData.status !== 'CHECKED_IN' ? '#94a3b8' : '#0284c7',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: punchData.status !== 'CHECKED_IN' ? 'not-allowed' : 'pointer',
-                    fontWeight: 600,
-                    fontSize: '13px',
-                  }}
-                >
-                  {punchData.status === 'CHECKED_OUT' ? (punchData.checkOutTime ? `Out (${punchData.checkOutTime})` : 'Checked Out') : 'Check Out'}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleResetAttendance}
-                  className="btn"
-                  style={{
-                    background: '#f8fafc',
-                    color: '#64748b',
-                    border: '1px solid #e2e8f0',
-                    fontSize: '0.8rem',
-                    padding: '6px 10px',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                  }}
-                  title="Reset Attendance (Test)"
-                >
-                  <i className="fa-solid fa-rotate-left"></i>
-                </button>
+                <div>
+                  <h4 style={{ margin: '0 0 2px 0', fontSize: '14px', color: '#92400e', fontWeight: 700 }}>
+                    Leave Application Requests
+                  </h4>
+                  <span style={{ fontSize: '12px', color: '#78350f' }}>
+                    {metrics.pendingLeaves > 0 ? 'Pending employee leave approvals' : 'All leave applications up to date'}
+                  </span>
+                </div>
               </div>
+              <a
+                href="/hr/leaves"
+                className="btn btn-primary"
+                style={{ padding: '8px 16px', fontSize: '13px', whiteSpace: 'nowrap', backgroundColor: '#d97706', borderColor: '#d97706' }}
+              >
+                Open Leaves
+              </a>
             </div>
           </div>
 
-          {/* Generate Employee Payroll Card */}
-          <div className="card payroll-generation-card" style={{ marginBottom: '1.5rem' }}>
-            <div className="card-header">
-              <h2>Generate Employee Payroll</h2>
-              <p style={{ color: '#64748b', fontSize: '0.875rem' }}>Process monthly salary</p>
+          {/* HR Daily Attendance & Punch Card */}
+          <div className="card" style={{ borderRadius: '16px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0', padding: '20px', textAlign: 'center' }}>
+            <div className="card-header" style={{ textAlign: 'left', marginBottom: '14px' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 4px 0', color: '#0f172a' }}>My Daily Attendance</h2>
+              <p style={{ color: '#64748b', fontSize: '13px', margin: 0 }}>HR Punch Status & Biometric Times</p>
             </div>
-            <div className="card-body" style={{ padding: '1.5rem' }}>
-              {payrollMessage && (
-                <div
-                  style={{
-                    padding: '10px 14px',
-                    borderRadius: '8px',
-                    marginBottom: '12px',
-                    fontSize: '13px',
-                    backgroundColor: payrollMessage.type === 'success' ? '#dcfce7' : '#fee2e2',
-                    color: payrollMessage.type === 'success' ? '#166534' : '#991b1b',
-                  }}
+            {punchFeedback && (
+              <div
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  marginBottom: '12px',
+                  fontSize: '13px',
+                  backgroundColor: punchFeedback.type === 'success' ? '#f0fdf4' : '#fef2f2',
+                  color: punchFeedback.type === 'success' ? '#166534' : '#991b1b',
+                  border: `1px solid ${punchFeedback.type === 'success' ? '#bbf7d0' : '#fecaca'}`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <span>{punchFeedback.text}</span>
+                <button
+                  onClick={() => setPunchFeedback(null)}
+                  style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0 }}
                 >
-                  {payrollMessage.text}
-                </div>
-              )}
-              <form onSubmit={handleGeneratePayroll} style={{ display: 'grid', gap: '1rem' }}>
-                <div className="form-group">
-                  <label style={{ fontWeight: 500, display: 'block', marginBottom: '0.5rem', fontSize: '13px' }}>
-                    Select Employee
+                  &times;
+                </button>
+              </div>
+            )}
+            <p style={{ marginBottom: '14px', color: '#475569', fontWeight: 500, fontSize: '13px' }}>
+              {punchData.status === 'CHECKED_OUT'
+                ? 'Shift completed for today.'
+                : punchData.status === 'CHECKED_IN'
+                ? 'Currently clocked in.'
+                : 'You have not checked in yet today.'}
+            </p>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                onClick={handlePunchIn}
+                className="btn btn-primary"
+                disabled={punchData.status === 'CHECKED_IN' || punchData.status === 'CHECKED_OUT' || punchLoading}
+                style={{
+                  padding: '10px 18px',
+                  backgroundColor: punchData.status === 'CHECKED_IN' || punchData.status === 'CHECKED_OUT' ? '#94a3b8' : '#007a7a',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: punchData.status === 'CHECKED_IN' || punchData.status === 'CHECKED_OUT' ? 'not-allowed' : 'pointer',
+                  fontWeight: 600,
+                  fontSize: '13px',
+                }}
+              >
+                {punchData.status === 'CHECKED_IN' ? (punchData.checkInTime ? `In (${punchData.checkInTime})` : 'Checked In') : 'Check In'}
+              </button>
+
+              <button
+                type="button"
+                onClick={handlePunchOut}
+                className="btn btn-secondary"
+                disabled={punchData.status !== 'CHECKED_IN' || punchLoading}
+                style={{
+                  padding: '10px 18px',
+                  backgroundColor: punchData.status !== 'CHECKED_IN' ? '#94a3b8' : '#0284c7',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: punchData.status !== 'CHECKED_IN' ? 'not-allowed' : 'pointer',
+                  fontWeight: 600,
+                  fontSize: '13px',
+                }}
+              >
+                {punchData.status === 'CHECKED_OUT' ? (punchData.checkOutTime ? `Out (${punchData.checkOutTime})` : 'Checked Out') : 'Check Out'}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleResetAttendance}
+                className="btn"
+                style={{
+                  background: '#f8fafc',
+                  color: '#64748b',
+                  border: '1px solid #e2e8f0',
+                  fontSize: '13px',
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                }}
+                title="Reset Attendance (Test)"
+              >
+                <i className="fa-solid fa-rotate-left"></i>
+              </button>
+            </div>
+          </div>
+
+          {/* Quick Payroll Generation Card */}
+          <div className="card" style={{ borderRadius: '16px', backgroundColor: '#ffffff', border: '1px solid #e2e8f0', padding: '20px' }}>
+            <div className="card-header" style={{ marginBottom: '14px' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 4px 0', color: '#0f172a' }}>Quick Generate Payroll</h2>
+              <p style={{ color: '#64748b', fontSize: '13px', margin: 0 }}>Process individual monthly payslip</p>
+            </div>
+            {payrollMessage && (
+              <div
+                style={{
+                  padding: '10px 14px',
+                  borderRadius: '8px',
+                  marginBottom: '12px',
+                  fontSize: '13px',
+                  backgroundColor: payrollMessage.type === 'success' ? '#dcfce7' : '#fee2e2',
+                  color: payrollMessage.type === 'success' ? '#166534' : '#991b1b',
+                }}
+              >
+                {payrollMessage.text}
+              </div>
+            )}
+            <form onSubmit={handleGeneratePayroll} style={{ display: 'grid', gap: '12px' }}>
+              <div>
+                <label style={{ fontWeight: 600, display: 'block', marginBottom: '6px', fontSize: '13px', color: '#334155' }}>
+                  Select Employee
+                </label>
+                <select
+                  value={selectedUserId}
+                  onChange={(e) => setSelectedUserId(e.target.value)}
+                  required
+                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '13px', outline: 'none' }}
+                >
+                  <option value="" disabled>Select Employee</option>
+                  {employees.map((emp) => (
+                    <option key={emp.id} value={emp.id}>
+                      {emp.fullName || emp.email} ({emp.employeeId || 'Staff'})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label style={{ fontWeight: 600, display: 'block', marginBottom: '6px', fontSize: '13px', color: '#334155' }}>
+                    Month
                   </label>
                   <select
-                    className="form-control"
-                    value={selectedUserId}
-                    onChange={(e) => setSelectedUserId(e.target.value)}
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(e.target.value)}
                     required
-                    style={{ width: '100%', padding: '0.6rem', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '14px' }}
+                    style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '13px', outline: 'none' }}
                   >
-                    <option value="" disabled>Select Employee</option>
-                    {employees.map((emp) => (
-                      <option key={emp.id} value={emp.id}>
-                        {emp.fullName || emp.email} ({emp.employeeId || 'Staff'})
-                      </option>
-                    ))}
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6">June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
                   </select>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <div className="form-group">
-                    <label style={{ fontWeight: 500, display: 'block', marginBottom: '0.5rem', fontSize: '13px' }}>
-                      Month
-                    </label>
-                    <select
-                      className="form-control"
-                      value={selectedMonth}
-                      onChange={(e) => setSelectedMonth(e.target.value)}
-                      required
-                      style={{ width: '100%', padding: '0.6rem', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '14px' }}
-                    >
-                      <option value="1">January</option>
-                      <option value="2">February</option>
-                      <option value="3">March</option>
-                      <option value="4">April</option>
-                      <option value="5">May</option>
-                      <option value="6">June</option>
-                      <option value="7">July</option>
-                      <option value="8">August</option>
-                      <option value="9">September</option>
-                      <option value="10">October</option>
-                      <option value="11">November</option>
-                      <option value="12">December</option>
-                    </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label style={{ fontWeight: 500, display: 'block', marginBottom: '0.5rem', fontSize: '13px' }}>
-                      Year
-                    </label>
-                    <input
-                      type="number"
-                      className="form-control"
-                      value={selectedYear}
-                      onChange={(e) => setSelectedYear(e.target.value)}
-                      required
-                      style={{ width: '100%', padding: '0.6rem', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '14px' }}
-                    />
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={payrollLoading}
-                  style={{
-                    width: '100%',
-                    marginTop: '0.5rem',
-                    padding: '0.75rem',
-                    backgroundColor: '#007a7a',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    fontWeight: 600,
-                  }}
-                >
-                  {payrollLoading ? 'Processing...' : 'Process Payroll'}
-                </button>
-              </form>
-            </div>
-          </div>
-
-          {/* Department Updates */}
-          <div className="card" style={{ marginBottom: '1.5rem' }}>
-            <div className="card-header">
-              <h2>Department Updates</h2>
-            </div>
-            <div className="status-list" style={{ padding: '1rem 0' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                <div className="profile-avatar" style={{ width: '40px', height: '40px', fontSize: '14px' }}>
-                  <i className="fa-solid fa-user-plus"></i>
-                </div>
                 <div>
-                  <h4 style={{ fontSize: '14px', margin: '0 0 4px 0', color: '#0f172a' }}>
-                    {metrics.totalEmployees || 0} Employees Enrolled
-                  </h4>
-                  <p style={{ fontSize: '12px', color: 'var(--text-light, #64748b)', margin: 0 }}>
-                    Organization-wide Workforce
-                  </p>
+                  <label style={{ fontWeight: 600, display: 'block', marginBottom: '6px', fontSize: '13px', color: '#334155' }}>
+                    Year
+                  </label>
+                  <input
+                    type="number"
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(e.target.value)}
+                    required
+                    style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
+                  />
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Pending Approvals */}
-          <div className="card flex-1">
-            <div className="card-header">
-              <h2>Pending Approvals</h2>
-            </div>
-            <div className="status-list" style={{ padding: '1rem 0' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                <div
-                  className="event-date"
-                  style={{
-                    width: '48px',
-                    height: '48px',
-                    borderRadius: '12px',
-                    background: '#fef3c7',
-                    color: '#d97706',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700 }}>{metrics.pendingLeaves || 0}</h3>
-                  <span style={{ fontSize: '10px', fontWeight: 600 }}>LVS</span>
-                </div>
-                <div>
-                  <h4 style={{ fontSize: '14px', margin: '0 0 4px 0', color: '#0f172a' }}>Leave Requests</h4>
-                  <p style={{ fontSize: '12px', color: 'var(--text-light, #64748b)', margin: 0 }}>
-                    Require Manager Approval
-                  </p>
-                </div>
-              </div>
-            </div>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={payrollLoading}
+                style={{
+                  width: '100%',
+                  marginTop: '4px',
+                  padding: '10px',
+                  backgroundColor: '#007a7a',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  fontSize: '13px',
+                }}
+              >
+                {payrollLoading ? 'Processing...' : 'Process Payroll'}
+              </button>
+            </form>
           </div>
         </div>
       </div>

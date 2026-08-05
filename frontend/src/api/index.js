@@ -130,6 +130,11 @@ export const attendanceAPI = {
   resetAttendance: () => request('/attendance/reset', { method: 'POST' }),
 
   resetToday: () => request('/attendance/reset', { method: 'POST' }),
+
+  resetOrgAttendance: (date) => {
+    const q = date ? `?date=${date}` : '';
+    return request(`/attendance/reset-org${q}`, { method: 'POST' });
+  },
   
   getMyAttendance: (month, year) => {
     let q = '';
@@ -199,7 +204,13 @@ export const projectAPI = {
 export const payrollAPI = {
   getMyPayslips: () => request('/payroll/my-payslips'),
   
-  getAllPayslips: () => request('/payroll/hr/all'),
+  getAllPayslips: (month, year) => {
+    let q = '';
+    if (month && year) q = `?month=${month}&year=${year}`;
+    else if (month) q = `?month=${month}`;
+    else if (year) q = `?year=${year}`;
+    return request(`/payroll/hr/all${q}`);
+  },
 
   generatePayroll: (data) => request('/payroll/hr/generate', {
     method: 'POST',

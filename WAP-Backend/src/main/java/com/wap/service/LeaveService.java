@@ -2,6 +2,7 @@ package com.wap.service;
 
 import com.wap.dto.LeaveResponseDTO;
 import com.wap.dto.LeaveSubmitRequest;
+import com.wap.dto.LeaveSummaryDTO;
 import com.wap.entity.LeaveRequest;
 import com.wap.entity.User;
 import com.wap.repository.LeaveRequestRepository;
@@ -9,6 +10,7 @@ import com.wap.repository.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,10 +19,12 @@ public class LeaveService {
 
     private final LeaveRequestRepository leaveRepository;
     private final UserRepository userRepository;
+    private final AuditLogService auditLogService;
 
-    public LeaveService(LeaveRequestRepository leaveRepository, UserRepository userRepository) {
+    public LeaveService(LeaveRequestRepository leaveRepository, UserRepository userRepository, AuditLogService auditLogService) {
         this.leaveRepository = leaveRepository;
         this.userRepository = userRepository;
+        this.auditLogService = auditLogService;
     }
 
     // Helper method to get the currently logged-in user
@@ -37,42 +41,74 @@ public class LeaveService {
 
         LeaveRequest leave = new LeaveRequest();
         leave.setUser(user);
-        leave.setLeaveType(request.getLeaveType());
+        leave.setLeaveType(request.getLeaveType() != null ? request.getLeaveType().toUpperCase() : "CASUAL");
         leave.setStartDate(request.getStartDate());
         leave.setEndDate(request.getEndDate());
         leave.setReason(request.getReason());
         leave.setStatus("PENDING");
 
         leaveRepository.save(leave);
+        auditLogService.log("Submitted Leave Request (" + leave.getLeaveType() + ")", user);
     }
 
     // Employee: View their own leave history
     public List<LeaveResponseDTO> getMyLeaves() {
         User user = getAuthenticatedUser();
         List<LeaveRequest> requests = leaveRepository.findByUser_IdOrderByCreatedAtDesc(user.getId());
-
         return requests.stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
-    // Employee: Get live leave summary KPI totals
-    public com.wap.dto.LeaveSummaryDTO getLeaveSummary() {
+    // Employee: Get live leave summary KPI totals and decremented balances
+    public LeaveSummaryDTO getLeaveSummary() {
         User user = getAuthenticatedUser();
         List<LeaveRequest> requests = leaveRepository.findByUser_IdOrderByCreatedAtDesc(user.getId());
 
-        int totalLeaves = 24;
-        int usedLeaves = 0;
+        int initialCasual = 8;
+        int initialSick = 6;
+        int initialPaid = 12;
+        int initialTotal = 26;
+
+        int usedCasual = 0;
+        int usedSick = 0;
+        int usedPaid = 0;
         int pendingLeaves = 0;
 
         for (LeaveRequest req : requests) {
+            long days = 1;
+            if (req.getStartDate() != null && req.getEndDate() != null) {
+                days = Math.max(1, ChronoUnit.DAYS.between(req.getStartDate(), req.getEndDate()) + 1);
+            }
+
             if ("APPROVED".equalsIgnoreCase(req.getStatus())) {
-                usedLeaves++;
+                String type = req.getLeaveType() != null ? req.getLeaveType().toUpperCase() : "CASUAL";
+                if (type.contains("CASUAL")) {
+                    usedCasual += days;
+                } else if (type.contains("SICK") || type.contains("MED")) {
+                    usedSick += days;
+                } else {
+                    usedPaid += days;
+                }
             } else if ("PENDING".equalsIgnoreCase(req.getStatus())) {
                 pendingLeaves++;
             }
         }
 
-        int remainingLeaves = Math.max(0, totalLeaves - usedLeaves);
-        return new com.wap.dto.LeaveSummaryDTO(totalLeaves, usedLeaves, remainingLeaves, pendingLeaves);
+        int balanceCasual = Math.max(0, initialCasual - usedCasual);
+        int balanceSick = Math.max(0, initialSick - usedSick);
+        int balancePaid = Math.max(0, initialPaid - usedPaid);
+        int totalUsed = usedCasual + usedSick + usedPaid;
+        int totalAvailable = Math.max(0, initialTotal - totalUsed);
+
+        return new LeaveSummaryDTO(
+                balanceCasual,
+                balanceSick,
+                balancePaid,
+                totalAvailable,
+                initialTotal,
+                totalUsed,
+                totalAvailable,
+                pendingLeaves
+        );
     }
 
     // HR/Admin: View all leave submissions across organization
@@ -111,13 +147,16 @@ public class LeaveService {
             leave.setRejectionReason(reason);
         }
         leaveRepository.save(leave);
+
+        String applicantName = leave.getUser() != null ? leave.getUser().getFullName() : "Employee";
+        auditLogService.log(newStatus.toUpperCase() + " Leave for " + applicantName, user);
     }
 
     // Helper method to convert Entity to DTO
     private LeaveResponseDTO mapToDTO(LeaveRequest leave) {
         return new LeaveResponseDTO(
                 leave.getId(),
-                leave.getUser().getFullName(),
+                leave.getUser() != null ? leave.getUser().getFullName() : "Staff Member",
                 leave.getLeaveType(),
                 leave.getStartDate(),
                 leave.getEndDate(),

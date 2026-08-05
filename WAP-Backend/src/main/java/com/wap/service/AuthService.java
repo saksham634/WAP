@@ -29,6 +29,7 @@ public class AuthService {
     private final OrganizationRepository orgRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuditLogService auditLogService;
 
     public AuthService(AuthenticationManager authenticationManager,
                        CustomUserDetailsService userDetailsService,
@@ -37,7 +38,8 @@ public class AuthService {
                        UserRepository userRepository,
                        OrganizationRepository orgRepository,
                        RoleRepository roleRepository,
-                       PasswordEncoder passwordEncoder) {
+                       PasswordEncoder passwordEncoder,
+                       AuditLogService auditLogService) {
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.jwtUtil = jwtUtil;
@@ -46,6 +48,7 @@ public class AuthService {
         this.orgRepository = orgRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.auditLogService = auditLogService;
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -64,6 +67,8 @@ public class AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + request.getEmail()));
         
+        auditLogService.log("User Logged In (" + user.getRole().getRoleName() + ")", user);
+
         return AuthResponse.builder()
                 .token(accessToken) // backward compatibility
                 .accessToken(accessToken)

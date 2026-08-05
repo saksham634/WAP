@@ -21,11 +21,13 @@ public class DataInitializer implements CommandLineRunner {
     private final LeaveRequestRepository leaveRequestRepository;
     private final DirectMessageRepository directMessageRepository;
     private final ProjectRepository projectRepository;
+    private final AuditLogRepository auditLogRepository;
 
     public DataInitializer(OrganizationRepository orgRepository, RoleRepository roleRepository,
                            UserRepository userRepository, PayrollRepository payrollRepository,
                            AttendanceRepository attendanceRepository, LeaveRequestRepository leaveRequestRepository,
-                           DirectMessageRepository directMessageRepository, ProjectRepository projectRepository) {
+                           DirectMessageRepository directMessageRepository, ProjectRepository projectRepository,
+                           AuditLogRepository auditLogRepository) {
         this.orgRepository = orgRepository;
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
@@ -34,11 +36,18 @@ public class DataInitializer implements CommandLineRunner {
         this.leaveRequestRepository = leaveRequestRepository;
         this.directMessageRepository = directMessageRepository;
         this.projectRepository = projectRepository;
+        this.auditLogRepository = auditLogRepository;
     }
 
     @Override
     @Transactional
     public void run(String... args) {
+        // 0. Seed initial system audit logs if empty
+        if (auditLogRepository.count() == 0) {
+            auditLogRepository.save(new com.wap.entity.AuditLog("System Core Services Initialized", "System Engine", "system@wap.com"));
+            auditLogRepository.save(new com.wap.entity.AuditLog("Security Policies Loaded (Role-Based Access Control)", "Security Policy Manager", "security@wap.com"));
+            auditLogRepository.save(new com.wap.entity.AuditLog("Workforce Portal Operational", "System Admin", "admin@workforce.com"));
+        }
         // 1. Initialize or get Organization
         orgRepository.findAll().stream().findFirst().orElseGet(() -> {
             Organization newOrg = new Organization();

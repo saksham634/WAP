@@ -36,8 +36,9 @@ public class PayrollController {
 
     @Operation(summary = "Get all organization payslips (HR / Admin)")
     @GetMapping({"/hr/all", "/all"})
-    public ResponseEntity<?> getAllOrganizationPayslips() {
-        return ResponseEntity.ok(payrollService.getAllOrganizationPayslips());
+    public ResponseEntity<?> getAllOrganizationPayslips(@RequestParam(required = false) Integer month,
+                                                        @RequestParam(required = false) Integer year) {
+        return ResponseEntity.ok(payrollService.getAllOrganizationPayslips(month, year));
     }
 
     @Operation(summary = "Update employee salary structure (base, allowances, deductions)")

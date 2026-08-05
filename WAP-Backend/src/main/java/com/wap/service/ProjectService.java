@@ -24,11 +24,14 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final AttendanceRepository attendanceRepository;
+    private final AuditLogService auditLogService;
 
-    public ProjectService(ProjectRepository projectRepository, UserRepository userRepository, AttendanceRepository attendanceRepository) {
+    public ProjectService(ProjectRepository projectRepository, UserRepository userRepository,
+                          AttendanceRepository attendanceRepository, AuditLogService auditLogService) {
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.attendanceRepository = attendanceRepository;
+        this.auditLogService = auditLogService;
     }
 
     private User getAuthenticatedUser() {
@@ -70,6 +73,7 @@ public class ProjectService {
         project.setAssignedUsers(assigned);
 
         projectRepository.save(project);
+        auditLogService.log("Created Project: " + project.getTitle(), user);
         return mapToDTO(project);
     }
 
@@ -98,6 +102,7 @@ public class ProjectService {
         }
 
         projectRepository.save(project);
+        auditLogService.log("Updated Project: " + project.getTitle(), user);
         return mapToDTO(project);
     }
 
@@ -110,7 +115,9 @@ public class ProjectService {
             throw new RuntimeException("Access denied to project.");
         }
 
+        String title = project.getTitle();
         projectRepository.delete(project);
+        auditLogService.log("Deleted Project: " + title, user);
     }
 
     @Transactional(readOnly = true)
@@ -209,4 +216,3 @@ public class ProjectService {
         );
     }
 }
-

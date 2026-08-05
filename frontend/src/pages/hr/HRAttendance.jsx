@@ -15,8 +15,8 @@ export default function HRAttendance() {
   const [punchLoading, setPunchLoading] = useState(false);
   const [feedback, setFeedback] = useState(null);
 
-  const loadData = async () => {
-    setLoading(true);
+  const loadData = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       // 1. My punch status
       try {
@@ -59,7 +59,9 @@ export default function HRAttendance() {
   };
 
   useEffect(() => {
-    loadData();
+    loadData(false);
+    const interval = setInterval(() => loadData(true), 4500);
+    return () => clearInterval(interval);
   }, [selectedDate]);
 
   const handlePunchIn = async () => {
@@ -93,8 +95,9 @@ export default function HRAttendance() {
   const handleResetAttendance = async () => {
     setFeedback(null);
     try {
+      await attendanceAPI.resetOrgAttendance(selectedDate);
       await attendanceAPI.resetAttendance();
-      setFeedback({ type: 'success', text: 'Attendance reset! You can now check in again.' });
+      setFeedback({ type: 'success', text: `Attendance for ${selectedDate} reset across all staff!` });
       loadData();
     } catch (err) {
       setFeedback({ type: 'error', text: err.message || 'Reset failed.' });

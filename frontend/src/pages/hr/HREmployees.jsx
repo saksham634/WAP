@@ -44,12 +44,24 @@ export default function HREmployees() {
     }
   };
 
+  const uniqueDepartments = Array.from(
+    new Set(
+      employees
+        .map((e) => (e.department || e.designation || 'General').trim())
+        .filter(Boolean)
+    )
+  ).sort();
+
   const filtered = employees.filter((emp) => {
     const matchesSearch =
       (emp.fullName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       (emp.email || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       (emp.employeeId || '').toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesDept = deptFilter === 'ALL' || emp.department === deptFilter;
+    
+    const empDept = (emp.department || emp.designation || 'General').trim().toLowerCase();
+    const filterLower = deptFilter.trim().toLowerCase();
+    const matchesDept = deptFilter === 'ALL' || empDept === filterLower || empDept.includes(filterLower) || filterLower.includes(empDept);
+
     return matchesSearch && matchesDept;
   });
 
@@ -114,11 +126,11 @@ export default function HREmployees() {
           }}
         >
           <option value="ALL">All Departments</option>
-          <option value="Engineering">Engineering</option>
-          <option value="Human Resources">Human Resources</option>
-          <option value="Marketing">Marketing</option>
-          <option value="Finance">Finance</option>
-          <option value="Sales">Sales</option>
+          {uniqueDepartments.map((dept) => (
+            <option key={dept} value={dept}>
+              {dept}
+            </option>
+          ))}
         </select>
 
         {employees.length > 0 && (

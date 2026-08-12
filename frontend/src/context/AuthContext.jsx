@@ -106,7 +106,7 @@ export function AuthProvider({ children }) {
     const refreshToken = localStorage.getItem('refreshToken');
     if (refreshToken) {
       // Best-effort asynchronous token revocation
-      fetch('http://localhost:8080/api/auth/logout', {
+      fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/logout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refreshToken }),

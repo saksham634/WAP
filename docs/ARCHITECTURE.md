@@ -37,7 +37,7 @@ flowchart TB
 
     subgraph DataLayer ["Persistence & External Services"]
         MySQL[("MySQL 8.0+ Enterprise Database<br/>- InnoDB Storage Engine<br/>- UTF8MB4 Encoding<br/>- Foreign Key Cascades & Indexes")]
-        SMTP["SMTP Mail Server (Gmail / SendGrid / AWS SES)"]
+        SMTP["SMTP Mail Server (Gmail / SendGrid)"]
     end
 
     SPA -->|HTTPS / REST API Requests| Nginx
